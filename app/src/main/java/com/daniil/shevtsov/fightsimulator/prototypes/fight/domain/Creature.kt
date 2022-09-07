@@ -13,6 +13,9 @@ data class Creature(
     val brokenParts: List<BodyPart>
         get() = bodyParts.filter { it.name in brokenPartsSet }
 
+    val functionalParts: List<BodyPart>
+        get() = bodyParts.filter { it.name !in missingPartsSet }
+
     fun firstPart() = bodyParts.first()
 
 }

@@ -57,6 +57,32 @@ internal class FightFunctionalCoreTest {
     }
 
     @Test
+    fun `should not select slashed part when clicked`() {
+        val leftHand = bodyPart(name = "Left Hand")
+        val rightHand = bodyPart(name = "Right Hand")
+        val initialState = normalFullState(
+            bodyParts = listOf(leftHand, rightHand),
+            controlledPartName = rightHand.name,
+            targetPartName = leftHand.name,
+            missingParts = listOf(leftHand.name)
+        )
+        val state = fightFunctionalCore(
+            state = initialState,
+            action = FightAction.SelectBodyPart(
+                creatureId = initialState.controlledActorId,
+                partName = leftHand.name
+            )
+        )
+
+        assertThat(state)
+            .prop(FightState::selections)
+            .containsAll(
+                initialState.controlledActorId to rightHand.name,
+                initialState.targetCreature.id to leftHand.name,
+            )
+    }
+
+    @Test
     fun `should display body part actions when selected player and enemy parts`() {
         val initialState = normalFullState()
         val state = fightFunctionalCore(
@@ -334,36 +360,46 @@ internal class FightFunctionalCoreTest {
     }
 
     fun normalFullState(
-        controlled: String? = null
+        controlled: String = "Player",
+        bodyParts: List<BodyPart> = normalBody(),
+        controlledPartName: String = "Right Hand",
+        targetPartName: String = "Head",
+        missingParts: List<String> = emptyList(),
     ): FightState {
-        val head = bodyPart(name = "Head")
-        val rightHand = bodyPart(name = "Right Hand", attackActions = listOf(AttackAction.Punch))
         val player = creature(
             id = "Player",
             actor = Actor.Player,
             name = "Player",
-            bodyParts = listOf(head, rightHand),
+            missingPartSet = missingParts.toSet(),
+            bodyParts = bodyParts,
         )
         val enemy = creature(
             id = "Enemy",
             actor = Actor.Enemy,
             name = "Enemy",
-            bodyParts = listOf(head, rightHand)
+            bodyParts = bodyParts
         )
         return fightState(
-            controlledActorId = controlled ?: "Player",
+            controlledActorId = controlled,
             actors = listOf(player, enemy),
             selections = mapOf(
                 player.id to when (controlled) {
-                    player.id -> rightHand.name
-                    else -> head.name
+                    player.id -> controlledPartName
+                    else -> targetPartName
                 },
                 enemy.id to when (controlled) {
-                    enemy.id -> rightHand.name
-                    else -> head.name
+                    enemy.id -> controlledPartName
+                    else -> targetPartName
                 },
             )
         )
+    }
+
+    private fun normalBody(): List<BodyPart> {
+        val head = bodyPart(name = "Head")
+        val rightHand = bodyPart(name = "Right Hand", attackActions = listOf(AttackAction.Punch))
+        val slashedLeftHand = bodyPart(name = "Left Hand")
+        return listOf(head, rightHand, slashedLeftHand)
     }
 
 }
