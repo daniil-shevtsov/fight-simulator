@@ -26,9 +26,12 @@ data class FightState(
             emptyList()
         }.map(::Command)
 
+//    private val Creature.selectedBodyPart
+//        get() = bodyParts.find { it.name == selections[id] }
+//            ?: bodyParts.first()
     private val Creature.selectedBodyPart
-        get() = bodyParts.find { it.name == selections[id] }
-            ?: bodyParts.first()
+        get() = functionalParts.find { it.name == selections[id] }
+            ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Item?.attackActionsWithThrow: List<AttackAction>
         get() = this?.attackActions?.let { it + listOf(AttackAction.Throw) }.orEmpty()

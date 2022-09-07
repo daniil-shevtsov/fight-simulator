@@ -219,6 +219,10 @@ internal class FightFunctionalCoreTest {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
                 .containsOnly(initialState.state.targetBodyPart.name)
+            prop(FightState::targetBodyPart)
+                .prop(BodyPart::name)
+                .isNotEqualTo(initialState.state.targetBodyPart.name)
+
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
@@ -237,7 +241,7 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
-                .containsOnly(state.targetBodyPart.name)
+                .containsOnly(initialState.state.targetBodyPart.name)
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
