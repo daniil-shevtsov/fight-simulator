@@ -14,7 +14,11 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         name = bodyPart.name,
                         holding = bodyPart.holding,
                         contained = bodyPart.containedBodyParts,
-                        isSelected = state.selections[creature.id] == bodyPart.name,
+                        isSelected = when(creature.id) {
+                            state.targetCreature.id -> state.targetBodyPart.name == bodyPart.name
+                            state.controlledCreature.id -> state.controlledBodyPart.name == bodyPart.name
+                            else -> false
+                        },
                         statuses = listOfNotNull(
                             BodyPartStatus.Missing.takeIf { bodyPart.name in creature.missingPartsSet },
                             BodyPartStatus.Broken.takeIf { bodyPart.name in creature.brokenPartsSet },

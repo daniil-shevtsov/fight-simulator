@@ -90,11 +90,38 @@ internal class FightPresentationMappingTest {
             }
     }
 
+    @Test
+    fun `should display as selected only functional body parts`() {
+        val initialState = fullNormalState().let { state ->
+            state.copy(
+                selections = mapOf(
+                    state.targetCreature.id to state.targetCreature.missingParts.first().name
+                )
+            )
+        }
+        val viewState = fightPresentationMapping(
+            state = initialState
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::actors)
+            .all {
+                index(1)
+                    .prop(CreatureMenu::bodyParts)
+                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .containsAll(
+                        initialState.targetCreature.functionalParts.first().name to true,
+                        initialState.targetCreature.missingParts.first().name to false,
+                    )
+            }
+    }
+
     private fun fullNormalState(): FightState {
-        val playerBodyPart = bodyPart(name = "lol", attackActions = listOf(AttackAction.Strike))
+        val playerBodyPart = bodyPart(name = "hand", attackActions = listOf(AttackAction.Strike))
         val skull = bodyPart(name = "skull")
-        val enemyBodyPart = bodyPart(name = "kek", containedBodyParts = setOf(skull.name))
-        val missingBodyPart = bodyPart(name = "cheburek")
+        val enemyBodyPart = bodyPart(name = "head", containedBodyParts = setOf(skull.name))
+        val missingBodyPart = bodyPart(name = "hand")
         val player =
             creature(
                 id = "playerId",
