@@ -25,6 +25,7 @@ interface FightWeaponTest {
             .prop(FightState::availableCommands)
             .extracting(Command::attackAction)
             .containsExactly(
+                AttackAction.Punch,
                 AttackAction.Slash,
                 AttackAction.Stab,
                 AttackAction.Pommel,
@@ -178,66 +179,19 @@ interface FightWeaponTest {
     private fun stateForItemAttack(): TestState.AttackWithItem {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
-        val left = "Player"
-        val right = "Enemy"
-        val knife = item(
-            id = 0L,
-            name = "Knife",
-            attackActions = listOf(
-                AttackAction.Slash,
-                AttackAction.Stab,
-                AttackAction.Pommel,
-            )
-        )
-        val leftActorKnife = knife
-        val rightActorKnife = knife.copy(id = ItemId(1L))
-        val bodyParts = listOf(
-            bodyPart(
-                id = 0L,
-                name = "Right Hand",
-            ),
-            bodyPart(id = 1L, name = "Skull"),
-            bodyPart(id = 2L, name = "Head", containedBodyParts = setOf(BodyPartId(1L))),
-        )
-        val leftActorBodyParts = bodyParts.map { bodyPart ->
-            when (bodyPart.name) {
-                "Right Hand" -> bodyPart.copy(holding = leftActorKnife)
-                else -> bodyPart
-            }
-        }
-        val rightActorBodyParts = bodyParts
-            .map { bodyPart ->
-                bodyPart.copy(
-                    id = BodyPartId(bodyPart.id.raw + bodyParts.size),
-                    containedBodyParts = bodyPart.containedBodyParts.map { BodyPartId(it.raw + bodyParts.size) }
-                        .toSet(),
-                    holding = rightActorKnife,
-                )
-            }
-        val leftActor = creature(
-            id = left,
-            name = left,
-            actor = Actor.Player,
-            bodyParts = leftActorBodyParts,
-        )
-        val rightActor = creature(
-            id = right,
-            name = right,
-            actor = Actor.Enemy,
-            bodyParts = rightActorBodyParts,
-        )
+        val leftActor = initialState.actors.first().copy(name = "Player")
+        val rightActor = initialState.actors.last().copy(name = "Enemy")
 
-        val state = fightState(
+        val state = initialState.copy(
             controlledActorId = controlledActorName,
-            actors = listOf(leftActor, rightActor),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {
-                    controlledActorName -> leftActorBodyParts.find { it.name == "Right Hand" }!!.id
-                    else -> leftActorBodyParts.find { it.name == "Head" }!!.id
+                    controlledActorName -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                    else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
                 },
                 rightActor.id to when (rightActor.name) {
-                    controlledActorName -> rightActorBodyParts.find { it.name == "Right Hand" }!!.id
-                    else -> rightActorBodyParts.find { it.name == "Head" }!!.id
+                    controlledActorName -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                    else -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 }
             )
         )
