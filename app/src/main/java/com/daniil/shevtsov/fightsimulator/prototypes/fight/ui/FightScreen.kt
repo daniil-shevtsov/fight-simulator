@@ -39,7 +39,7 @@ fun FightScreenPreview() {
                     isControlled = true,
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
-                            "Right Hand" -> bodyPart.copy(holding = item("Knife"))
+                            "Right Hand" -> bodyPart.copy(holding = item(name = "Knife"))
                             else -> bodyPart
                         }
                     }
@@ -53,7 +53,7 @@ fun FightScreenPreview() {
                             "Skull" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken, BodyPartStatus.Missing))
                             "Right Arm" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
                             "Left Leg" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Bleeding))
-                            "Right Hand" -> bodyPart.copy(holding = item("Mace"))
+                            "Right Hand" -> bodyPart.copy(holding = item(name = "Mace"))
                             "Left Hand" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
                             else -> bodyPart
                         }

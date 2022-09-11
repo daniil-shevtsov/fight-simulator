@@ -65,7 +65,7 @@ interface FightWeaponTest {
                     it.prop(BodyPart::holding)
                         .isNotNull()
                         .prop(Item::name)
-                        .isEqualTo(testState.weapon.name)
+                        .isEqualTo(testState.attackerWeapon.name)
                 }
             prop(FightState::actionLog)
                 .index(0)
@@ -93,7 +93,7 @@ interface FightWeaponTest {
                     it.prop(BodyPart::holding)
                         .isNotNull()
                         .prop(Item::name)
-                        .isEqualTo(testState.weapon.name)
+                        .isEqualTo(testState.attackerWeapon.name)
                 }
             prop(FightState::actionLog)
                 .index(0)
@@ -151,19 +151,23 @@ interface FightWeaponTest {
     @Test
     fun `should knock out item from hand when attacking it`() {
         val initialState = stateForItemAttack()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Pommel)
+        )
     }
 
     sealed class TestState {
         data class AttackWithItem(
             val state: FightState,
-            val heldItem: Item
         ) : TestState() {
             val attacker: Creature
                 get() = state.controlledCreature
             val target: Creature
                 get() = state.targetCreature
-            val weapon: Item
-                get() = attacker.functionalParts.find { it.holding != null }?.holding ?: heldItem
+            val attackerWeapon: Item
+                get() = attacker.functionalParts.find { it.holding != null }?.holding!!
             val targetHead: BodyPart
                 get() = target.bodyParts.find { it.name == "Head" }!!
             val targetSkull: BodyPart
@@ -221,7 +225,6 @@ interface FightWeaponTest {
 
         return TestState.AttackWithItem(
             state = state,
-            heldItem = knife,
         )
     }
 }
