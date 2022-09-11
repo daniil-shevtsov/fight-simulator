@@ -135,7 +135,7 @@ internal class FightPresentationMappingTest {
             actor = Actor.Enemy,
             bodyParts = listOf(enemyBodyPart, skull, missingBodyPart),
             missingPartSet = setOf(missingBodyPart.id),
-            brokenPartSet = setOf(skull.name)
+            brokenPartSet = setOf(skull.id)
         )
 
         return fightState(

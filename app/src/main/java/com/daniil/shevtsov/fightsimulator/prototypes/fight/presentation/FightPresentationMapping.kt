@@ -22,7 +22,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         },
                         statuses = listOfNotNull(
                             BodyPartStatus.Missing.takeIf { bodyPart.id in creature.missingPartsSet },
-                            BodyPartStatus.Broken.takeIf { bodyPart.name in creature.brokenPartsSet },
+                            BodyPartStatus.Broken.takeIf { bodyPart.id in creature.brokenPartsSet },
                         ),
                     )
                 },

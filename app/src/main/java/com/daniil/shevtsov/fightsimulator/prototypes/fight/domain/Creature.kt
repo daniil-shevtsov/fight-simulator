@@ -6,12 +6,12 @@ data class Creature(
     val name: String,
     val bodyParts: List<BodyPart>,
     val missingPartsSet: Set<BodyPartId> = setOf(),
-    val brokenPartsSet: Set<String> = setOf(),
+    val brokenPartsSet: Set<BodyPartId> = setOf(),
 ) {
     val missingParts: List<BodyPart>
         get() = bodyParts.filter { it.id in missingPartsSet }
     val brokenParts: List<BodyPart>
-        get() = bodyParts.filter { it.name in brokenPartsSet }
+        get() = bodyParts.filter { it.id in brokenPartsSet }
 
     val functionalParts: List<BodyPart>
         get() = bodyParts.filter { it.id !in missingPartsSet }
@@ -26,7 +26,7 @@ fun creature(
     name: String = "",
     bodyParts: List<BodyPart> = emptyList(),
     missingPartSet: Set<BodyPartId> = emptySet(),
-    brokenPartSet: Set<String> = emptySet(),
+    brokenPartSet: Set<BodyPartId> = emptySet(),
 ) = Creature(
     id = id,
     actor = actor,

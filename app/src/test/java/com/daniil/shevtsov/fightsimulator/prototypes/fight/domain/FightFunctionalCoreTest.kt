@@ -304,7 +304,7 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::brokenPartsSet)
-                .containsOnly(state.targetBodyPartBone?.name)
+                .containsOnly(state.targetBodyPartBone?.id)
             prop(FightState::actionLog)
                 .extracting(ActionEntry::text)
                 .index(0)

@@ -46,8 +46,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             })
         }
         AttackAction.Pommel -> state.targetCreature.copy(
-            brokenPartsSet = state.targetCreature.brokenPartsSet + (state.targetBodyPartBone?.name
-                ?: state.targetBodyPart.name)
+            brokenPartsSet = state.targetCreature.brokenPartsSet + (state.targetBodyPartBone?.id
+                ?: state.targetBodyPart.id)
         )
         AttackAction.Slash -> {
             state.targetCreature.copy(
