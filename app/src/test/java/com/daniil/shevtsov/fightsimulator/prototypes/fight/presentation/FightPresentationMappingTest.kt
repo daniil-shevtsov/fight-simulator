@@ -21,21 +21,21 @@ internal class FightPresentationMappingTest {
                     .all {
                         index(0)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::name)
-                            .containsAll(initialState.state.controlledBodyPart.name)
+                            .extracting(BodyPartItem::id)
+                            .containsAll(initialState.attackerRightHand.id)
                         index(1)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::name)
+                            .extracting(BodyPartItem::id)
                             .containsAll(
-                                initialState.state.targetBodyPart.name,
-                                "Skull",
-                                initialState.state.targetCreature.missingParts.first().name,
+                                initialState.targetHead.id,
+                                initialState.targetSkull.id,
+                                initialState.targetRightHand.id,
                             )
                     }
                 prop(FightViewState.Content::commandsMenu)
                     .prop(CommandsMenu::commands)
                     .extracting(CommandItem::name)
-                    .containsExactly(initialState.state.controlledBodyPart.attackActions.first().name)
+                    .containsExactly(initialState.attackerRightHand.attackActions.first().name)
             }
     }
 
@@ -58,9 +58,9 @@ internal class FightPresentationMappingTest {
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
                     .containsAll(
-                        initialState.state.targetBodyPart.name to true,
-                        "Skull" to false,
-                        initialState.state.targetCreature.missingParts.first().name to false,
+                        initialState.targetHead.name to true,
+                        initialState.targetSkull.name to false,
+                        initialState.targetRightHand.name to false,
                     )
             }
     }
@@ -93,10 +93,12 @@ internal class FightPresentationMappingTest {
     @Test
     fun `should display as selected only functional body parts`() {
         val initialState = fullNormalState().let { state ->
-            state.copy(state = state.state.copy(
-                selections = mapOf(
-                    state.state.targetCreature.id to state.state.targetCreature.missingParts.first().id
-                ))
+            state.copy(
+                state = state.state.copy(
+                    selections = mapOf(
+                        state.state.targetCreature.id to state.state.targetCreature.missingParts.first().id
+                    )
+                )
 
             )
         }

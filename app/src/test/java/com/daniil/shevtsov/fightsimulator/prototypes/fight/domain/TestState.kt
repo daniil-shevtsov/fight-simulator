@@ -6,6 +6,8 @@ sealed class TestState {
     ) : TestState() {
         val attacker: Creature
             get() = state.controlledCreature
+        val attackerRightHand: BodyPart
+            get() = attacker.bodyParts.find { it.name == "Right Hand" }!!
         val target: Creature
             get() = state.targetCreature
         val attackerWeapon: Item
