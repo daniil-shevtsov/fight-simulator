@@ -15,7 +15,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         name = bodyPart.name,
                         holding = bodyPart.holding,
                         contained = bodyPart.containedBodyParts,
-                        isSelected = when(creature.id) {
+                        isSelected = when (creature.id) {
                             state.targetCreature.id -> state.targetBodyPart.name == bodyPart.name
                             state.controlledCreature.id -> state.controlledBodyPart.name == bodyPart.name
                             else -> false
@@ -41,6 +41,9 @@ fun fightPresentationMapping(state: FightState): FightViewState {
             ActionEntryModel(
                 text = action.text,
             )
+        },
+        ground = state.world.ground.let { ground ->
+            GroundMenu(items = ground.items)
         }
     )
 }

@@ -50,7 +50,12 @@ fun FightScreenPreview() {
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
                             "Head" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
-                            "Skull" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken, BodyPartStatus.Missing))
+                            "Skull" -> bodyPart.copy(
+                                statuses = listOf(
+                                    BodyPartStatus.Broken,
+                                    BodyPartStatus.Missing
+                                )
+                            )
                             "Right Arm" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
                             "Left Leg" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Bleeding))
                             "Right Hand" -> bodyPart.copy(holding = item(name = "Mace"))
@@ -73,7 +78,8 @@ fun FightScreenPreview() {
             actionLog = listOf(
                 actionEntryModel("You slap enemy's head with your right hand"),
                 actionEntryModel("You done did it"),
-            )
+            ),
+            ground = GroundMenu(items = emptyList()),
         ),
         onAction = {},
     )
