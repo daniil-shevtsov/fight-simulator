@@ -47,6 +47,7 @@ internal class FightFunctionalCoreTest {
             state = initialState,
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.controlledActorId,
+                partId = initialState.controlledCreature.firstPart().id,
                 partName = initialState.controlledCreature.firstPart().name
             )
         )
@@ -70,6 +71,7 @@ internal class FightFunctionalCoreTest {
             state = initialState,
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.controlledActorId,
+                partId = leftHand.id,
                 partName = leftHand.name
             )
         )
@@ -89,6 +91,7 @@ internal class FightFunctionalCoreTest {
             state = initialState,
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.targetCreature.id,
+                partId = initialState.targetCreature.firstPart().id,
                 partName = initialState.targetCreature.firstPart().name
             )
         )
@@ -106,6 +109,7 @@ internal class FightFunctionalCoreTest {
             state = initialState.state,
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.state.targetCreature.id,
+                partId = initialState.state.targetCreature.firstPart().id,
                 partName = initialState.state.targetCreature.firstPart().name
             )
         )
@@ -402,7 +406,8 @@ internal class FightFunctionalCoreTest {
 
     private fun normalBody(): List<BodyPart> {
         val head = bodyPart(id = 0L, name = "Head")
-        val rightHand = bodyPart(id = 1L, name = "Right Hand", attackActions = listOf(AttackAction.Punch))
+        val rightHand =
+            bodyPart(id = 1L, name = "Right Hand", attackActions = listOf(AttackAction.Punch))
         val slashedLeftHand = bodyPart(id = 2L, name = "Left Hand")
         return listOf(head, rightHand, slashedLeftHand)
     }
