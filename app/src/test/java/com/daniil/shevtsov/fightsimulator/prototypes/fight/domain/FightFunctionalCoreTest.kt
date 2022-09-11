@@ -20,7 +20,7 @@ internal class FightFunctionalCoreTest {
                 .each {
                     it.prop(Creature::bodyParts)
                         .extracting(BodyPart::name)
-                        .containsExactly(
+                        .containsAll(
                             "Head",
                             "Skull",
                             "Body",
@@ -34,6 +34,11 @@ internal class FightFunctionalCoreTest {
                             "Left Foot",
                         )
                 }
+            val head = newState.targetCreature.bodyParts.find { it.name == "Head" }!!
+            val skull = newState.targetCreature.bodyParts.find { it.name == "Skull" }!!
+            assertThat(head).prop(BodyPart::containedBodyParts).containsOnly(skull.id)
+            assertThat(skull).prop(BodyPart::parentId).isNotNull().isEqualTo(head.id)
+
             prop(FightState::controlledBodyPart).prop(BodyPart::name).isEqualTo("Left Hand")
             prop(FightState::targetBodyPart).prop(BodyPart::name).isEqualTo("Head")
             prop(FightState::availableCommands)

@@ -171,56 +171,67 @@ private fun createInitialState(): FightState {
 }
 
 private fun createDefaultBodyParts(): List<BodyPart> {
-    val skull = bodyPart(
-        id = 1L,
-        name = "Skull"
-    )
-    return listOf(
+    val initialMainParts = listOf(
         bodyPart(
-            id = 0L,
             name = "Head",
-            containedBodyParts = setOf(skull.id)
         ),
-        skull,
         bodyPart(
-            id = 2L,
             name = "Body"
         ),
         bodyPart(
-            id = 3L,
             name = "Right Arm"
         ),
         bodyPart(
-            id = 4L,
             name = "Right Hand",
             attackActions = listOf(AttackAction.Punch)
         ),
         bodyPart(
-            id = 5L,
             name = "Left Arm"
         ),
         bodyPart(
-            id = 6L,
             name = "Left Hand",
             attackActions = listOf(AttackAction.Punch)
         ),
         bodyPart(
-            id = 7L,
             name = "Right Leg"
         ),
         bodyPart(
-            id = 8L,
             name = "Right Foot",
             attackActions = listOf(AttackAction.Kick)
         ),
         bodyPart(
-            id = 9L,
             name = "Left Leg"
         ),
         bodyPart(
-            id = 10L,
             name = "Left Foot",
             attackActions = listOf(AttackAction.Kick)
         ),
-    )
+    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = BodyPartId(index.toLong())) }
+
+    val bones = initialMainParts.map { mainPart ->
+        val boneName = when (mainPart.name) {
+            "Head" -> "Skull"
+            "Body" -> "Ribs"
+            else -> "Bone"
+        }
+        bodyPart(
+            id = mainPart.id.raw + initialMainParts.size,
+            name = boneName,
+            parentId = mainPart.id,
+        )
+    }
+
+    val mainParts = initialMainParts.map { mainPart ->
+        val mainPartBone = bones.find { it.parentId == mainPart.id }
+
+        when (mainPartBone) {
+            null -> mainPart
+            else -> mainPart.copy(containedBodyParts = mainPart.containedBodyParts + mainPartBone.id)
+        }
+    }
+
+
+    val allParts = mainParts + bones
+
+    return allParts
 }
