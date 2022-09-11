@@ -95,7 +95,7 @@ internal class FightPresentationMappingTest {
         val initialState = fullNormalState().let { state ->
             state.copy(
                 selections = mapOf(
-                    state.targetCreature.id to BodyPartId(state.targetCreature.missingParts.first().name)
+                    state.targetCreature.id to state.targetCreature.missingParts.first().id
                 )
             )
         }
@@ -141,8 +141,8 @@ internal class FightPresentationMappingTest {
         return fightState(
             controlledActorId = player.id,
             selections = mapOf(
-                player.id to BodyPartId(playerBodyPart.name),
-                enemy.id to BodyPartId(enemyBodyPart.name),
+                player.id to playerBodyPart.id,
+                enemy.id to enemyBodyPart.id,
             ),
             actors = listOf(player, enemy),
         )

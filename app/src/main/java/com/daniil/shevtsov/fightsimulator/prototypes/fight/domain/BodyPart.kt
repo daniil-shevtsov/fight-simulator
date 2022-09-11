@@ -15,7 +15,7 @@ fun bodyPart(
     attackActions: List<AttackAction> = emptyList(),
     containedBodyParts: Set<String> = setOf(),
 ) = BodyPart(
-    id = BodyPartId(name),
+    id = BodyPartId(id),
     name = name,
     holding = holding,
     attackActions = attackActions,

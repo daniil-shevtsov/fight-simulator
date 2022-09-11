@@ -4,7 +4,7 @@ sealed class FightAction {
     data class SelectBodyPart(
         val creatureId: String,
         val partName: String,
-        val partId: BodyPartId = BodyPartId(partName),
+        val partId: BodyPartId,
     ) : FightAction()
 
     data class SelectCommand(val attackAction: AttackAction) : FightAction()

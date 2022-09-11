@@ -1,5 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
+import assertk.Assert
 import assertk.all
 import assertk.assertThat
 import assertk.assertions.*
@@ -33,7 +34,8 @@ internal class FightFunctionalCoreTest {
                             "Left Foot",
                         )
                 }
-            prop(FightState::selections).containsOnly("Player" to BodyPartId("Left Hand"), "Enemy" to BodyPartId("Head"))
+            prop(FightState::controlledBodyPart).prop(BodyPart::name).isEqualTo("Left Hand")
+            prop(FightState::targetBodyPart).prop(BodyPart::name).isEqualTo("Head")
             prop(FightState::availableCommands)
                 .extracting(Command::attackAction)
                 .containsExactly(AttackAction.Punch)
@@ -53,9 +55,12 @@ internal class FightFunctionalCoreTest {
         )
 
         assertThat(state)
-            .prop(FightState::selections)
-            .contains(initialState.controlledActorId to BodyPartId(initialState.controlledCreature.firstPart().name))
+            .controlledBodyPartName()
+            .isEqualTo(initialState.controlledCreature.firstPart().name)
     }
+
+    private fun Assert<FightState>.controlledBodyPartName() = prop(FightState::controlledBodyPart)
+        .prop(BodyPart::name)
 
     @Test
     fun `should not select slashed part when clicked`() {
@@ -79,8 +84,8 @@ internal class FightFunctionalCoreTest {
         assertThat(state)
             .prop(FightState::selections)
             .containsAll(
-                initialState.controlledActorId to BodyPartId(rightHand.name),
-                initialState.targetCreature.id to BodyPartId(leftHand.name),
+                initialState.controlledActorId to rightHand.id,
+                initialState.targetCreature.id to leftHand.id,
             )
     }
 
@@ -348,12 +353,12 @@ internal class FightFunctionalCoreTest {
             actors = listOf(leftActor, rightActor),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {
-                    controlled -> BodyPartId(partWithKnife.name)
-                    else -> BodyPartId(head.name)
+                    controlled -> partWithKnife.id
+                    else -> head.id
                 },
                 rightActor.id to when (rightActor.name) {
-                    controlled -> BodyPartId(partWithKnife.name)
-                    else -> BodyPartId(head.name)
+                    controlled -> partWithKnife.id
+                    else -> head.id
                 }
             )
         )
@@ -388,18 +393,20 @@ internal class FightFunctionalCoreTest {
             name = "Enemy",
             bodyParts = bodyParts
         )
+        val controlledPartId = bodyParts.find { it.name == controlledPartName }?.id
+        val targetPartId = bodyParts.find { it.name == targetPartName }?.id
         return fightState(
             controlledActorId = controlled,
             actors = listOf(player, enemy),
             selections = mapOf(
-                player.id to BodyPartId(when (controlled) {
-                    player.id -> controlledPartName
-                    else -> targetPartName
-                }),
-                enemy.id to BodyPartId(when (controlled) {
-                    enemy.id -> controlledPartName
-                    else -> targetPartName
-                }),
+                player.id to when (controlled) {
+                    player.id -> controlledPartId!!
+                    else -> targetPartId!!
+                },
+                enemy.id to when (controlled) {
+                    enemy.id -> controlledPartId!!
+                    else -> targetPartId!!
+                },
             )
         )
     }

@@ -21,7 +21,7 @@ fun bodyPartItem(
     statuses: List<BodyPartStatus> = emptyList(),
     isSelected: Boolean = false,
 ) = BodyPartItem(
-    id = BodyPartId(name),
+    id = BodyPartId(id),
     name = name,
     holding = holding,
     contained = contained,

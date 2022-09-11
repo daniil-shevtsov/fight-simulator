@@ -1,7 +1,7 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 @JvmInline
-value class BodyPartId(val raw: String)
+value class BodyPartId(val raw: Long)
 
 data class FightState(
     val selections: Map<String, BodyPartId>,
@@ -33,7 +33,7 @@ data class FightState(
 //        get() = bodyParts.find { it.name == selections[id] }
 //            ?: bodyParts.first()
     private val Creature.selectedBodyPart
-        get() = functionalParts.find { it.name == selections[id]?.raw }
+        get() = functionalParts.find { it.name == bodyParts.find { kek -> kek.id == selections[id] }?.name }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Item?.attackActionsWithThrow: List<AttackAction>

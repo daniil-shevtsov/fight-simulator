@@ -120,7 +120,7 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectBodyPart): Fight
         ) {
             state.selections.toMutableMap()
                 .apply {
-                    put(action.creatureId, BodyPartId(action.partName))
+                    put(action.creatureId, action.partId)
                 }
         } else {
             state.selections
@@ -162,8 +162,8 @@ private fun createInitialState(): FightState {
     return FightState(
         controlledActorId = player.id,
         selections = mapOf(
-            player.id to BodyPartId("Left Hand"),
-            enemy.id to BodyPartId("Head")
+            player.id to createDefaultBodyParts().find { it.name == "Left Hand" }?.id!!,
+            enemy.id to createDefaultBodyParts().find { it.name == "Head" }?.id!!
         ),
         actors = listOf(player, enemy),
         actionLog = emptyList(),
