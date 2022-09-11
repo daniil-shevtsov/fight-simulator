@@ -176,6 +176,8 @@ interface FightWeaponTest {
     }
 
     private fun stateForItemAttack(): TestState.AttackWithItem {
+        val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
+
         val left = "Player"
         val right = "Enemy"
         val knife = item(
@@ -207,7 +209,8 @@ interface FightWeaponTest {
             .map { bodyPart ->
                 bodyPart.copy(
                     id = BodyPartId(bodyPart.id.raw + bodyParts.size),
-                    containedBodyParts = bodyPart.containedBodyParts.map { BodyPartId(it.raw + bodyParts.size) }.toSet(),
+                    containedBodyParts = bodyPart.containedBodyParts.map { BodyPartId(it.raw + bodyParts.size) }
+                        .toSet(),
                     holding = rightActorKnife,
                 )
             }

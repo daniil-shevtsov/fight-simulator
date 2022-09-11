@@ -133,37 +133,52 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectBodyPart): Fight
 }
 
 private fun createInitialState(): FightState {
+    val knife = item(
+        name = "Knife",
+        attackActions = listOf(
+            AttackAction.Slash,
+            AttackAction.Stab,
+            AttackAction.Pommel
+        )
+    )
+    val playerKnife = knife.copy(id = ItemId(0L))
+    val enemyKnife = knife.copy(id = ItemId(1L))
+    val playerBodyParts = createDefaultBodyParts(idOffset = 0L).map { bodyPart ->
+        when (bodyPart.name) {
+            "Right Hand" -> bodyPart.copy(
+                holding = playerKnife
+            )
+            else -> bodyPart
+        }
+    }
+    val enemyBodyParts = createDefaultBodyParts(
+        idOffset = playerBodyParts.size.toLong()
+    ).map { bodyPart ->
+        when (bodyPart.name) {
+            "Right Hand" -> bodyPart.copy(
+                holding = enemyKnife
+            )
+            else -> bodyPart
+        }
+    }
+
     val player = Creature(
         id = "Player",
         actor = Actor.Player,
         name = "Player",
-        bodyParts = createDefaultBodyParts().map { bodyPart ->
-            when (bodyPart.name) {
-                "Right Hand" -> bodyPart.copy(
-                    holding = item(
-                        name = "Knife",
-                        attackActions = listOf(
-                            AttackAction.Slash,
-                            AttackAction.Stab,
-                            AttackAction.Pommel
-                        )
-                    )
-                )
-                else -> bodyPart
-            }
-        }
+        bodyParts = playerBodyParts,
     )
     val enemy = Creature(
         id = "Enemy",
         name = "Enemy",
         actor = Actor.Enemy,
-        bodyParts = createDefaultBodyParts(),
+        bodyParts = enemyBodyParts,
     )
     return FightState(
         controlledActorId = player.id,
         selections = mapOf(
-            player.id to createDefaultBodyParts().find { it.name == "Left Hand" }?.id!!,
-            enemy.id to createDefaultBodyParts().find { it.name == "Head" }?.id!!
+            player.id to playerBodyParts.find { it.name == "Left Hand" }?.id!!,
+            enemy.id to enemyBodyParts.find { it.name == "Head" }?.id!!
         ),
         actors = listOf(player, enemy),
         actionLog = emptyList(),
@@ -171,7 +186,7 @@ private fun createInitialState(): FightState {
     )
 }
 
-private fun createDefaultBodyParts(): List<BodyPart> {
+private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
     val initialMainParts = listOf(
         bodyPart(
             name = "Head",
@@ -207,7 +222,7 @@ private fun createDefaultBodyParts(): List<BodyPart> {
             name = "Left Foot",
             attackActions = listOf(AttackAction.Kick)
         ),
-    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = BodyPartId(index.toLong())) }
+    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = BodyPartId(idOffset + index.toLong())) }
 
     val bones = initialMainParts.map { mainPart ->
         val boneName = when (mainPart.name) {
