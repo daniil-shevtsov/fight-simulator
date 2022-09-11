@@ -22,10 +22,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Actor
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightAction
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.item
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.*
 
 @Preview(widthDp = 400, heightDp = 600)
@@ -79,7 +76,7 @@ fun FightScreenPreview() {
                 actionEntryModel("You slap enemy's head with your right hand"),
                 actionEntryModel("You done did it"),
             ),
-            ground = GroundMenu(items = emptyList()),
+            ground = GroundMenu(items = listOf(item(name = "Spear"))),
         ),
         onAction = {},
     )
@@ -101,6 +98,9 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                     actors = state.actors,
                     modifier = Modifier.weight(1f),
                     onAction = onAction
+                )
+                GroundMenu(
+                    menu = state.ground,
                 )
                 CommandsMenu(
                     menu = state.commandsMenu,
@@ -366,16 +366,10 @@ fun BodyPart(
             }
 
             if (bodyPartItem.holding != null) {
-                Text(
-                    text = bodyPartItem.holding.name,
-                    color = textColor,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .background(Color.LightGray)
-                        .padding(2.dp)
-                        .background(Color.Gray)
-                        .padding(4.dp)
-                        .fillMaxWidth()
+                Item(
+                    item = bodyPartItem.holding,
+                    textColor = textColor,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             if (bodyPartItem.contained.isNotEmpty()) {
@@ -396,6 +390,46 @@ fun BodyPart(
         }
     }
 }
+
+@Composable
+fun Item(
+    item: Item,
+    textColor: Color = Color.Black,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = item.name,
+        color = textColor,
+        modifier = modifier
+            .padding(4.dp)
+            .background(Color.LightGray)
+            .padding(2.dp)
+            .background(Color.Gray)
+            .padding(4.dp)
+    )
+}
+
+@Composable
+fun GroundMenu(
+    menu: GroundMenu,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .height(100.dp)
+            .fillMaxWidth()
+            .background(Color.LightGray)
+            .padding(8.dp)
+            .background(Color.DarkGray)
+    ) {
+        Row {
+            menu.items.forEach { item ->
+                Item(item = item)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {
