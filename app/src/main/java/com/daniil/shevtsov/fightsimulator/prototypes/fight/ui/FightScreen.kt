@@ -49,7 +49,8 @@ fun FightScreenPreview() {
                     actor = Actor.Enemy,
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
-                            "Skull" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
+                            "Head" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
+                            "Skull" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken, BodyPartStatus.Missing))
                             "Right Arm" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
                             "Left Leg" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Bleeding))
                             "Right Hand" -> bodyPart.copy(holding = item("Mace"))
