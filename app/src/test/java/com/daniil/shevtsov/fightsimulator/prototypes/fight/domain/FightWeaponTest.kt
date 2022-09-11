@@ -12,7 +12,7 @@ interface FightWeaponTest {
     
     @Test
     fun `should display weapon commands when selected attacker and target parts`() {
-        val initialState = stateForItemAttack(controlled = controlledActorName)
+        val initialState = stateForItemAttack()
         val state = fightFunctionalCore(
             state = initialState.state,
             action = FightAction.SelectBodyPart(
@@ -34,7 +34,7 @@ interface FightWeaponTest {
 
     @Test
     fun `should use item in log entry when command clicked`() {
-        val initialState = stateForItemAttack(controlled = controlledActorName)
+        val initialState = stateForItemAttack()
         val state = fightFunctionalCore(
             state = initialState.state,
             action = FightAction.SelectCommand(attackAction = AttackAction.Stab)
@@ -48,9 +48,7 @@ interface FightWeaponTest {
 
     @Test
     fun `should move item from attacker to target when throwing`() {
-        val testState = stateForItemAttack(
-            controlled = controlledActorName
-        )
+        val testState = stateForItemAttack()
 
         val state = fightFunctionalCore(
             state = testState.state,
@@ -78,9 +76,7 @@ interface FightWeaponTest {
 
     @Test
     fun `should throw by controlled actor`() {
-        val testState = stateForItemAttack(
-            controlled = controlledActorName
-        )
+        val testState = stateForItemAttack( )
 
         val state = fightFunctionalCore(
             state = testState.state,
@@ -108,9 +104,7 @@ interface FightWeaponTest {
 
     @Test
     fun `should remove limb and contained parts when attacker is slashing`() {
-        val initialState = stateForItemAttack(
-            controlled = controlledActorName
-        )
+        val initialState = stateForItemAttack()
         val state = fightFunctionalCore(
             state = initialState.state,
             action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
@@ -136,7 +130,7 @@ interface FightWeaponTest {
 
     @Test
     fun `attack at head should break skull`() {
-        val initialState = stateForItemAttack(controlled = controlledActorName)
+        val initialState = stateForItemAttack()
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -152,6 +146,11 @@ interface FightWeaponTest {
                 .index(0)
                 .isEqualTo("$controlledActorName pommels $targetActorName's head with knife held by their right hand. The skull is fractured!")
         }
+    }
+    
+    @Test
+    fun `should knock out item from hand when attacking it`() {
+        val initialState = stateForItemAttack()
     }
 
     sealed class TestState {
@@ -172,9 +171,7 @@ interface FightWeaponTest {
         }
     }
 
-    private fun stateForItemAttack(
-        controlled: String,
-    ): TestState.AttackWithItem {
+    private fun stateForItemAttack(): TestState.AttackWithItem {
         val left = "Player"
         val right = "Enemy"
         val knife = item(
@@ -208,15 +205,15 @@ interface FightWeaponTest {
         )
 
         val state = fightState(
-            controlledActorId = controlled,
+            controlledActorId = controlledActorName,
             actors = listOf(leftActor, rightActor),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {
-                    controlled -> partWithKnife.id
+                    controlledActorName -> partWithKnife.id
                     else -> head.id
                 },
                 rightActor.id to when (rightActor.name) {
-                    controlled -> partWithKnife.id
+                    controlledActorName -> partWithKnife.id
                     else -> head.id
                 }
             )
