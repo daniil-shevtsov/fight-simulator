@@ -58,8 +58,8 @@ internal class FightFunctionalCoreTest {
 
     @Test
     fun `should not select slashed part when clicked`() {
-        val leftHand = bodyPart(name = "Left Hand")
-        val rightHand = bodyPart(name = "Right Hand")
+        val leftHand = bodyPart(id = 0L, name = "Left Hand")
+        val rightHand = bodyPart(id = 1L, name = "Right Hand")
         val initialState = normalFullState(
             bodyParts = listOf(leftHand, rightHand),
             controlledPartName = rightHand.name,
@@ -318,11 +318,12 @@ internal class FightFunctionalCoreTest {
             )
         )
         val partWithKnife = bodyPart(
+            id = 0L,
             name = "Right Hand",
             holding = knife
         )
-        val skull = bodyPart(name = "Skull")
-        val head = bodyPart(name = "Head", containedBodyParts = setOf(skull.name))
+        val skull = bodyPart(id = 1L, name = "Skull")
+        val head = bodyPart(id = 2L, name = "Head", containedBodyParts = setOf(skull.name))
         val leftActor = creature(
             id = left, name = left, actor = Actor.Player, bodyParts = listOf(
                 head,
@@ -400,9 +401,9 @@ internal class FightFunctionalCoreTest {
     }
 
     private fun normalBody(): List<BodyPart> {
-        val head = bodyPart(name = "Head")
-        val rightHand = bodyPart(name = "Right Hand", attackActions = listOf(AttackAction.Punch))
-        val slashedLeftHand = bodyPart(name = "Left Hand")
+        val head = bodyPart(id = 0L, name = "Head")
+        val rightHand = bodyPart(id = 1L, name = "Right Hand", attackActions = listOf(AttackAction.Punch))
+        val slashedLeftHand = bodyPart(id = 2L, name = "Left Hand")
         return listOf(head, rightHand, slashedLeftHand)
     }
 

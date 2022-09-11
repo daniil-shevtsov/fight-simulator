@@ -171,15 +171,53 @@ private fun createInitialState(): FightState {
 }
 
 private fun createDefaultBodyParts() = listOf(
-    bodyPart(name = "Head", containedBodyParts = setOf("Skull")),
-    bodyPart(name = "Skull"),
-    bodyPart(name = "Body"),
-    bodyPart(name = "Right Arm"),
-    bodyPart(name = "Right Hand", attackActions = listOf(AttackAction.Punch)),
-    bodyPart(name = "Left Arm"),
-    bodyPart(name = "Left Hand", attackActions = listOf(AttackAction.Punch)),
-    bodyPart(name = "Right Leg"),
-    bodyPart(name = "Right Foot", attackActions = listOf(AttackAction.Kick)),
-    bodyPart(name = "Left Leg"),
-    bodyPart(name = "Left Foot", attackActions = listOf(AttackAction.Kick)),
+    bodyPart(
+        id = 0L,
+        name = "Head",
+        containedBodyParts = setOf("Skull")
+    ),
+    bodyPart(
+        id = 1L,
+        name = "Skull"
+    ),
+    bodyPart(
+        id = 2L,
+        name = "Body"
+    ),
+    bodyPart(
+        id = 3L,
+        name = "Right Arm"
+    ),
+    bodyPart(
+        id = 4L,
+        name = "Right Hand",
+        attackActions = listOf(AttackAction.Punch)
+    ),
+    bodyPart(
+        id = 5L,
+        name = "Left Arm"
+    ),
+    bodyPart(
+        id = 6L,
+        name = "Left Hand",
+        attackActions = listOf(AttackAction.Punch)
+    ),
+    bodyPart(
+        id = 7L,
+        name = "Right Leg"
+    ),
+    bodyPart(
+        id = 8L,
+        name = "Right Foot",
+        attackActions = listOf(AttackAction.Kick)
+    ),
+    bodyPart(
+        id = 9L,
+        name = "Left Leg"
+    ),
+    bodyPart(
+        id = 10L,
+        name = "Left Foot",
+        attackActions = listOf(AttackAction.Kick)
+    ),
 )
