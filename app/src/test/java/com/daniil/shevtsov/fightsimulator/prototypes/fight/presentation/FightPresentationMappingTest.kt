@@ -11,7 +11,7 @@ internal class FightPresentationMappingTest {
     fun `should map state`() {
         val initialState = fullNormalState()
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -22,20 +22,20 @@ internal class FightPresentationMappingTest {
                         index(0)
                             .prop(CreatureMenu::bodyParts)
                             .extracting(BodyPartItem::name)
-                            .containsAll(initialState.controlledBodyPart.name)
+                            .containsAll(initialState.state.controlledBodyPart.name)
                         index(1)
                             .prop(CreatureMenu::bodyParts)
                             .extracting(BodyPartItem::name)
                             .containsAll(
-                                initialState.targetBodyPart.name,
+                                initialState.state.targetBodyPart.name,
                                 "Skull",
-                                initialState.targetCreature.missingParts.first().name,
+                                initialState.state.targetCreature.missingParts.first().name,
                             )
                     }
                 prop(FightViewState.Content::commandsMenu)
                     .prop(CommandsMenu::commands)
                     .extracting(CommandItem::name)
-                    .containsExactly(initialState.controlledBodyPart.attackActions.first().name)
+                    .containsExactly(initialState.state.controlledBodyPart.attackActions.first().name)
             }
     }
 
@@ -43,7 +43,7 @@ internal class FightPresentationMappingTest {
     fun `should display selected player part`() {
         val initialState = fullNormalState()
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -53,14 +53,14 @@ internal class FightPresentationMappingTest {
                 index(0)
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
-                    .containsAll(initialState.controlledBodyPart.name to true)
+                    .containsAll(initialState.state.controlledBodyPart.name to true)
                 index(1)
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
                     .containsAll(
-                        initialState.targetBodyPart.name to true,
+                        initialState.state.targetBodyPart.name to true,
                         "Skull" to false,
-                        initialState.targetCreature.missingParts.first().name to false,
+                        initialState.state.targetCreature.missingParts.first().name to false,
                     )
             }
     }
@@ -69,7 +69,7 @@ internal class FightPresentationMappingTest {
     fun `should display body part statuses`() {
         val initialState = fullNormalState()
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -80,10 +80,10 @@ internal class FightPresentationMappingTest {
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::statuses)
                     .containsAll(
-                        initialState.targetCreature.missingParts.first().name to listOf(
+                        initialState.state.targetCreature.missingParts.first().name to listOf(
                             BodyPartStatus.Missing
                         ),
-                        initialState.targetCreature.brokenParts.first().name to listOf(
+                        initialState.state.targetCreature.brokenParts.first().name to listOf(
                             BodyPartStatus.Broken
                         ),
                     )
@@ -93,14 +93,15 @@ internal class FightPresentationMappingTest {
     @Test
     fun `should display as selected only functional body parts`() {
         val initialState = fullNormalState().let { state ->
-            state.copy(
+            state.copy(state = state.state.copy(
                 selections = mapOf(
-                    state.targetCreature.id to state.targetCreature.missingParts.first().id
-                )
+                    state.state.targetCreature.id to state.state.targetCreature.missingParts.first().id
+                ))
+
             )
         }
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -111,13 +112,13 @@ internal class FightPresentationMappingTest {
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
                     .containsAll(
-                        initialState.targetCreature.functionalParts.first().name to true,
-                        initialState.targetCreature.missingParts.first().name to false,
+                        initialState.state.targetCreature.functionalParts.first().name to true,
+                        initialState.state.targetCreature.missingParts.first().name to false,
                     )
             }
     }
 
-    private fun fullNormalState(): FightState {
+    private fun fullNormalState(): TestState.AttackWithItem {
         val originalState = TestState.AttackWithItem(
             state = fightFunctionalCore(
                 state = fightState(),
@@ -131,8 +132,10 @@ internal class FightPresentationMappingTest {
             brokenPartsSet = setOf(originalState.targetSkull.id),
         )
 
-        return originalState.state.copy(
-            actors = listOf(modifiedAttacker, modifiedTarget)
+        return originalState.copy(
+            state = originalState.state.copy(
+                actors = listOf(modifiedAttacker, modifiedTarget)
+            )
         )
     }
 }
