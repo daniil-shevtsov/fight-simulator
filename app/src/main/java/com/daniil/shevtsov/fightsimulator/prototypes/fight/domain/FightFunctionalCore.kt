@@ -46,14 +46,14 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             })
         }
         AttackAction.Pommel -> state.targetCreature.copy(
-            brokenPartsSet = state.targetCreature.brokenPartsSet + (state.targetBodyPartBone?.name
-                ?: state.targetBodyPart.name)
+            brokenPartsSet = state.targetCreature.brokenPartsSet + (state.targetBodyPartBone?.id
+                ?: state.targetBodyPart.id)
         )
         AttackAction.Slash -> {
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet.plus(
-                    state.targetBodyPart.name
-                )
+                    state.targetBodyPart.id
+                ) + state.targetBodyPart.containedBodyParts
             )
         }
         else -> state.targetCreature
@@ -90,7 +90,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             val generalMessage =
                 "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource."
             when {
-                state.targetBodyPart.containedBodyParts.isNotEmpty() -> newTargetCreature.bodyParts.find { it.name == state.targetBodyPart.containedBodyParts.first() }!!.name.toLowerCase()
+                state.targetBodyPart.containedBodyParts.isNotEmpty() -> newTargetCreature.bodyParts.find { it.id == state.targetBodyPart.containedBodyParts.first() }!!.name.toLowerCase()
                     .let { containedBodyPartName ->
                         "$generalMessage The $containedBodyPartName is fractured!"
                     }
@@ -113,8 +113,19 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 }
 
 fun selectBodyPart(state: FightState, action: FightAction.SelectBodyPart): FightState {
-    val newSelections = state.selections.toMutableMap()
-        .apply { put(action.creatureId, action.partName) }
+    val creatureToSelect = state.actors.find { it.id == action.creatureId }
+    val newSelections =
+        if (creatureToSelect != null && action.partName in creatureToSelect.functionalParts
+                .map(BodyPart::name)
+        ) {
+            state.selections.toMutableMap()
+                .apply {
+                    put(action.creatureId, action.partId)
+                }
+        } else {
+            state.selections
+        }
+
 
     return state.copy(
         selections = newSelections,
@@ -151,24 +162,76 @@ private fun createInitialState(): FightState {
     return FightState(
         controlledActorId = player.id,
         selections = mapOf(
-            player.id to "Left Hand",
-            enemy.id to "Head"
+            player.id to createDefaultBodyParts().find { it.name == "Left Hand" }?.id!!,
+            enemy.id to createDefaultBodyParts().find { it.name == "Head" }?.id!!
         ),
         actors = listOf(player, enemy),
         actionLog = emptyList(),
     )
 }
 
-private fun createDefaultBodyParts() = listOf(
-    bodyPart(name = "Head", containedBodyParts = setOf("Skull")),
-    bodyPart(name = "Skull"),
-    bodyPart(name = "Body"),
-    bodyPart(name = "Right Arm"),
-    bodyPart(name = "Right Hand", attackActions = listOf(AttackAction.Punch)),
-    bodyPart(name = "Left Arm"),
-    bodyPart(name = "Left Hand", attackActions = listOf(AttackAction.Punch)),
-    bodyPart(name = "Right Leg"),
-    bodyPart(name = "Right Foot", attackActions = listOf(AttackAction.Kick)),
-    bodyPart(name = "Left Leg"),
-    bodyPart(name = "Left Foot", attackActions = listOf(AttackAction.Kick)),
-)
+private fun createDefaultBodyParts(): List<BodyPart> {
+    val initialMainParts = listOf(
+        bodyPart(
+            name = "Head",
+        ),
+        bodyPart(
+            name = "Body"
+        ),
+        bodyPart(
+            name = "Right Arm"
+        ),
+        bodyPart(
+            name = "Right Hand",
+            attackActions = listOf(AttackAction.Punch)
+        ),
+        bodyPart(
+            name = "Left Arm"
+        ),
+        bodyPart(
+            name = "Left Hand",
+            attackActions = listOf(AttackAction.Punch)
+        ),
+        bodyPart(
+            name = "Right Leg"
+        ),
+        bodyPart(
+            name = "Right Foot",
+            attackActions = listOf(AttackAction.Kick)
+        ),
+        bodyPart(
+            name = "Left Leg"
+        ),
+        bodyPart(
+            name = "Left Foot",
+            attackActions = listOf(AttackAction.Kick)
+        ),
+    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = BodyPartId(index.toLong())) }
+
+    val bones = initialMainParts.map { mainPart ->
+        val boneName = when (mainPart.name) {
+            "Head" -> "Skull"
+            "Body" -> "Ribs"
+            else -> "Bone"
+        }
+        bodyPart(
+            id = mainPart.id.raw + initialMainParts.size,
+            name = boneName,
+            parentId = mainPart.id,
+        )
+    }
+
+    val mainParts = initialMainParts.map { mainPart ->
+        val mainPartBone = bones.find { it.parentId == mainPart.id }
+
+        when (mainPartBone) {
+            null -> mainPart
+            else -> mainPart.copy(containedBodyParts = mainPart.containedBodyParts + mainPartBone.id)
+        }
+    }
+
+
+    val allParts = mainParts + bones
+
+    return allParts
+}

@@ -1,5 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
+import assertk.Assert
 import assertk.all
 import assertk.assertThat
 import assertk.assertions.*
@@ -19,7 +20,7 @@ internal class FightFunctionalCoreTest {
                 .each {
                     it.prop(Creature::bodyParts)
                         .extracting(BodyPart::name)
-                        .containsExactly(
+                        .containsAll(
                             "Head",
                             "Skull",
                             "Body",
@@ -33,7 +34,13 @@ internal class FightFunctionalCoreTest {
                             "Left Foot",
                         )
                 }
-            prop(FightState::selections).containsOnly("Player" to "Left Hand", "Enemy" to "Head")
+            val head = newState.targetCreature.bodyParts.find { it.name == "Head" }!!
+            val skull = newState.targetCreature.bodyParts.find { it.name == "Skull" }!!
+            assertThat(head).prop(BodyPart::containedBodyParts).containsOnly(skull.id)
+            assertThat(skull).prop(BodyPart::parentId).isNotNull().isEqualTo(head.id)
+
+            prop(FightState::controlledBodyPart).prop(BodyPart::name).isEqualTo("Left Hand")
+            prop(FightState::targetBodyPart).prop(BodyPart::name).isEqualTo("Head")
             prop(FightState::availableCommands)
                 .extracting(Command::attackAction)
                 .containsExactly(AttackAction.Punch)
@@ -47,13 +54,44 @@ internal class FightFunctionalCoreTest {
             state = initialState,
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.controlledActorId,
+                partId = initialState.controlledCreature.firstPart().id,
                 partName = initialState.controlledCreature.firstPart().name
             )
         )
 
         assertThat(state)
+            .controlledBodyPartName()
+            .isEqualTo(initialState.controlledCreature.firstPart().name)
+    }
+
+    private fun Assert<FightState>.controlledBodyPartName() = prop(FightState::controlledBodyPart)
+        .prop(BodyPart::name)
+
+    @Test
+    fun `should not select slashed part when clicked`() {
+        val leftHand = bodyPart(id = 0L, name = "Left Hand")
+        val rightHand = bodyPart(id = 1L, name = "Right Hand")
+        val initialState = normalFullState(
+            bodyParts = listOf(leftHand, rightHand),
+            controlledPartName = rightHand.name,
+            targetPartName = leftHand.name,
+            missingParts = listOf(leftHand.name)
+        )
+        val state = fightFunctionalCore(
+            state = initialState,
+            action = FightAction.SelectBodyPart(
+                creatureId = initialState.controlledActorId,
+                partId = leftHand.id,
+                partName = leftHand.name
+            )
+        )
+
+        assertThat(state)
             .prop(FightState::selections)
-            .contains(initialState.controlledActorId to initialState.controlledCreature.firstPart().name)
+            .containsAll(
+                initialState.controlledActorId to rightHand.id,
+                initialState.targetCreature.id to leftHand.id,
+            )
     }
 
     @Test
@@ -63,6 +101,7 @@ internal class FightFunctionalCoreTest {
             state = initialState,
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.targetCreature.id,
+                partId = initialState.targetCreature.firstPart().id,
                 partName = initialState.targetCreature.firstPart().name
             )
         )
@@ -80,6 +119,7 @@ internal class FightFunctionalCoreTest {
             state = initialState.state,
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.state.targetCreature.id,
+                partId = initialState.state.targetCreature.firstPart().id,
                 partName = initialState.state.targetCreature.firstPart().name
             )
         )
@@ -180,7 +220,7 @@ internal class FightFunctionalCoreTest {
     }
 
     @Test
-    fun `should remove limb when player is slashing`() {
+    fun `should remove limb and contained parts when player is slashing`() {
         val initialState = stateForItemAttack(
             controlled = "Player"
         )
@@ -192,7 +232,14 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
-                .containsOnly(initialState.state.targetBodyPart.name)
+                .containsAll(
+                    initialState.state.targetBodyPart.id,
+                    initialState.state.targetCreature.bodyParts.find { it.id == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                )
+            prop(FightState::targetBodyPart)
+                .prop(BodyPart::name)
+                .isNotEqualTo(initialState.state.targetBodyPart.name)
+
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
@@ -211,7 +258,10 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
-                .containsOnly(state.targetBodyPart.name)
+                .containsAll(
+                    initialState.state.targetBodyPart.id,
+                    initialState.state.targetCreature.bodyParts.find { it.id == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                )
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
@@ -265,7 +315,7 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::brokenPartsSet)
-                .containsOnly(state.targetBodyPartBone?.name)
+                .containsOnly(state.targetBodyPartBone?.id)
             prop(FightState::actionLog)
                 .extracting(ActionEntry::text)
                 .index(0)
@@ -288,11 +338,12 @@ internal class FightFunctionalCoreTest {
             )
         )
         val partWithKnife = bodyPart(
+            id = 0L,
             name = "Right Hand",
             holding = knife
         )
-        val skull = bodyPart(name = "Skull")
-        val head = bodyPart(name = "Head", containedBodyParts = setOf(skull.name))
+        val skull = bodyPart(id = 1L, name = "Skull")
+        val head = bodyPart(id = 2L, name = "Head", containedBodyParts = setOf(skull.id))
         val leftActor = creature(
             id = left, name = left, actor = Actor.Player, bodyParts = listOf(
                 head,
@@ -313,12 +364,12 @@ internal class FightFunctionalCoreTest {
             actors = listOf(leftActor, rightActor),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {
-                    controlled -> partWithKnife.name
-                    else -> head.name
+                    controlled -> partWithKnife.id
+                    else -> head.id
                 },
                 rightActor.id to when (rightActor.name) {
-                    controlled -> partWithKnife.name
-                    else -> head.name
+                    controlled -> partWithKnife.id
+                    else -> head.id
                 }
             )
         )
@@ -334,36 +385,49 @@ internal class FightFunctionalCoreTest {
     }
 
     fun normalFullState(
-        controlled: String? = null
+        controlled: String = "Player",
+        bodyParts: List<BodyPart> = normalBody(),
+        controlledPartName: String = "Right Hand",
+        targetPartName: String = "Head",
+        missingParts: List<String> = emptyList(),
     ): FightState {
-        val head = bodyPart(name = "Head")
-        val rightHand = bodyPart(name = "Right Hand", attackActions = listOf(AttackAction.Punch))
         val player = creature(
             id = "Player",
             actor = Actor.Player,
             name = "Player",
-            bodyParts = listOf(head, rightHand),
+            missingPartSet = bodyParts.filter { it.name in missingParts }.map { it.id }.toSet(),
+            bodyParts = bodyParts,
         )
         val enemy = creature(
             id = "Enemy",
             actor = Actor.Enemy,
             name = "Enemy",
-            bodyParts = listOf(head, rightHand)
+            bodyParts = bodyParts
         )
+        val controlledPartId = bodyParts.find { it.name == controlledPartName }?.id
+        val targetPartId = bodyParts.find { it.name == targetPartName }?.id
         return fightState(
-            controlledActorId = controlled ?: "Player",
+            controlledActorId = controlled,
             actors = listOf(player, enemy),
             selections = mapOf(
                 player.id to when (controlled) {
-                    player.id -> rightHand.name
-                    else -> head.name
+                    player.id -> controlledPartId!!
+                    else -> targetPartId!!
                 },
                 enemy.id to when (controlled) {
-                    enemy.id -> rightHand.name
-                    else -> head.name
+                    enemy.id -> controlledPartId!!
+                    else -> targetPartId!!
                 },
             )
         )
+    }
+
+    private fun normalBody(): List<BodyPart> {
+        val head = bodyPart(id = 0L, name = "Head")
+        val rightHand =
+            bodyPart(id = 1L, name = "Right Hand", attackActions = listOf(AttackAction.Punch))
+        val slashedLeftHand = bodyPart(id = 2L, name = "Left Hand")
+        return listOf(head, rightHand, slashedLeftHand)
     }
 
 }

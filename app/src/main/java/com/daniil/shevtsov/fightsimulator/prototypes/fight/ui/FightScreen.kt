@@ -49,7 +49,8 @@ fun FightScreenPreview() {
                     actor = Actor.Enemy,
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
-                            "Skull" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
+                            "Head" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
+                            "Skull" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken, BodyPartStatus.Missing))
                             "Right Arm" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
                             "Left Leg" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Bleeding))
                             "Right Hand" -> bodyPart.copy(holding = item("Mace"))
@@ -158,8 +159,9 @@ private fun ActorsMenu(
                 onClick = {
                     onAction(
                         FightAction.SelectBodyPart(
-                            creature.id,
-                            it.name
+                            creatureId = creature.id,
+                            partId = it.id,
+                            partName = it.name,
                         )
                     )
                 }, onControlClick = { onAction(FightAction.SelectActor(actorId = creature.id)) })
@@ -211,14 +213,14 @@ private fun Creature(
             creature.bodyParts
                 .filter { bodyPart ->
                     creature.bodyParts.none { otherBodyPart ->
-                        bodyPart.name in otherBodyPart.contained
+                        bodyPart.id in otherBodyPart.contained
                     }
                 }
                 .forEach { bodyPartItem ->
                     BodyPart(
                         bodyPartItem = bodyPartItem,
                         onClick = { onClick(bodyPartItem) },
-                        contained = creature.bodyParts.filter { it.name in bodyPartItem.contained })
+                        contained = creature.bodyParts.filter { it.id in bodyPartItem.contained })
 
                 }
         }
@@ -254,7 +256,7 @@ fun BodyPart(
 //                        .padding(4.dp)
                         .background(Color.White)
                         .padding(6.dp)
-                        false
+                    false
                     -> modifier
                 }
             }
@@ -411,19 +413,22 @@ fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {
     }
 }
 
-private fun defaultBodyParts() = listOf(
-    bodyPartItem(name = "Head", contained = setOf("Skull")),
-    bodyPartItem(name = "Skull"),
-    bodyPartItem(name = "Body"),
-    bodyPartItem(name = "Right Arm"),
-    bodyPartItem(name = "Right Hand", isSelected = true),
-    bodyPartItem(name = "Left Arm"),
-    bodyPartItem(name = "Left Hand"),
-    bodyPartItem(name = "Right Leg"),
-    bodyPartItem(name = "Right Foot"),
-    bodyPartItem(name = "Left Leg"),
-    bodyPartItem(name = "Left Foot"),
-)
+private fun defaultBodyParts(): List<BodyPartItem> {
+    val skull = bodyPartItem(id = 1L, name = "Skull")
+    return listOf(
+        bodyPartItem(id = 0L, name = "Head", contained = setOf(skull.id)),
+        skull,
+        bodyPartItem(id = 2L, name = "Body"),
+        bodyPartItem(id = 3L, name = "Right Arm"),
+        bodyPartItem(id = 4L, name = "Right Hand", isSelected = true),
+        bodyPartItem(id = 5L, name = "Left Arm"),
+        bodyPartItem(id = 6L, name = "Left Hand"),
+        bodyPartItem(id = 7L, name = "Right Leg"),
+        bodyPartItem(id = 8L, name = "Right Foot"),
+        bodyPartItem(id = 9L, name = "Left Leg"),
+        bodyPartItem(id = 10L, name = "Left Foot"),
+    )
+}
 
 @Composable
 fun <T> Pane(

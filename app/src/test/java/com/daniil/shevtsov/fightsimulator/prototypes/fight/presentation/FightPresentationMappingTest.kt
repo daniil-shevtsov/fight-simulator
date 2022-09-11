@@ -90,11 +90,38 @@ internal class FightPresentationMappingTest {
             }
     }
 
+    @Test
+    fun `should display as selected only functional body parts`() {
+        val initialState = fullNormalState().let { state ->
+            state.copy(
+                selections = mapOf(
+                    state.targetCreature.id to state.targetCreature.missingParts.first().id
+                )
+            )
+        }
+        val viewState = fightPresentationMapping(
+            state = initialState
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::actors)
+            .all {
+                index(1)
+                    .prop(CreatureMenu::bodyParts)
+                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .containsAll(
+                        initialState.targetCreature.functionalParts.first().name to true,
+                        initialState.targetCreature.missingParts.first().name to false,
+                    )
+            }
+    }
+
     private fun fullNormalState(): FightState {
-        val playerBodyPart = bodyPart(name = "lol", attackActions = listOf(AttackAction.Strike))
-        val skull = bodyPart(name = "skull")
-        val enemyBodyPart = bodyPart(name = "kek", containedBodyParts = setOf(skull.name))
-        val missingBodyPart = bodyPart(name = "cheburek")
+        val playerBodyPart = bodyPart(id = 0L, name = "hand", attackActions = listOf(AttackAction.Strike))
+        val skull = bodyPart(id = 1L, name = "skull")
+        val enemyBodyPart = bodyPart(id = 2L, name = "head", containedBodyParts = setOf(skull.id))
+        val missingBodyPart = bodyPart(id = 3L, name = "hand")
         val player =
             creature(
                 id = "playerId",
@@ -107,15 +134,15 @@ internal class FightPresentationMappingTest {
             name = "Enemy",
             actor = Actor.Enemy,
             bodyParts = listOf(enemyBodyPart, skull, missingBodyPart),
-            missingPartSet = setOf(missingBodyPart.name),
-            brokenPartSet = setOf(skull.name)
+            missingPartSet = setOf(missingBodyPart.id),
+            brokenPartSet = setOf(skull.id)
         )
 
         return fightState(
             controlledActorId = player.id,
             selections = mapOf(
-                player.id to playerBodyPart.name,
-                enemy.id to enemyBodyPart.name,
+                player.id to playerBodyPart.id,
+                enemy.id to enemyBodyPart.id,
             ),
             actors = listOf(player, enemy),
         )
