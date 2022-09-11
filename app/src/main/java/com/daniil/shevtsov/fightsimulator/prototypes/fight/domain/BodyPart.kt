@@ -1,7 +1,7 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class BodyPart(
-    val id: Long,
+    val id: BodyPartId,
     val name: String,
     val holding: Item? = null,
     val containedBodyParts: Set<String> = setOf(),
@@ -15,7 +15,7 @@ fun bodyPart(
     attackActions: List<AttackAction> = emptyList(),
     containedBodyParts: Set<String> = setOf(),
 ) = BodyPart(
-    id = id,
+    id = BodyPartId(name),
     name = name,
     holding = holding,
     attackActions = attackActions,
