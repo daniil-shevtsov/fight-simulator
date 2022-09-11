@@ -254,7 +254,7 @@ fun BodyPart(
 //                        .padding(4.dp)
                         .background(Color.White)
                         .padding(6.dp)
-                        false
+                    false
                     -> modifier
                 }
             }
@@ -412,17 +412,17 @@ fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {
 }
 
 private fun defaultBodyParts() = listOf(
-    bodyPartItem(name = "Head", contained = setOf("Skull")),
-    bodyPartItem(name = "Skull"),
-    bodyPartItem(name = "Body"),
-    bodyPartItem(name = "Right Arm"),
-    bodyPartItem(name = "Right Hand", isSelected = true),
-    bodyPartItem(name = "Left Arm"),
-    bodyPartItem(name = "Left Hand"),
-    bodyPartItem(name = "Right Leg"),
-    bodyPartItem(name = "Right Foot"),
-    bodyPartItem(name = "Left Leg"),
-    bodyPartItem(name = "Left Foot"),
+    bodyPartItem(id = 0L, name = "Head", contained = setOf("Skull")),
+    bodyPartItem(id = 1L, name = "Skull"),
+    bodyPartItem(id = 2L, name = "Body"),
+    bodyPartItem(id = 3L, name = "Right Arm"),
+    bodyPartItem(id = 4L, name = "Right Hand", isSelected = true),
+    bodyPartItem(id = 5L, name = "Left Arm"),
+    bodyPartItem(id = 6L, name = "Left Hand"),
+    bodyPartItem(id = 7L, name = "Right Leg"),
+    bodyPartItem(id = 8L, name = "Right Foot"),
+    bodyPartItem(id = 9L, name = "Left Leg"),
+    bodyPartItem(id = 10L, name = "Left Foot"),
 )
 
 @Composable

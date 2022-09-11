@@ -11,6 +11,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 actor = creature.actor,
                 bodyParts = creature.bodyParts.map { bodyPart ->
                     BodyPartItem(
+                        id = bodyPart.id,
                         name = bodyPart.name,
                         holding = bodyPart.holding,
                         contained = bodyPart.containedBodyParts,
