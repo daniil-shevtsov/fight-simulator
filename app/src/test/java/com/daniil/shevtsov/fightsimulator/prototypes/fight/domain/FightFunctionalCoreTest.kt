@@ -215,7 +215,7 @@ internal class FightFunctionalCoreTest {
     }
 
     @Test
-    fun `should remove limb when player is slashing`() {
+    fun `should remove limb and contained parts when player is slashing`() {
         val initialState = stateForItemAttack(
             controlled = "Player"
         )
@@ -227,7 +227,10 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
-                .containsOnly(initialState.state.targetBodyPart.id)
+                .containsAll(
+                    initialState.state.targetBodyPart.id,
+                    initialState.state.targetCreature.bodyParts.find { it.name == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                )
             prop(FightState::targetBodyPart)
                 .prop(BodyPart::name)
                 .isNotEqualTo(initialState.state.targetBodyPart.name)
@@ -250,7 +253,10 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
-                .containsOnly(initialState.state.targetBodyPart.id)
+                .containsAll(
+                    initialState.state.targetBodyPart.id,
+                    initialState.state.targetCreature.bodyParts.find { it.name == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                )
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)

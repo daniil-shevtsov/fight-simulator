@@ -52,7 +52,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Slash -> {
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet.plus(
-                    state.targetBodyPart.id
+                    setOf(state.targetBodyPart.id) + state.targetBodyPart.containedBodyParts.map { state.targetCreature.bodyParts.find { kek -> kek.name == it }!!.id }
                 )
             )
         }
