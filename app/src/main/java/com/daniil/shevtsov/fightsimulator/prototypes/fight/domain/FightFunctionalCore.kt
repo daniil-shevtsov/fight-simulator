@@ -17,8 +17,9 @@ fun selectActor(state: FightState, action: FightAction.SelectActor): FightState 
 }
 
 fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightState {
-    val item = state.controlledCreature.bodyParts
+    val attackerWeapon = state.controlledCreature.bodyParts
         .find { it.name == state.controlledBodyPart.name }?.holding
+    val targetWeapon = state.targetBodyPart.holding
 
     val newControlledCreature = when (action.attackAction) {
         AttackAction.Throw -> {
@@ -89,12 +90,12 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     }
 
     val controlledName = state.controlledCreature.name
-    val itemName = item?.name?.toLowerCase()
+    val itemName = attackerWeapon?.name?.toLowerCase()
     val targetName = state.targetCreature.name
     val targetPartName = state.targetBodyPart.name.toLowerCase()
     val controlledPartName = state.controlledBodyPart.name.toLowerCase()
     val controlledAttackSource = when {
-        item != null -> "$itemName held by their $controlledPartName"
+        attackerWeapon != null -> "$itemName held by their $controlledPartName"
         else -> "their $controlledPartName"
     }
     val newEntry = when (action.attackAction) {
@@ -116,7 +117,11 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                 else -> generalMessage
             }
         }
-        else -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource"
+        else -> when {
+            shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${targetWeapon?.name?.toLowerCase()} is knocked out to the ground!"
+            else -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource"
+        }
+
     }
 
     val newWorld = state.world.copy(

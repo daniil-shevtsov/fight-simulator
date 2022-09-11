@@ -160,24 +160,35 @@ interface FightWeaponTest {
                 partId = initialState.targetRightHand.id
             )
         )
-        val state = fightFunctionalCore(
+        val stateWithBothSelections = fightFunctionalCore(
             state = stateWithTargetHand,
+            action = FightAction.SelectBodyPart(
+                creatureId = initialState.attacker.id,
+                partId = initialState.attackerLeftHand.id
+            )
+        )
+        val state = fightFunctionalCore(
+            state = stateWithBothSelections,
             action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
         )
 
-        val resultingTestState =
-
-            assertThat(TestState.AttackWithItem(state))
-                .all {
-                    prop(TestState.AttackWithItem::targetRightHand)
-                        .prop(BodyPart::holding)
-                        .isNull()
-                    prop(TestState.AttackWithItem::state)
-                        .prop(FightState::world)
-                        .prop(World::ground)
-                        .prop(Ground::items)
-                        .containsExactly(initialState.targetWeapon)
-                }
+        assertThat(TestState.AttackWithItem(state))
+            .all {
+                prop(TestState.AttackWithItem::targetRightHand)
+                    .prop(BodyPart::holding)
+                    .isNull()
+                prop(TestState.AttackWithItem::state)
+                    .all {
+                        prop(FightState::world)
+                            .prop(World::ground)
+                            .prop(Ground::items)
+                            .containsExactly(initialState.targetWeapon)
+                        prop(FightState::actionLog)
+                            .extracting(ActionEntry::text)
+                            .index(0)
+                            .isEqualTo("$controlledActorName punches $targetActorName's right hand with their left hand. $targetActorName's knife is knocked out to the ground!")
+                    }
+            }
     }
 
     private fun stateForItemAttack(): TestState.AttackWithItem {
