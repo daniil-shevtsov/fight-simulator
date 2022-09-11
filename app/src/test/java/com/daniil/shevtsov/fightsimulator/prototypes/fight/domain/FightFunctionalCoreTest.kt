@@ -55,7 +55,6 @@ internal class FightFunctionalCoreTest {
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.controlledActorId,
                 partId = initialState.controlledCreature.firstPart().id,
-                partName = initialState.controlledCreature.firstPart().name
             )
         )
 
@@ -82,7 +81,6 @@ internal class FightFunctionalCoreTest {
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.controlledActorId,
                 partId = leftHand.id,
-                partName = leftHand.name
             )
         )
 
@@ -102,7 +100,6 @@ internal class FightFunctionalCoreTest {
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.targetCreature.id,
                 partId = initialState.targetCreature.firstPart().id,
-                partName = initialState.targetCreature.firstPart().name
             )
         )
 

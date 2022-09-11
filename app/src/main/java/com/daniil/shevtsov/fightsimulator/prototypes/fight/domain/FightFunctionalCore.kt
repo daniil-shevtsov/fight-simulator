@@ -115,8 +115,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 fun selectBodyPart(state: FightState, action: FightAction.SelectBodyPart): FightState {
     val creatureToSelect = state.actors.find { it.id == action.creatureId }
     val newSelections =
-        if (creatureToSelect != null && action.partName in creatureToSelect.functionalParts
-                .map(BodyPart::name)
+        if (creatureToSelect != null && action.partId in creatureToSelect.functionalParts
+                .map(BodyPart::id)
         ) {
             state.selections.toMutableMap()
                 .apply {

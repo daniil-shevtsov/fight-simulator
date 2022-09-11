@@ -15,7 +15,6 @@ class FightSlashingTest {
             action = FightAction.SelectBodyPart(
                 creatureId = initialState.state.targetCreature.id,
                 partId = initialState.state.targetCreature.firstPart().id,
-                partName = initialState.state.targetCreature.firstPart().name
             )
         )
 
@@ -174,7 +173,21 @@ class FightSlashingTest {
     }
 
     sealed class TestState {
-        data class AttackWithItem(val state: FightState, val heldItem: Item) : TestState()
+        data class AttackWithItem(
+            val state: FightState,
+            val heldItem: Item
+        ) : TestState() {
+            val attacker: Creature
+                get() = state.controlledCreature
+            val target: Creature
+                get() = state.targetCreature
+            val weapon: Item
+                get() = attacker.functionalParts.find { it.holding != null }?.holding ?: heldItem
+            val targetHead: BodyPart
+                get() = target.bodyParts.find { it.name == "Head" }!!
+            val targetSkull: BodyPart
+                get() = target.bodyParts.find { it.name == "Skull" }!!
+        }
     }
 
     private fun stateForItemAttack(

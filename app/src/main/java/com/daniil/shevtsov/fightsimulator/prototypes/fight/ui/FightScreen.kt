@@ -161,7 +161,7 @@ private fun ActorsMenu(
                         FightAction.SelectBodyPart(
                             creatureId = creature.id,
                             partId = it.id,
-                            partName = it.name,
+//                            partName = it.name,
                         )
                     )
                 }, onControlClick = { onAction(FightAction.SelectActor(actorId = creature.id)) })
