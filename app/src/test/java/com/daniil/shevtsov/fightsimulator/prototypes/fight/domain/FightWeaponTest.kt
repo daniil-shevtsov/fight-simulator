@@ -6,10 +6,10 @@ import assertk.assertions.*
 import org.junit.jupiter.api.Test
 
 interface FightWeaponTest {
-    
+
     val controlledActorName: String
     val targetActorName: String
-    
+
     @Test
     fun `should display weapon commands when selected attacker and target parts`() {
         val initialState = stateForItemAttack()
@@ -76,7 +76,7 @@ interface FightWeaponTest {
 
     @Test
     fun `should throw by controlled actor`() {
-        val testState = stateForItemAttack( )
+        val testState = stateForItemAttack()
 
         val state = fightFunctionalCore(
             state = testState.state,
@@ -147,7 +147,7 @@ interface FightWeaponTest {
                 .isEqualTo("$controlledActorName pommels $targetActorName's head with knife held by their right hand. The skull is fractured!")
         }
     }
-    
+
     @Test
     fun `should knock out item from hand when attacking it`() {
         val initialState = stateForItemAttack()
@@ -179,6 +179,7 @@ interface FightWeaponTest {
         val left = "Player"
         val right = "Enemy"
         val knife = item(
+            id = 0L,
             name = "Knife",
             attackActions = listOf(
                 AttackAction.Slash,
@@ -186,26 +187,41 @@ interface FightWeaponTest {
                 AttackAction.Pommel,
             )
         )
-        val partWithKnife = bodyPart(
-            id = 0L,
-            name = "Right Hand",
-            holding = knife
+        val leftActorKnife = knife
+        val rightActorKnife = knife.copy(id = ItemId(1L))
+        val bodyParts = listOf(
+            bodyPart(
+                id = 0L,
+                name = "Right Hand",
+            ),
+            bodyPart(id = 1L, name = "Skull"),
+            bodyPart(id = 2L, name = "Head", containedBodyParts = setOf(BodyPartId(1L))),
         )
-        val skull = bodyPart(id = 1L, name = "Skull")
-        val head = bodyPart(id = 2L, name = "Head", containedBodyParts = setOf(skull.id))
+        val leftActorBodyParts = bodyParts.map { bodyPart ->
+            when (bodyPart.name) {
+                "Right Hand" -> bodyPart.copy(holding = leftActorKnife)
+                else -> bodyPart
+            }
+        }
+        val rightActorBodyParts = bodyParts
+            .map { bodyPart ->
+                bodyPart.copy(
+                    id = BodyPartId(bodyPart.id.raw + bodyParts.size),
+                    containedBodyParts = bodyPart.containedBodyParts.map { BodyPartId(it.raw + bodyParts.size) }.toSet(),
+                    holding = rightActorKnife,
+                )
+            }
         val leftActor = creature(
-            id = left, name = left, actor = Actor.Player, bodyParts = listOf(
-                head,
-                skull,
-                partWithKnife,
-            )
+            id = left,
+            name = left,
+            actor = Actor.Player,
+            bodyParts = leftActorBodyParts,
         )
         val rightActor = creature(
-            id = right, name = right, actor = Actor.Enemy, bodyParts = listOf(
-                head,
-                skull,
-                partWithKnife,
-            )
+            id = right,
+            name = right,
+            actor = Actor.Enemy,
+            bodyParts = rightActorBodyParts,
         )
 
         val state = fightState(
@@ -213,12 +229,12 @@ interface FightWeaponTest {
             actors = listOf(leftActor, rightActor),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {
-                    controlledActorName -> partWithKnife.id
-                    else -> head.id
+                    controlledActorName -> leftActorBodyParts.find { it.name == "Right Hand" }!!.id
+                    else -> leftActorBodyParts.find { it.name == "Head" }!!.id
                 },
                 rightActor.id to when (rightActor.name) {
-                    controlledActorName -> partWithKnife.id
-                    else -> head.id
+                    controlledActorName -> rightActorBodyParts.find { it.name == "Right Hand" }!!.id
+                    else -> rightActorBodyParts.find { it.name == "Head" }!!.id
                 }
             )
         )
