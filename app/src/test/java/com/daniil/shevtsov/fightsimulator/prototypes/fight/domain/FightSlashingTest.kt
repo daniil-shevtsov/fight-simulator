@@ -13,8 +13,8 @@ class FightSlashingTest {
         val state = fightFunctionalCore(
             state = initialState.state,
             action = FightAction.SelectBodyPart(
-                creatureId = initialState.state.targetCreature.id,
-                partId = initialState.state.targetCreature.firstPart().id,
+                creatureId = initialState.target.id,
+                partId = initialState.targetHead.id,
             )
         )
 
@@ -61,8 +61,10 @@ class FightSlashingTest {
             prop(FightState::targetCreature)
                 .prop(Creature::bodyParts)
                 .any {
-                    it.prop(BodyPart::holding).isNotNull().prop(Item::name)
-                        .isEqualTo(testState.heldItem.name)
+                    it.prop(BodyPart::holding)
+                        .isNotNull()
+                        .prop(Item::name)
+                        .isEqualTo(testState.weapon.name)
                 }
             prop(FightState::actionLog)
                 .index(0)
@@ -89,8 +91,10 @@ class FightSlashingTest {
             prop(FightState::targetCreature)
                 .prop(Creature::bodyParts)
                 .any {
-                    it.prop(BodyPart::holding).isNotNull().prop(Item::name)
-                        .isEqualTo(testState.heldItem.name)
+                    it.prop(BodyPart::holding)
+                        .isNotNull()
+                        .prop(Item::name)
+                        .isEqualTo(testState.weapon.name)
                 }
             prop(FightState::actionLog)
                 .index(0)
@@ -113,12 +117,12 @@ class FightSlashingTest {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
                 .containsAll(
-                    initialState.state.targetBodyPart.id,
-                    initialState.state.targetCreature.bodyParts.find { it.id == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                    initialState.targetHead.id,
+                    initialState.targetSkull.id
                 )
             prop(FightState::targetBodyPart)
-                .prop(BodyPart::name)
-                .isNotEqualTo(initialState.state.targetBodyPart.name)
+                .prop(BodyPart::id)
+                .isNotEqualTo(initialState.targetHead.id)
 
             prop(FightState::actionLog)
                 .index(0)
@@ -139,8 +143,8 @@ class FightSlashingTest {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
                 .containsAll(
-                    initialState.state.targetBodyPart.id,
-                    initialState.state.targetCreature.bodyParts.find { it.id == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                    initialState.targetHead.id,
+                    initialState.targetSkull.id
                 )
             prop(FightState::actionLog)
                 .index(0)
@@ -164,7 +168,7 @@ class FightSlashingTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::brokenPartsSet)
-                .containsOnly(state.targetBodyPartBone?.id)
+                .containsOnly(initialState.targetSkull.id)
             prop(FightState::actionLog)
                 .extracting(ActionEntry::text)
                 .index(0)

@@ -155,13 +155,11 @@ private fun ActorsMenu(
         actors.forEach { creature ->
             Creature(
                 creature,
-                modifier = Modifier,
                 onClick = {
                     onAction(
                         FightAction.SelectBodyPart(
                             creatureId = creature.id,
                             partId = it.id,
-//                            partName = it.name,
                         )
                     )
                 }, onControlClick = { onAction(FightAction.SelectActor(actorId = creature.id)) })
