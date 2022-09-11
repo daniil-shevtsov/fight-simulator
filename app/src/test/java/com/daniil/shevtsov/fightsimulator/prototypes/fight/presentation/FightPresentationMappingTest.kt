@@ -22,13 +22,13 @@ internal class FightPresentationMappingTest {
                         index(0)
                             .prop(CreatureMenu::bodyParts)
                             .extracting(BodyPartItem::name)
-                            .containsExactly(initialState.controlledBodyPart.name)
+                            .containsAll(initialState.controlledBodyPart.name)
                         index(1)
                             .prop(CreatureMenu::bodyParts)
                             .extracting(BodyPartItem::name)
-                            .containsExactly(
+                            .containsAll(
                                 initialState.targetBodyPart.name,
-                                "skull",
+                                "Skull",
                                 initialState.targetCreature.missingParts.first().name,
                             )
                     }
@@ -53,13 +53,13 @@ internal class FightPresentationMappingTest {
                 index(0)
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
-                    .containsExactly(initialState.controlledBodyPart.name to true)
+                    .containsAll(initialState.controlledBodyPart.name to true)
                 index(1)
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
-                    .containsExactly(
+                    .containsAll(
                         initialState.targetBodyPart.name to true,
-                        "skull" to false,
+                        "Skull" to false,
                         initialState.targetCreature.missingParts.first().name to false,
                     )
             }
@@ -118,33 +118,21 @@ internal class FightPresentationMappingTest {
     }
 
     private fun fullNormalState(): FightState {
-        val playerBodyPart = bodyPart(id = 0L, name = "hand", attackActions = listOf(AttackAction.Strike))
-        val skull = bodyPart(id = 1L, name = "skull")
-        val enemyBodyPart = bodyPart(id = 2L, name = "head", containedBodyParts = setOf(skull.id))
-        val missingBodyPart = bodyPart(id = 3L, name = "hand")
-        val player =
-            creature(
-                id = "playerId",
-                name = "Player",
-                actor = Actor.Player,
-                bodyParts = listOf(playerBodyPart)
+        val originalState = TestState.AttackWithItem(
+            state = fightFunctionalCore(
+                state = fightState(),
+                action = FightAction.Init
             )
-        val enemy = creature(
-            id = "enemyId",
-            name = "Enemy",
-            actor = Actor.Enemy,
-            bodyParts = listOf(enemyBodyPart, skull, missingBodyPart),
-            missingPartSet = setOf(missingBodyPart.id),
-            brokenPartSet = setOf(skull.id)
         )
 
-        return fightState(
-            controlledActorId = player.id,
-            selections = mapOf(
-                player.id to playerBodyPart.id,
-                enemy.id to enemyBodyPart.id,
-            ),
-            actors = listOf(player, enemy),
+        val modifiedAttacker = originalState.attacker
+        val modifiedTarget = originalState.target.copy(
+            missingPartsSet = setOf(originalState.targetRightHand.id),
+            brokenPartsSet = setOf(originalState.targetSkull.id),
+        )
+
+        return originalState.state.copy(
+            actors = listOf(modifiedAttacker, modifiedTarget)
         )
     }
 }
