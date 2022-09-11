@@ -76,7 +76,7 @@ fun FightScreenPreview() {
                 actionEntryModel("You slap enemy's head with your right hand"),
                 actionEntryModel("You done did it"),
             ),
-            ground = GroundMenu(items = listOf(item(name = "Spear"))),
+            ground = GroundMenu(items = listOf(item(name = "Spear"), item(name = "Helmet"))),
         ),
         onAction = {},
     )
@@ -416,17 +416,28 @@ fun GroundMenu(
 ) {
     Box(
         modifier = modifier
-            .height(100.dp)
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .padding(8.dp)
-            .background(Color.DarkGray)
     ) {
-        Row {
-            menu.items.forEach { item ->
-                Item(item = item)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.LightGray)
+                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                .background(Color.DarkGray)
+        ) {
+            Text(
+                text = "Ground", modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.LightGray)
+            )
+            Row(
+                modifier = Modifier
+            ) {
+                menu.items.forEach { item ->
+                    Item(item = item)
+                }
             }
         }
+
     }
 }
 
