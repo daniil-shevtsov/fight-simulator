@@ -20,7 +20,7 @@ data class FightState(
     val targetBodyPart: BodyPart
         get() = targetCreature.selectedBodyPart
     val targetBodyPartBone: BodyPart?
-        get() = targetCreature.bodyParts.firstOrNull { it.name in targetBodyPart.containedBodyParts }
+        get() = targetCreature.bodyParts.firstOrNull { it.id in targetBodyPart.containedBodyParts }
 
     val availableCommands: List<Command>
         get() = if (controlledCreature.bodyParts.isNotEmpty()) {

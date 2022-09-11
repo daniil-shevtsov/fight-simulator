@@ -52,8 +52,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Slash -> {
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet.plus(
-                    setOf(state.targetBodyPart.id) + state.targetBodyPart.containedBodyParts.map { state.targetCreature.bodyParts.find { kek -> kek.name == it }!!.id }
-                )
+                    state.targetBodyPart.id
+                ) + state.targetBodyPart.containedBodyParts
             )
         }
         else -> state.targetCreature
@@ -90,7 +90,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             val generalMessage =
                 "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource."
             when {
-                state.targetBodyPart.containedBodyParts.isNotEmpty() -> newTargetCreature.bodyParts.find { it.name == state.targetBodyPart.containedBodyParts.first() }!!.name.toLowerCase()
+                state.targetBodyPart.containedBodyParts.isNotEmpty() -> newTargetCreature.bodyParts.find { it.id == state.targetBodyPart.containedBodyParts.first() }!!.name.toLowerCase()
                     .let { containedBodyPartName ->
                         "$generalMessage The $containedBodyPartName is fractured!"
                     }
@@ -170,54 +170,57 @@ private fun createInitialState(): FightState {
     )
 }
 
-private fun createDefaultBodyParts() = listOf(
-    bodyPart(
-        id = 0L,
-        name = "Head",
-        containedBodyParts = setOf("Skull")
-    ),
-    bodyPart(
+private fun createDefaultBodyParts(): List<BodyPart> {
+    val skull = bodyPart(
         id = 1L,
         name = "Skull"
-    ),
-    bodyPart(
-        id = 2L,
-        name = "Body"
-    ),
-    bodyPart(
-        id = 3L,
-        name = "Right Arm"
-    ),
-    bodyPart(
-        id = 4L,
-        name = "Right Hand",
-        attackActions = listOf(AttackAction.Punch)
-    ),
-    bodyPart(
-        id = 5L,
-        name = "Left Arm"
-    ),
-    bodyPart(
-        id = 6L,
-        name = "Left Hand",
-        attackActions = listOf(AttackAction.Punch)
-    ),
-    bodyPart(
-        id = 7L,
-        name = "Right Leg"
-    ),
-    bodyPart(
-        id = 8L,
-        name = "Right Foot",
-        attackActions = listOf(AttackAction.Kick)
-    ),
-    bodyPart(
-        id = 9L,
-        name = "Left Leg"
-    ),
-    bodyPart(
-        id = 10L,
-        name = "Left Foot",
-        attackActions = listOf(AttackAction.Kick)
-    ),
-)
+    )
+    return listOf(
+        bodyPart(
+            id = 0L,
+            name = "Head",
+            containedBodyParts = setOf(skull.id)
+        ),
+        skull,
+        bodyPart(
+            id = 2L,
+            name = "Body"
+        ),
+        bodyPart(
+            id = 3L,
+            name = "Right Arm"
+        ),
+        bodyPart(
+            id = 4L,
+            name = "Right Hand",
+            attackActions = listOf(AttackAction.Punch)
+        ),
+        bodyPart(
+            id = 5L,
+            name = "Left Arm"
+        ),
+        bodyPart(
+            id = 6L,
+            name = "Left Hand",
+            attackActions = listOf(AttackAction.Punch)
+        ),
+        bodyPart(
+            id = 7L,
+            name = "Right Leg"
+        ),
+        bodyPart(
+            id = 8L,
+            name = "Right Foot",
+            attackActions = listOf(AttackAction.Kick)
+        ),
+        bodyPart(
+            id = 9L,
+            name = "Left Leg"
+        ),
+        bodyPart(
+            id = 10L,
+            name = "Left Foot",
+            attackActions = listOf(AttackAction.Kick)
+        ),
+    )
+}

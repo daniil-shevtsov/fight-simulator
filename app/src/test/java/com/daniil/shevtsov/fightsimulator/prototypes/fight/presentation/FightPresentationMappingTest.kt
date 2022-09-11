@@ -120,7 +120,7 @@ internal class FightPresentationMappingTest {
     private fun fullNormalState(): FightState {
         val playerBodyPart = bodyPart(id = 0L, name = "hand", attackActions = listOf(AttackAction.Strike))
         val skull = bodyPart(id = 1L, name = "skull")
-        val enemyBodyPart = bodyPart(id = 2L, name = "head", containedBodyParts = setOf(skull.name))
+        val enemyBodyPart = bodyPart(id = 2L, name = "head", containedBodyParts = setOf(skull.id))
         val missingBodyPart = bodyPart(id = 3L, name = "hand")
         val player =
             creature(

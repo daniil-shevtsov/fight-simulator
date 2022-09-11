@@ -212,14 +212,14 @@ private fun Creature(
             creature.bodyParts
                 .filter { bodyPart ->
                     creature.bodyParts.none { otherBodyPart ->
-                        bodyPart.name in otherBodyPart.contained
+                        bodyPart.id in otherBodyPart.contained
                     }
                 }
                 .forEach { bodyPartItem ->
                     BodyPart(
                         bodyPartItem = bodyPartItem,
                         onClick = { onClick(bodyPartItem) },
-                        contained = creature.bodyParts.filter { it.name in bodyPartItem.contained })
+                        contained = creature.bodyParts.filter { it.id in bodyPartItem.contained })
 
                 }
         }
@@ -412,19 +412,22 @@ fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {
     }
 }
 
-private fun defaultBodyParts() = listOf(
-    bodyPartItem(id = 0L, name = "Head", contained = setOf("Skull")),
-    bodyPartItem(id = 1L, name = "Skull"),
-    bodyPartItem(id = 2L, name = "Body"),
-    bodyPartItem(id = 3L, name = "Right Arm"),
-    bodyPartItem(id = 4L, name = "Right Hand", isSelected = true),
-    bodyPartItem(id = 5L, name = "Left Arm"),
-    bodyPartItem(id = 6L, name = "Left Hand"),
-    bodyPartItem(id = 7L, name = "Right Leg"),
-    bodyPartItem(id = 8L, name = "Right Foot"),
-    bodyPartItem(id = 9L, name = "Left Leg"),
-    bodyPartItem(id = 10L, name = "Left Foot"),
-)
+private fun defaultBodyParts(): List<BodyPartItem> {
+    val skull = bodyPartItem(id = 1L, name = "Skull")
+    return listOf(
+        bodyPartItem(id = 0L, name = "Head", contained = setOf(skull.id)),
+        skull,
+        bodyPartItem(id = 2L, name = "Body"),
+        bodyPartItem(id = 3L, name = "Right Arm"),
+        bodyPartItem(id = 4L, name = "Right Hand", isSelected = true),
+        bodyPartItem(id = 5L, name = "Left Arm"),
+        bodyPartItem(id = 6L, name = "Left Hand"),
+        bodyPartItem(id = 7L, name = "Right Leg"),
+        bodyPartItem(id = 8L, name = "Right Foot"),
+        bodyPartItem(id = 9L, name = "Left Leg"),
+        bodyPartItem(id = 10L, name = "Left Foot"),
+    )
+}
 
 @Composable
 fun <T> Pane(

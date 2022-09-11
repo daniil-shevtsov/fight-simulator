@@ -4,7 +4,7 @@ data class BodyPart(
     val id: BodyPartId,
     val name: String,
     val holding: Item? = null,
-    val containedBodyParts: Set<String> = setOf(),
+    val containedBodyParts: Set<BodyPartId> = setOf(),
     val attackActions: List<AttackAction>,
 )
 
@@ -13,7 +13,7 @@ fun bodyPart(
     name: String = "",
     holding: Item? = null,
     attackActions: List<AttackAction> = emptyList(),
-    containedBodyParts: Set<String> = setOf(),
+    containedBodyParts: Set<BodyPartId> = setOf(),
 ) = BodyPart(
     id = BodyPartId(id),
     name = name,

@@ -229,7 +229,7 @@ internal class FightFunctionalCoreTest {
                 .prop(Creature::missingPartsSet)
                 .containsAll(
                     initialState.state.targetBodyPart.id,
-                    initialState.state.targetCreature.bodyParts.find { it.name == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                    initialState.state.targetCreature.bodyParts.find { it.id == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
                 )
             prop(FightState::targetBodyPart)
                 .prop(BodyPart::name)
@@ -255,7 +255,7 @@ internal class FightFunctionalCoreTest {
                 .prop(Creature::missingPartsSet)
                 .containsAll(
                     initialState.state.targetBodyPart.id,
-                    initialState.state.targetCreature.bodyParts.find { it.name == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
+                    initialState.state.targetCreature.bodyParts.find { it.id == initialState.state.targetBodyPart.containedBodyParts.first() }!!.id
                 )
             prop(FightState::actionLog)
                 .index(0)
@@ -338,7 +338,7 @@ internal class FightFunctionalCoreTest {
             holding = knife
         )
         val skull = bodyPart(id = 1L, name = "Skull")
-        val head = bodyPart(id = 2L, name = "Head", containedBodyParts = setOf(skull.name))
+        val head = bodyPart(id = 2L, name = "Head", containedBodyParts = setOf(skull.id))
         val leftActor = creature(
             id = left, name = left, actor = Actor.Player, bodyParts = listOf(
                 head,
