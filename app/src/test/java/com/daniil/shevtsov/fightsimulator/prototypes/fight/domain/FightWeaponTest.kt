@@ -5,11 +5,14 @@ import assertk.assertThat
 import assertk.assertions.*
 import org.junit.jupiter.api.Test
 
-class FightSlashingTest {
-
+interface FightWeaponTest {
+    
+    val controlledActorName: String
+    val targetActorName: String
+    
     @Test
-    fun `should display weapon commands when selected player and enemy parts`() {
-        val initialState = stateForItemAttack(controlled = "Player")
+    fun `should display weapon commands when selected attacker and target parts`() {
+        val initialState = stateForItemAttack(controlled = controlledActorName)
         val state = fightFunctionalCore(
             state = initialState.state,
             action = FightAction.SelectBodyPart(
@@ -31,7 +34,7 @@ class FightSlashingTest {
 
     @Test
     fun `should use item in log entry when command clicked`() {
-        val initialState = stateForItemAttack(controlled = "Player")
+        val initialState = stateForItemAttack(controlled = controlledActorName)
         val state = fightFunctionalCore(
             state = initialState.state,
             action = FightAction.SelectCommand(attackAction = AttackAction.Stab)
@@ -40,13 +43,13 @@ class FightSlashingTest {
         assertThat(state)
             .prop(FightState::actionLog)
             .extracting(ActionEntry::text)
-            .containsExactly("Player stabs Enemy's head with knife held by their right hand")
+            .containsExactly("$controlledActorName stabs $targetActorName's head with knife held by their right hand")
     }
 
     @Test
-    fun `should move item from player to enemy when throwing`() {
+    fun `should move item from attacker to target when throwing`() {
         val testState = stateForItemAttack(
-            controlled = "Player"
+            controlled = controlledActorName
         )
 
         val state = fightFunctionalCore(
@@ -69,14 +72,14 @@ class FightSlashingTest {
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
-                .isEqualTo("Player throws knife at Enemy's head with their right hand.\nThe knife has lodged firmly in the wound!")
+                .isEqualTo("$controlledActorName throws knife at $targetActorName's head with their right hand.\nThe knife has lodged firmly in the wound!")
         }
     }
 
     @Test
     fun `should throw by controlled actor`() {
         val testState = stateForItemAttack(
-            controlled = "Enemy"
+            controlled = controlledActorName
         )
 
         val state = fightFunctionalCore(
@@ -99,14 +102,14 @@ class FightSlashingTest {
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
-                .isEqualTo("Enemy throws knife at Player's head with their right hand.\nThe knife has lodged firmly in the wound!")
+                .isEqualTo("$controlledActorName throws knife at $targetActorName's head with their right hand.\nThe knife has lodged firmly in the wound!")
         }
     }
 
     @Test
-    fun `should remove limb and contained parts when player is slashing`() {
+    fun `should remove limb and contained parts when attacker is slashing`() {
         val initialState = stateForItemAttack(
-            controlled = "Player"
+            controlled = controlledActorName
         )
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -127,38 +130,13 @@ class FightSlashingTest {
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
-                .isEqualTo("Player slashes at Enemy's head with knife held by their right hand.\nSevered head flies off in an arc!")
-        }
-    }
-
-    @Test
-    fun `should remove limb when enemy is slashing`() {
-        val initialState = stateForItemAttack(controlled = "Enemy")
-        val state = fightFunctionalCore(
-            state = initialState.state,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
-        )
-
-        assertThat(state).all {
-            prop(FightState::targetCreature)
-                .prop(Creature::missingPartsSet)
-                .containsAll(
-                    initialState.targetHead.id,
-                    initialState.targetSkull.id
-                )
-            prop(FightState::actionLog)
-                .index(0)
-                .prop(ActionEntry::text)
-                .isEqualTo(
-                    "Enemy slashes at Player's head with knife held by their right hand.\n" +
-                            "Severed head flies off in an arc!"
-                )
+                .isEqualTo("$controlledActorName slashes at $targetActorName's head with knife held by their right hand.\nSevered head flies off in an arc!")
         }
     }
 
     @Test
     fun `attack at head should break skull`() {
-        val initialState = stateForItemAttack(controlled = "Player")
+        val initialState = stateForItemAttack(controlled = controlledActorName)
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -172,7 +150,7 @@ class FightSlashingTest {
             prop(FightState::actionLog)
                 .extracting(ActionEntry::text)
                 .index(0)
-                .isEqualTo("Player pommels Enemy's head with knife held by their right hand. The skull is fractured!")
+                .isEqualTo("$controlledActorName pommels $targetActorName's head with knife held by their right hand. The skull is fractured!")
         }
     }
 
@@ -249,5 +227,4 @@ class FightSlashingTest {
             heldItem = knife,
         )
     }
-
 }
