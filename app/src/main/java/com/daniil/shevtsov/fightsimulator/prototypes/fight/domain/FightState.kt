@@ -1,7 +1,10 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
+@JvmInline
+value class BodyPartId(val raw: String)
+
 data class FightState(
-    val selections: Map<String, String>,
+    val selections: Map<String, BodyPartId>,
     val controlledActorId: String,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
@@ -26,11 +29,11 @@ data class FightState(
             emptyList()
         }.map(::Command)
 
-//    private val Creature.selectedBodyPart
+    //    private val Creature.selectedBodyPart
 //        get() = bodyParts.find { it.name == selections[id] }
 //            ?: bodyParts.first()
     private val Creature.selectedBodyPart
-        get() = functionalParts.find { it.name == selections[id] }
+        get() = functionalParts.find { it.name == selections[id]?.raw }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Item?.attackActionsWithThrow: List<AttackAction>
@@ -40,7 +43,7 @@ data class FightState(
 
 fun fightState(
     controlledActorId: String = "",
-    selections: Map<String, String> = mapOf(),
+    selections: Map<String, BodyPartId> = mapOf(),
     actors: List<Creature> = listOf(creature(id = "playerId"), creature(id = "enemyId")),
     actionLog: List<ActionEntry> = emptyList(),
 ) = FightState(

@@ -33,7 +33,7 @@ internal class FightFunctionalCoreTest {
                             "Left Foot",
                         )
                 }
-            prop(FightState::selections).containsOnly("Player" to "Left Hand", "Enemy" to "Head")
+            prop(FightState::selections).containsOnly("Player" to BodyPartId("Left Hand"), "Enemy" to BodyPartId("Head"))
             prop(FightState::availableCommands)
                 .extracting(Command::attackAction)
                 .containsExactly(AttackAction.Punch)
@@ -54,7 +54,7 @@ internal class FightFunctionalCoreTest {
 
         assertThat(state)
             .prop(FightState::selections)
-            .contains(initialState.controlledActorId to initialState.controlledCreature.firstPart().name)
+            .contains(initialState.controlledActorId to BodyPartId(initialState.controlledCreature.firstPart().name))
     }
 
     @Test
@@ -79,8 +79,8 @@ internal class FightFunctionalCoreTest {
         assertThat(state)
             .prop(FightState::selections)
             .containsAll(
-                initialState.controlledActorId to rightHand.name,
-                initialState.targetCreature.id to leftHand.name,
+                initialState.controlledActorId to BodyPartId(rightHand.name),
+                initialState.targetCreature.id to BodyPartId(leftHand.name),
             )
     }
 
@@ -348,12 +348,12 @@ internal class FightFunctionalCoreTest {
             actors = listOf(leftActor, rightActor),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {
-                    controlled -> partWithKnife.name
-                    else -> head.name
+                    controlled -> BodyPartId(partWithKnife.name)
+                    else -> BodyPartId(head.name)
                 },
                 rightActor.id to when (rightActor.name) {
-                    controlled -> partWithKnife.name
-                    else -> head.name
+                    controlled -> BodyPartId(partWithKnife.name)
+                    else -> BodyPartId(head.name)
                 }
             )
         )
@@ -392,14 +392,14 @@ internal class FightFunctionalCoreTest {
             controlledActorId = controlled,
             actors = listOf(player, enemy),
             selections = mapOf(
-                player.id to when (controlled) {
+                player.id to BodyPartId(when (controlled) {
                     player.id -> controlledPartName
                     else -> targetPartName
-                },
-                enemy.id to when (controlled) {
+                }),
+                enemy.id to BodyPartId(when (controlled) {
                     enemy.id -> controlledPartName
                     else -> targetPartName
-                },
+                }),
             )
         )
     }
