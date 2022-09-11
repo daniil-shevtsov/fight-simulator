@@ -167,6 +167,7 @@ private fun createInitialState(): FightState {
         ),
         actors = listOf(player, enemy),
         actionLog = emptyList(),
+        world = World(ground = ground())
     )
 }
 

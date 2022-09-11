@@ -8,6 +8,7 @@ data class FightState(
     val controlledActorId: String,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
+    val world: World,
 ) {
 
     val controlledCreature: Creature
@@ -46,9 +47,11 @@ fun fightState(
     selections: Map<String, BodyPartId> = mapOf(),
     actors: List<Creature> = listOf(creature(id = "playerId"), creature(id = "enemyId")),
     actionLog: List<ActionEntry> = emptyList(),
+    world: World = world(),
 ) = FightState(
     controlledActorId = controlledActorId,
     actors = actors,
     selections = selections,
     actionLog = actionLog,
+    world = world,
 )
