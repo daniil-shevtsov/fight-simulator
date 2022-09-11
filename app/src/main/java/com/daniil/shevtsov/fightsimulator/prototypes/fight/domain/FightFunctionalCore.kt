@@ -35,6 +35,11 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         else -> state.controlledCreature
     }
 
+    val shouldKnockOutWeapon = action.attackAction in setOf(
+        AttackAction.Punch,
+        AttackAction.Kick
+    ) && state.targetBodyPart.holding != null
+
     val newTargetCreature = when (action.attackAction) {
         AttackAction.Throw -> {
             val thrownItem = state.controlledBodyPart.holding
@@ -49,6 +54,20 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             brokenPartsSet = state.targetCreature.brokenPartsSet + (state.targetBodyPartBone?.id
                 ?: state.targetBodyPart.id)
         )
+        AttackAction.Punch, AttackAction.Kick -> {
+            when {
+                shouldKnockOutWeapon -> state.targetCreature.copy(
+                    bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
+                        when (bodyPart.id) {
+                            state.targetBodyPart.id -> bodyPart.copy(holding = null)
+                            else -> bodyPart
+                        }
+                    }
+                )
+                else -> state.targetCreature
+            }
+
+        }
         AttackAction.Slash -> {
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet.plus(
@@ -100,15 +119,25 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         else -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource"
     }
 
+    val newWorld = state.world.copy(
+        ground = when {
+            shouldKnockOutWeapon -> state.world.ground.copy(
+                items = state.world.ground.items + state.targetBodyPart.holding!!
+            )
+            else -> state.world.ground
+        }
+    )
+
     return state.copy(
-        actionLog = state.actionLog + listOf(actionEntry(text = newEntry)),
         actors = state.actors.map { actor ->
             when (actor.id) {
                 state.controlledCreature.id -> newControlledCreature
                 state.targetCreature.id -> newTargetCreature
                 else -> actor
             }
-        }
+        },
+        world = newWorld,
+        actionLog = state.actionLog + listOf(actionEntry(text = newEntry))
     )
 }
 

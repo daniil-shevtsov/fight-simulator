@@ -153,10 +153,31 @@ interface FightWeaponTest {
     fun `should knock out item from hand when attacking it`() {
         val initialState = stateForItemAttack()
 
-        val state = fightFunctionalCore(
+        val stateWithTargetHand = fightFunctionalCore(
             state = initialState.state,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Pommel)
+            action = FightAction.SelectBodyPart(
+                creatureId = initialState.target.id,
+                partId = initialState.targetRightHand.id
+            )
         )
+        val state = fightFunctionalCore(
+            state = stateWithTargetHand,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
+        )
+
+        val resultingTestState =
+
+            assertThat(TestState.AttackWithItem(state))
+                .all {
+                    prop(TestState.AttackWithItem::targetRightHand)
+                        .prop(BodyPart::holding)
+                        .isNull()
+                    prop(TestState.AttackWithItem::state)
+                        .prop(FightState::world)
+                        .prop(World::ground)
+                        .prop(Ground::items)
+                        .containsExactly(initialState.targetWeapon)
+                }
     }
 
     sealed class TestState {
@@ -173,6 +194,11 @@ interface FightWeaponTest {
                 get() = target.bodyParts.find { it.name == "Head" }!!
             val targetSkull: BodyPart
                 get() = target.bodyParts.find { it.name == "Skull" }!!
+            val targetRightHand: BodyPart
+                get() = target.bodyParts.find { it.name == "Right Hand" }!!
+            val targetWeapon: Item
+                get() = target.functionalParts.find { it.holding != null }?.holding!!
+
         }
     }
 
