@@ -52,7 +52,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Slash -> {
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet.plus(
-                    state.targetBodyPart.name
+                    state.targetBodyPart.id
                 )
             )
         }

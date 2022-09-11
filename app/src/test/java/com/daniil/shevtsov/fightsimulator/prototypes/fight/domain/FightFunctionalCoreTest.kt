@@ -227,7 +227,7 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
-                .containsOnly(initialState.state.targetBodyPart.name)
+                .containsOnly(initialState.state.targetBodyPart.id)
             prop(FightState::targetBodyPart)
                 .prop(BodyPart::name)
                 .isNotEqualTo(initialState.state.targetBodyPart.name)
@@ -250,7 +250,7 @@ internal class FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::targetCreature)
                 .prop(Creature::missingPartsSet)
-                .containsOnly(initialState.state.targetBodyPart.name)
+                .containsOnly(initialState.state.targetBodyPart.id)
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
@@ -384,7 +384,7 @@ internal class FightFunctionalCoreTest {
             id = "Player",
             actor = Actor.Player,
             name = "Player",
-            missingPartSet = missingParts.toSet(),
+            missingPartSet = bodyParts.filter { it.name in missingParts }.map { it.id }.toSet(),
             bodyParts = bodyParts,
         )
         val enemy = creature(

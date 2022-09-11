@@ -21,7 +21,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                             else -> false
                         },
                         statuses = listOfNotNull(
-                            BodyPartStatus.Missing.takeIf { bodyPart.name in creature.missingPartsSet },
+                            BodyPartStatus.Missing.takeIf { bodyPart.id in creature.missingPartsSet },
                             BodyPartStatus.Broken.takeIf { bodyPart.name in creature.brokenPartsSet },
                         ),
                     )

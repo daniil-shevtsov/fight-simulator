@@ -5,16 +5,16 @@ data class Creature(
     val actor: Actor,
     val name: String,
     val bodyParts: List<BodyPart>,
-    val missingPartsSet: Set<String> = setOf(),
+    val missingPartsSet: Set<BodyPartId> = setOf(),
     val brokenPartsSet: Set<String> = setOf(),
 ) {
     val missingParts: List<BodyPart>
-        get() = bodyParts.filter { it.name in missingPartsSet }
+        get() = bodyParts.filter { it.id in missingPartsSet }
     val brokenParts: List<BodyPart>
         get() = bodyParts.filter { it.name in brokenPartsSet }
 
     val functionalParts: List<BodyPart>
-        get() = bodyParts.filter { it.name !in missingPartsSet }
+        get() = bodyParts.filter { it.id !in missingPartsSet }
 
     fun firstPart() = bodyParts.first()
 
@@ -25,7 +25,7 @@ fun creature(
     actor: Actor = Actor.Enemy,
     name: String = "",
     bodyParts: List<BodyPart> = emptyList(),
-    missingPartSet: Set<String> = emptySet(),
+    missingPartSet: Set<BodyPartId> = emptySet(),
     brokenPartSet: Set<String> = emptySet(),
 ) = Creature(
     id = id,
