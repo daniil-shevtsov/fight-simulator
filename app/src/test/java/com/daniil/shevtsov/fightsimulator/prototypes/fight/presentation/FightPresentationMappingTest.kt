@@ -157,8 +157,8 @@ internal class FightPresentationMappingTest {
             }
     }
 
-    private fun fullNormalState(): TestState.AttackWithItem {
-        val originalState = TestState.AttackWithItem(
+    private fun fullNormalState(): AttackWithItemTestState {
+        val originalState = AttackWithItemTestState(
             state = fightFunctionalCore(
                 state = fightState(),
                 action = FightAction.Init

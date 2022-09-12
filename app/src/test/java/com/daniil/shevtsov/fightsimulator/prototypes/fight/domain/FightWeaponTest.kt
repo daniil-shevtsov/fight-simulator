@@ -271,12 +271,12 @@ interface FightWeaponTest {
             action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
         )
 
-        assertThat(TestState.AttackWithItem(state))
+        assertThat(AttackWithItemTestState(state))
             .all {
-                prop(TestState.AttackWithItem::targetRightHand)
+                prop(AttackWithItemTestState::targetRightHand)
                     .prop(BodyPart::holding)
                     .isNull()
-                prop(TestState.AttackWithItem::state)
+                prop(AttackWithItemTestState::state)
                     .all {
                         prop(FightState::world)
                             .prop(World::ground)
@@ -301,16 +301,21 @@ interface FightWeaponTest {
             )
         )
 
-        assertThat(TestState.AttackWithItem(state))
+        assertThat(AttackWithItemTestState(state))
             .all {
-                prop(TestState.AttackWithItem::state)
+                prop(AttackWithItemTestState::state)
                     .prop(FightState::target)
                     .prop(Targetable::id)
                     .isEqualTo(initialState.ground.id)
             }
     }
+    
+    @Test
+    fun `should pick up knife from the ground`() {
+        
+    }
 
-    private fun stateForItemAttack(): TestState.AttackWithItem {
+    private fun stateForItemAttack(): AttackWithItemTestState {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
         val leftActor = initialState.actors.first().copy(name = "Player")
@@ -343,7 +348,7 @@ interface FightWeaponTest {
             )
         )
 
-        return TestState.AttackWithItem(
+        return AttackWithItemTestState(
             state = state,
         )
     }
