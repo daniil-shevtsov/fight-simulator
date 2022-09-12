@@ -1,9 +1,11 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Actor
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.CreatureId
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.creatureId
 
 data class CreatureMenu(
-    val id: String,
+    val id: CreatureId,
     val actor: Actor,
     val bodyParts: List<BodyPartItem>,
     val isControlled: Boolean,
@@ -15,7 +17,7 @@ fun creatureMenu(
     bodyParts: List<BodyPartItem> = emptyList(),
     isControlled: Boolean = false,
 ) = CreatureMenu(
-    id = id,
+    id = creatureId(id),
     actor = actor,
     bodyParts = bodyParts,
     isControlled = isControlled,

@@ -1,10 +1,10 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class Item(
-    val id: SelectableId.Item,
+    override val id: SelectableId.Item,
     val name: String,
     val attackActions: List<AttackAction>,
-)
+) : Selectable
 
 fun item(
     id: Long = 0L,

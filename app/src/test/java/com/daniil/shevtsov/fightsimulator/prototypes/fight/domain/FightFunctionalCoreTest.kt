@@ -15,7 +15,7 @@ internal class FightFunctionalCoreTest {
             action = FightAction.Init
         )
         assertThat(newState).all {
-            prop(FightState::controlledActorId).isEqualTo("Player")
+            prop(FightState::controlledActorId).prop(CreatureId::raw).isEqualTo("Player")
             prop(FightState::actors)
                 .each {
                     it.prop(Creature::bodyParts)
@@ -113,7 +113,7 @@ internal class FightFunctionalCoreTest {
 
     @Test
     fun `should add entry to log when command clicked`() {
-        val initialState = normalFullState(controlled = "Player")
+        val initialState = normalFullState(controlledName = "Player")
         val state = fightFunctionalCore(
             state = initialState,
             action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
@@ -142,7 +142,7 @@ internal class FightFunctionalCoreTest {
 
     @Test
     fun `should do everything by controlled actor`() {
-        val initialState = normalFullState(controlled = "Enemy")
+        val initialState = normalFullState(controlledName = "Enemy")
 
         val state = fightFunctionalCore(
             state = initialState,
@@ -157,12 +157,13 @@ internal class FightFunctionalCoreTest {
     }
 
     fun normalFullState(
-        controlled: String = "Player",
+        controlledName: String = "Player",
         bodyParts: List<BodyPart> = normalBody(),
         controlledPartName: String = "Right Hand",
         targetPartName: String = "Head",
         missingParts: List<String> = emptyList(),
     ): FightState {
+        val controlled = creatureId(controlledName)
         val player = creature(
             id = "Player",
             actor = Actor.Player,
@@ -179,7 +180,7 @@ internal class FightFunctionalCoreTest {
         val controlledPartId = bodyParts.find { it.name == controlledPartName }?.id
         val targetPartId = bodyParts.find { it.name == targetPartName }?.id
         return fightState(
-            controlledActorId = controlled,
+            controlledActorId = controlledName,
             actors = listOf(player, enemy),
             selections = mapOf(
                 player.id to when (controlled) {

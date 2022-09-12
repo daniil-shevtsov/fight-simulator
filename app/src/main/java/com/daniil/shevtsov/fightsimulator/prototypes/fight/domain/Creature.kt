@@ -1,7 +1,7 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class Creature(
-    val id: String,
+    val id: CreatureId,
     val actor: Actor,
     val name: String,
     val bodyParts: List<BodyPart>,
@@ -28,7 +28,7 @@ fun creature(
     missingPartSet: Set<SelectableId.BodyPart> = emptySet(),
     brokenPartSet: Set<SelectableId.BodyPart> = emptySet(),
 ) = Creature(
-    id = id,
+    id = creatureId(id),
     actor = actor,
     name = name,
     bodyParts = bodyParts,

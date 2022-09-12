@@ -197,13 +197,13 @@ private fun createInitialState(): FightState {
     }
 
     val player = Creature(
-        id = "Player",
+        id = creatureId("Player"),
         actor = Actor.Player,
         name = "Player",
         bodyParts = playerBodyParts,
     )
     val enemy = Creature(
-        id = "Enemy",
+        id = creatureId("Enemy"),
         name = "Enemy",
         actor = Actor.Enemy,
         bodyParts = enemyBodyParts,

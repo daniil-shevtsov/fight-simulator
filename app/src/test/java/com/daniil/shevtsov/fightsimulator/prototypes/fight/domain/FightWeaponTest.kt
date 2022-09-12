@@ -198,7 +198,7 @@ interface FightWeaponTest {
         val rightActor = initialState.actors.last().copy(name = "Enemy")
 
         val state = initialState.copy(
-            controlledActorId = controlledActorName,
+            controlledActorId = creatureId(controlledActorName),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {
                     controlledActorName -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id

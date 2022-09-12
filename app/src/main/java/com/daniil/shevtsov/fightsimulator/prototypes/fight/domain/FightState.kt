@@ -1,8 +1,8 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class FightState(
-    val selections: Map<String, SelectableId>,
-    val controlledActorId: String,
+    val selections: Map<CreatureId, SelectableId>,
+    val controlledActorId: CreatureId,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
     val world: World,
@@ -27,9 +27,6 @@ data class FightState(
             emptyList()
         }.map(::Command)
 
-    //    private val Creature.selectedBodyPart
-//        get() = bodyParts.find { it.name == selections[id] }
-//            ?: bodyParts.first()
     private val Creature.selectedBodyPart
         get() = functionalParts.find { it.name == bodyParts.find { kek -> kek.id == selections[id] }?.name }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
@@ -41,12 +38,12 @@ data class FightState(
 
 fun fightState(
     controlledActorId: String = "",
-    selections: Map<String, SelectableId> = mapOf(),
+    selections: Map<CreatureId, SelectableId> = mapOf(),
     actors: List<Creature> = listOf(creature(id = "playerId"), creature(id = "enemyId")),
     actionLog: List<ActionEntry> = emptyList(),
     world: World = world(),
 ) = FightState(
-    controlledActorId = controlledActorId,
+    controlledActorId = CreatureId(controlledActorId),
     actors = actors,
     selections = selections,
     actionLog = actionLog,
