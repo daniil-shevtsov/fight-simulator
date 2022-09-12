@@ -28,10 +28,10 @@ data class FightState(
         get() = targetCreature.bodyParts.firstOrNull { it.id in targetBodyPart?.containedBodyParts.orEmpty() }
 
     val availableCommands: List<Command>
-        get() = if (controlledCreature.bodyParts.isNotEmpty()) {
-            (controlledBodyPart.attackActions + controlledBodyPart.holding.attackActionsWithThrow)
-        } else {
-            emptyList()
+        get() = when {
+            world.ground.items.contains(targetSelectable) -> listOf(AttackAction.Grab)
+            controlledCreature.bodyParts.isNotEmpty() -> (controlledBodyPart.attackActions + controlledBodyPart.holding.attackActionsWithThrow)
+            else -> emptyList()
         }.map(::Command)
 
     val selectableHolders: List<SelectableHolder>

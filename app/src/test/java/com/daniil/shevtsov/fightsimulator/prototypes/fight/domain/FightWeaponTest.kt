@@ -329,6 +329,24 @@ interface FightWeaponTest {
             .isEqualTo(initialState.spear)
     }
 
+    @Test
+    fun `should should show command for picking up when selected item on the ground`() {
+        val initialState = stateForItemPickup()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+
+        assertThat(state)
+            .prop(FightState::availableCommands)
+            .extracting(Command::attackAction)
+            .containsOnly(AttackAction.Grab)
+    }
+
     private fun stateForItemAttack(): AttackWithItemTestState {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 

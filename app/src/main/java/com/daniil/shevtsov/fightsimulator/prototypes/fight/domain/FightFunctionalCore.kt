@@ -99,6 +99,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Punch -> "punches"
         AttackAction.Kick -> "kicks"
         AttackAction.Throw -> "throws"
+        AttackAction.Grab -> "grabs"
     }
 
     val controlledName = state.controlledCreature.name
