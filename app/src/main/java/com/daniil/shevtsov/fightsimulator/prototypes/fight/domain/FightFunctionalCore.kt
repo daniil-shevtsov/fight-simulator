@@ -175,8 +175,8 @@ private fun createInitialState(): FightState {
             AttackAction.Pommel
         )
     )
-    val playerKnife = knife.copy(id = ItemId(0L))
-    val enemyKnife = knife.copy(id = ItemId(1L))
+    val playerKnife = knife.copy(id = SelectableId.Item(0L))
+    val enemyKnife = knife.copy(id = SelectableId.Item(1L))
     val playerBodyParts = createDefaultBodyParts(idOffset = 0L).map { bodyPart ->
         when (bodyPart.name) {
             "Right Hand" -> bodyPart.copy(
