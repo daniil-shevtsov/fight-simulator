@@ -1,12 +1,12 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class BodyPart(
-    override val id: SelectableId.BodyPart,
+    override val id: BodyPartId,
     val name: String,
     val attackActions: List<AttackAction>,
     val holding: Item? = null,
-    val containedBodyParts: Set<SelectableId.BodyPart> = setOf(),
-    val parentId: SelectableId.BodyPart? = null,
+    val containedBodyParts: Set<BodyPartId> = setOf(),
+    val parentId: BodyPartId? = null,
 ) : Selectable
 
 fun bodyPart(
@@ -14,8 +14,8 @@ fun bodyPart(
     name: String = "",
     holding: Item? = null,
     attackActions: List<AttackAction> = emptyList(),
-    containedBodyParts: Set<SelectableId.BodyPart> = setOf(),
-    parentId: SelectableId.BodyPart? = null,
+    containedBodyParts: Set<BodyPartId> = setOf(),
+    parentId: BodyPartId? = null,
 ) = BodyPart(
     id = bodyPartId(id),
     name = name,

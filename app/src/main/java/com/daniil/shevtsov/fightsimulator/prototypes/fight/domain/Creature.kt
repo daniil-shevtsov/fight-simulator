@@ -5,8 +5,8 @@ data class Creature(
     val actor: Actor,
     val name: String,
     val bodyParts: List<BodyPart>,
-    val missingPartsSet: Set<SelectableId.BodyPart> = setOf(),
-    val brokenPartsSet: Set<SelectableId.BodyPart> = setOf(),
+    val missingPartsSet: Set<BodyPartId> = setOf(),
+    val brokenPartsSet: Set<BodyPartId> = setOf(),
 ) : Targetable {
 
     override val targetId: TargetId
@@ -29,8 +29,8 @@ fun creature(
     actor: Actor = Actor.Enemy,
     name: String = "",
     bodyParts: List<BodyPart> = emptyList(),
-    missingPartSet: Set<SelectableId.BodyPart> = emptySet(),
-    brokenPartSet: Set<SelectableId.BodyPart> = emptySet(),
+    missingPartSet: Set<BodyPartId> = emptySet(),
+    brokenPartSet: Set<BodyPartId> = emptySet(),
 ) = Creature(
     id = creatureId(id),
     actor = actor,

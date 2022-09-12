@@ -53,7 +53,7 @@ internal class FightFunctionalCoreTest {
         val initialState = normalFullState()
         val state = fightFunctionalCore(
             state = initialState,
-            action = FightAction.SelectBodyPart(
+            action = FightAction.SelectSomething(
                 creatureId = initialState.controlledActorId,
                 partId = initialState.controlledCreature.firstPart().id,
             )
@@ -79,7 +79,7 @@ internal class FightFunctionalCoreTest {
         )
         val state = fightFunctionalCore(
             state = initialState,
-            action = FightAction.SelectBodyPart(
+            action = FightAction.SelectSomething(
                 creatureId = initialState.controlledActorId,
                 partId = leftHand.id,
             )
@@ -98,7 +98,7 @@ internal class FightFunctionalCoreTest {
         val initialState = normalFullState()
         val state = fightFunctionalCore(
             state = initialState,
-            action = FightAction.SelectBodyPart(
+            action = FightAction.SelectSomething(
                 creatureId = initialState.targetCreature.id,
                 partId = initialState.targetCreature.firstPart().id,
             )

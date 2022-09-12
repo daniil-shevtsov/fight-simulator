@@ -15,7 +15,7 @@ interface FightWeaponTest {
         val initialState = stateForItemAttack()
         val state = fightFunctionalCore(
             state = initialState.state,
-            action = FightAction.SelectBodyPart(
+            action = FightAction.SelectSomething(
                 creatureId = initialState.target.id,
                 partId = initialState.targetHead.id,
             )
@@ -155,14 +155,14 @@ interface FightWeaponTest {
 
         val stateWithTargetHand = fightFunctionalCore(
             state = initialState.state,
-            action = FightAction.SelectBodyPart(
+            action = FightAction.SelectSomething(
                 creatureId = initialState.target.id,
                 partId = initialState.targetRightHand.id
             )
         )
         val stateWithBothSelections = fightFunctionalCore(
             state = stateWithTargetHand,
-            action = FightAction.SelectBodyPart(
+            action = FightAction.SelectSomething(
                 creatureId = initialState.attacker.id,
                 partId = initialState.attackerLeftHand.id
             )

@@ -1,9 +1,9 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 sealed class FightAction {
-    data class SelectBodyPart(
+    data class SelectSomething(
         val creatureId: CreatureId,
-        val partId: SelectableId.BodyPart,
+        val partId: BodyPartId,
     ) : FightAction()
 
     data class SelectCommand(val attackAction: AttackAction) : FightAction()

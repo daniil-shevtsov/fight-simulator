@@ -6,7 +6,7 @@ fun fightFunctionalCore(
 ): FightState {
     return when (action) {
         FightAction.Init -> createInitialState()
-        is FightAction.SelectBodyPart -> selectBodyPart(state, action)
+        is FightAction.SelectSomething -> selectBodyPart(state, action)
         is FightAction.SelectCommand -> selectCommand(state, action)
         is FightAction.SelectControlledActor -> selectActor(state, action)
         is FightAction.SelectTarget -> selectTarget(state, action)
@@ -158,7 +158,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     )
 }
 
-fun selectBodyPart(state: FightState, action: FightAction.SelectBodyPart): FightState {
+fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): FightState {
     val creatureToSelect = state.actors.find { it.id == action.creatureId }
     val newSelections =
         if (creatureToSelect != null && action.partId in creatureToSelect.functionalParts
