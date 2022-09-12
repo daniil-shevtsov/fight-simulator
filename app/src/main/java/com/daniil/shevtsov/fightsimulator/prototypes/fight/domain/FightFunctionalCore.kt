@@ -160,22 +160,21 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 
 fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): FightState {
     val creatureToSelect = state.actors.find { it.id == action.creatureId }
-    val newSelections =
-        if (creatureToSelect != null && action.selectableId in creatureToSelect.functionalParts
-                .map(BodyPart::id)
-        ) {
-            state.selections.toMutableMap()
-                .apply {
-                    put(action.creatureId, action.selectableId)
+
+    return if (creatureToSelect != null && action.selectableId in creatureToSelect.functionalParts
+            .map(BodyPart::id)
+    ) {
+        state.copy(
+            selections = state.actors.associate {
+                when (it.id) {
+                    action.creatureId -> it.id to action.selectableId
+                    else -> it.id to state.selections[it.id]!!
                 }
-        } else {
-            state.selections
-        }
-
-
-    return state.copy(
-        selections = newSelections,
-    )
+            }
+        )
+    } else {
+        state
+    }
 }
 
 private fun createInitialState(): FightState {
