@@ -30,31 +30,32 @@ interface FightWeaponTest {
     private fun Assert<FightState>.controlledBodyPartName() = prop(FightState::controlledBodyPart)
         .prop(BodyPart::name)
 
-//    @Test
-//    fun `should not select slashed part when clicked`() {
-//        val leftHand = bodyPart(id = 0L, name = "Left Hand")
-//        val rightHand = bodyPart(id = 1L, name = "Right Hand")
-//        val initialState = normalFullState(
-//            bodyParts = listOf(leftHand, rightHand),
-//            controlledPartName = rightHand.name,
-//            targetPartName = leftHand.name,
-//            missingParts = listOf(leftHand.name)
-//        )
-//        val state = fightFunctionalCore(
-//            state = initialState,
-//            action = FightAction.SelectSomething(
-//                creatureId = initialState.controlledActorId,
-//                selectableId = leftHand.id,
-//            )
-//        )
-//
-//        assertThat(state)
-//            .prop(FightState::selections)
-//            .containsAll(
-//                initialState.controlledActorId to rightHand.id,
-//                initialState.targetCreature.id to initialState.targetCreature.bodyParts.first().id,
-//            )
-//    }
+    @Test
+    fun `should not select slashed part when clicked`() {
+        val initialState = stateForItemAttack()
+
+        val state = fightFunctionalCore(
+            state = fightFunctionalCore(
+                state = fightFunctionalCore(
+                    state = initialState.state, action = FightAction.SelectSomething(
+                        creatureId = initialState.target.id,
+                        selectableId = initialState.targetRightHand.id,
+                    )
+                ),
+                action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
+            ),
+            action = FightAction.SelectSomething(
+                creatureId = initialState.target.id,
+                selectableId = initialState.targetRightHand.id,
+            )
+        )
+
+        assertThat(state)
+            .all {
+                prop(FightState::controlledBodyPart).prop(BodyPart::id).isEqualTo(initialState.attackerRightHand.id)
+                prop(FightState::targetBodyPart).prop(BodyPart::id).isEqualTo(initialState.targetHead.id)
+            }
+    }
 
     @Test
     fun `should display body part actions when selected attacker and target body parts`() {
@@ -92,37 +93,21 @@ interface FightWeaponTest {
             .extracting(ActionEntry::text)
             .containsExactly("$controlledActorName punches $targetActorName's head with their left hand")
     }
-//
-//    @Test
-//    fun `should select who I am playing`() {
-//        val initialState = normalFullState()
-//
-//        val state = fightFunctionalCore(
-//            state = initialState,
-//            action = FightAction.SelectControlledActor(actorId = initialState.targetCreature.id)
-//        )
-//
-//        assertThat(state).all {
-//            prop(FightState::controlledActorId)
-//                .isEqualTo(initialState.targetCreature.id)
-//        }
-//    }
-//
-//    @Test
-//    fun `should do everything by controlled actor`() {
-//        val initialState = normalFullState(controlledName = "Enemy", targetName = "Player")
-//
-//        val state = fightFunctionalCore(
-//            state = initialState,
-//            action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
-//        )
-//
-//        assertThat(state).all {
-//            prop(FightState::actionLog)
-//                .extracting(ActionEntry::text)
-//                .containsExactly("Enemy punches Player's head with their right hand")
-//        }
-//    }
+
+    @Test
+    fun `should select who I am playing`() {
+        val initialState = stateForItemAttack()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectControlledActor(actorId = initialState.target.id)
+        )
+
+        assertThat(state).all {
+            prop(FightState::controlledActorId)
+                .isEqualTo(initialState.target.id)
+        }
+    }
 
     @Test
     fun `should display weapon commands when selected attacker and target parts`() {
