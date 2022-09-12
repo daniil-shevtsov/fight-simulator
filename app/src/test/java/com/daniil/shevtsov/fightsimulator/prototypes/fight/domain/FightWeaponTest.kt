@@ -1,5 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
+import assertk.Assert
 import assertk.all
 import assertk.assertThat
 import assertk.assertions.*
@@ -9,6 +10,114 @@ interface FightWeaponTest {
 
     val controlledActorName: String
     val targetActorName: String
+
+    @Test
+    fun `should select body part when clicked`() {
+        val initialState = stateForItemAttack()
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                creatureId = initialState.attacker.id,
+                selectableId = initialState.attackerLeftHand.id,
+            )
+        )
+
+        assertThat(state)
+            .controlledBodyPartName()
+            .isEqualTo(initialState.attackerLeftHand.name)
+    }
+
+    private fun Assert<FightState>.controlledBodyPartName() = prop(FightState::controlledBodyPart)
+        .prop(BodyPart::name)
+
+//    @Test
+//    fun `should not select slashed part when clicked`() {
+//        val leftHand = bodyPart(id = 0L, name = "Left Hand")
+//        val rightHand = bodyPart(id = 1L, name = "Right Hand")
+//        val initialState = normalFullState(
+//            bodyParts = listOf(leftHand, rightHand),
+//            controlledPartName = rightHand.name,
+//            targetPartName = leftHand.name,
+//            missingParts = listOf(leftHand.name)
+//        )
+//        val state = fightFunctionalCore(
+//            state = initialState,
+//            action = FightAction.SelectSomething(
+//                creatureId = initialState.controlledActorId,
+//                selectableId = leftHand.id,
+//            )
+//        )
+//
+//        assertThat(state)
+//            .prop(FightState::selections)
+//            .containsAll(
+//                initialState.controlledActorId to rightHand.id,
+//                initialState.targetCreature.id to initialState.targetCreature.bodyParts.first().id,
+//            )
+//    }
+
+//    @Test
+//    fun `should display body part actions when selected player and enemy parts`() {
+//        val initialState = stateForItemAttack()
+//        val state = fightFunctionalCore(
+//            state = initialState,
+//            action = FightAction.SelectSomething(
+//                creatureId = initialState.target.id,
+//                selectableId = initialState.attackerRightHand.id,
+//            )
+//        )
+//
+//        assertThat(state)
+//            .prop(FightState::availableCommands)
+//            .extracting(Command::attackAction)
+//            .isEqualTo(initialState.attackerRightHand.attackActions)
+//    }
+//
+//
+//    @Test
+//    fun `should add entry to log when command clicked`() {
+//        val initialState = normalFullState(controlledName = "Player", targetName = "Enemy")
+//        val state = fightFunctionalCore(
+//            state = initialState,
+//            action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
+//        )
+//
+//        assertThat(state)
+//            .prop(FightState::actionLog)
+//            .extracting(ActionEntry::text)
+//            .containsExactly("Player punches Enemy's head with their right hand")
+//    }
+//
+//    @Test
+//    fun `should select who I am playing`() {
+//        val initialState = normalFullState()
+//
+//        val state = fightFunctionalCore(
+//            state = initialState,
+//            action = FightAction.SelectControlledActor(actorId = initialState.targetCreature.id)
+//        )
+//
+//        assertThat(state).all {
+//            prop(FightState::controlledActorId)
+//                .isEqualTo(initialState.targetCreature.id)
+//        }
+//    }
+//
+//    @Test
+//    fun `should do everything by controlled actor`() {
+//        val initialState = normalFullState(controlledName = "Enemy", targetName = "Player")
+//
+//        val state = fightFunctionalCore(
+//            state = initialState,
+//            action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
+//        )
+//
+//        assertThat(state).all {
+//            prop(FightState::actionLog)
+//                .extracting(ActionEntry::text)
+//                .containsExactly("Enemy punches Player's head with their right hand")
+//        }
+//    }
 
     @Test
     fun `should display weapon commands when selected attacker and target parts`() {
