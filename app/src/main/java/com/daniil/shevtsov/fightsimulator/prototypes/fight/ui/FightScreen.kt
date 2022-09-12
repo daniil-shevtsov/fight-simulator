@@ -102,8 +102,8 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                     onAction = onAction
                 )
                 GroundMenu(
-                    menu = state.ground,
-                    onClick = { onAction(FightAction.SelectTarget(groundTargetId(state.ground.id.raw))) }
+                    ground = state.ground,
+                    onAction = onAction,
                 )
                 CommandsMenu(
                     menu = state.commandsMenu,
@@ -414,11 +414,13 @@ fun Item(
     item: Item,
     textColor: Color = Color.Black,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     Text(
         text = item.name,
         color = textColor,
         modifier = modifier
+            .clickable { onClick() }
             .padding(4.dp)
             .background(Color.LightGray)
             .padding(2.dp)
@@ -429,9 +431,9 @@ fun Item(
 
 @Composable
 fun GroundMenu(
-    menu: GroundMenu,
-    onClick: () -> Unit,
+    ground: GroundMenu,
     modifier: Modifier = Modifier,
+    onAction: (FightAction) -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -440,9 +442,9 @@ fun GroundMenu(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.LightGray)
-                .clickable { onClick() }
+                .clickable { onAction(FightAction.SelectTarget(groundTargetId(ground.id.raw))) }
                 .let { modifier ->
-                    when (menu.isSelected) {
+                    when (ground.isSelected) {
                         true -> modifier
                             .padding(2.dp)
                             .background(Color.Black)
@@ -462,8 +464,11 @@ fun GroundMenu(
             Row(
                 modifier = Modifier
             ) {
-                menu.items.forEach { item ->
-                    Item(item = item)
+                ground.items.forEach { item ->
+                    Item(
+                        item = item,
+                        onClick = {/*onAction(FightAction.SelectSomething(ground.id, item.id))*/}
+                    )
                 }
             }
         }
