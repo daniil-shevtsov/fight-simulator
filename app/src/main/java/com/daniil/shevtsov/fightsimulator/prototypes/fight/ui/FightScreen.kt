@@ -168,7 +168,8 @@ private fun ActorsMenu(
                             partId = it.id,
                         )
                     )
-                }, onControlClick = { onAction(FightAction.SelectControlledActor(actorId = creature.id)) })
+                },
+                onControlClick = { onAction(FightAction.SelectControlledActor(actorId = creature.id)) })
         }
     }
 }

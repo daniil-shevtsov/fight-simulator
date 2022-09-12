@@ -22,6 +22,8 @@ sealed class TestState {
             get() = target.bodyParts.find { it.name == "Right Hand" }!!
         val targetWeapon: Item
             get() = target.functionalParts.find { it.holding != null }?.holding!!
+        val ground: Ground
+            get() = state.world.ground
 
     }
 }

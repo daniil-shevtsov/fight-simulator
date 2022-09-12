@@ -3,10 +3,17 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 data class FightState(
     val selections: Map<CreatureId, SelectableId>,
     val controlledActorId: CreatureId,
+    val targetId: TargetId,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
     val world: World,
 ) {
+
+    val targets: List<Targetable>
+        get() = actors + world.ground
+
+    val target: Targetable
+        get() = targets.find { it.targetId == targetId }!!
 
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()
@@ -38,12 +45,14 @@ data class FightState(
 
 fun fightState(
     controlledActorId: String = "",
+    targetId: TargetId = creatureTargetId(""),
     selections: Map<CreatureId, SelectableId> = mapOf(),
     actors: List<Creature> = listOf(creature(id = "playerId"), creature(id = "enemyId")),
     actionLog: List<ActionEntry> = emptyList(),
     world: World = world(),
 ) = FightState(
     controlledActorId = CreatureId(controlledActorId),
+    targetId = targetId,
     actors = actors,
     selections = selections,
     actionLog = actionLog,

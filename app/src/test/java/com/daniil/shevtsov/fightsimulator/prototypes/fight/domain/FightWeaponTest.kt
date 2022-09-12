@@ -191,13 +191,38 @@ interface FightWeaponTest {
             }
     }
 
+    @Test
+    fun `should select ground`() {
+        val initialState = stateForItemAttack()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectTarget(
+                id = initialState.ground.targetId
+            )
+        )
+
+        assertThat(TestState.AttackWithItem(state))
+            .all {
+                prop(TestState.AttackWithItem::state)
+                    .prop(FightState::target)
+                    .prop(Targetable::targetId)
+                    .isInstanceOf(TargetId.Ground::class)
+                    .prop(TargetId.Ground::id)
+                    .isEqualTo(initialState.ground.id)
+            }
+    }
+
     private fun stateForItemAttack(): TestState.AttackWithItem {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
         val leftActor = initialState.actors.first().copy(name = "Player")
         val rightActor = initialState.actors.last().copy(name = "Enemy")
 
+        val ground = ground(id = 1L)
+
         val state = initialState.copy(
+            world = initialState.world.copy(ground = ground),
             controlledActorId = creatureId(controlledActorName),
             selections = mapOf(
                 leftActor.id to when (leftActor.name) {

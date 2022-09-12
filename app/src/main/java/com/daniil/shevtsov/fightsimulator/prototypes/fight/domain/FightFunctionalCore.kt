@@ -9,7 +9,14 @@ fun fightFunctionalCore(
         is FightAction.SelectBodyPart -> selectBodyPart(state, action)
         is FightAction.SelectCommand -> selectCommand(state, action)
         is FightAction.SelectControlledActor -> selectActor(state, action)
+        is FightAction.SelectTarget -> selectTarget(state, action)
     }
+}
+
+fun selectTarget(state: FightState, action: FightAction.SelectTarget): FightState {
+    return state.copy(
+        targetId = action.id
+    )
 }
 
 fun selectActor(state: FightState, action: FightAction.SelectControlledActor): FightState {
@@ -210,6 +217,7 @@ private fun createInitialState(): FightState {
     )
     return FightState(
         controlledActorId = player.id,
+        targetId = creatureTargetId(enemy.id.raw),
         selections = mapOf(
             player.id to playerBodyParts.find { it.name == "Left Hand" }?.id!!,
             enemy.id to enemyBodyParts.find { it.name == "Head" }?.id!!
