@@ -221,12 +221,17 @@ interface FightWeaponTest {
             rightActor.name -> rightActor.id
             else -> leftActor.id
         }
+        val target = when(controlled) {
+            leftActor.id -> rightActor.id
+            else -> leftActor.id
+        }
 
         val ground = ground(id = 1L)
 
         val state = initialState.copy(
             world = initialState.world.copy(ground = ground),
             controlledActorId = controlled,
+            targetId = target,
             selections = mapOf(
                 leftActor.id to when (leftActor.id) {
                     controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id

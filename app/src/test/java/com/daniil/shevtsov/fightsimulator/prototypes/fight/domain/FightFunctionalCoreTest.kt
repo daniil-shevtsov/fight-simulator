@@ -113,7 +113,7 @@ internal class FightFunctionalCoreTest {
 
     @Test
     fun `should add entry to log when command clicked`() {
-        val initialState = normalFullState(controlledName = "Player")
+        val initialState = normalFullState(controlledName = "Player", targetName = "Enemy")
         val state = fightFunctionalCore(
             state = initialState,
             action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
@@ -142,7 +142,7 @@ internal class FightFunctionalCoreTest {
 
     @Test
     fun `should do everything by controlled actor`() {
-        val initialState = normalFullState(controlledName = "Enemy")
+        val initialState = normalFullState(controlledName = "Enemy", targetName = "Player")
 
         val state = fightFunctionalCore(
             state = initialState,
@@ -158,6 +158,7 @@ internal class FightFunctionalCoreTest {
 
     fun normalFullState(
         controlledName: String = "Player",
+        targetName: String = "Enemy",
         bodyParts: List<BodyPart> = normalBody(),
         controlledPartName: String = "Right Hand",
         targetPartName: String = "Head",
@@ -180,10 +181,15 @@ internal class FightFunctionalCoreTest {
             player.name -> player.id
             else -> enemy.id
         }
+        val target = when (targetName) {
+            player.name -> player.id
+            else -> enemy.id
+        }
         val controlledPartId = bodyParts.find { it.name == controlledPartName }?.id
         val targetPartId = bodyParts.find { it.name == targetPartName }?.id
         return fightState(
             controlledActorId = controlled,
+            targetId = target,
             actors = listOf(player, enemy),
             selections = mapOf(
                 player.id to when (controlled) {
