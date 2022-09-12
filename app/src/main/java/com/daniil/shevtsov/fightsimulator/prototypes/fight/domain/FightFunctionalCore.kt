@@ -256,7 +256,7 @@ private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
             name = "Left Foot",
             attackActions = listOf(AttackAction.Kick)
         ),
-    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = BodyPartId(idOffset + index.toLong())) }
+    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = SelectableId.BodyPart(idOffset + index.toLong())) }
 
     val bones = initialMainParts.map { mainPart ->
         val boneName = when (mainPart.name) {

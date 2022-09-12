@@ -3,7 +3,7 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 sealed class FightAction {
     data class SelectBodyPart(
         val creatureId: String,
-        val partId: BodyPartId,
+        val partId: SelectableId.BodyPart,
     ) : FightAction()
 
     data class SelectCommand(val attackAction: AttackAction) : FightAction()

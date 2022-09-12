@@ -1,10 +1,7 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
-@JvmInline
-value class BodyPartId(val raw: Long)
-
 data class FightState(
-    val selections: Map<String, BodyPartId>,
+    val selections: Map<String, SelectableId>,
     val controlledActorId: String,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
@@ -44,7 +41,7 @@ data class FightState(
 
 fun fightState(
     controlledActorId: String = "",
-    selections: Map<String, BodyPartId> = mapOf(),
+    selections: Map<String, SelectableId> = mapOf(),
     actors: List<Creature> = listOf(creature(id = "playerId"), creature(id = "enemyId")),
     actionLog: List<ActionEntry> = emptyList(),
     world: World = world(),
