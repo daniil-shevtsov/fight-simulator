@@ -2,7 +2,6 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightState
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.TargetId
 
 fun fightPresentationMapping(state: FightState): FightViewState {
     return FightViewState.Content(
@@ -47,7 +46,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
             GroundMenu(
                 id = ground.id,
                 items = ground.items,
-                isSelected = state.targetId is TargetId.Ground && state.targetId.id == ground.id,
+                isSelected = state.targetId == ground.id,
             )
         }
     )

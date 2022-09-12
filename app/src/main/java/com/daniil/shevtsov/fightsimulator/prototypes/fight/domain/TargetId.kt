@@ -1,11 +1,8 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
-sealed interface TargetId {
-
-    data class Creature(val id: CreatureId) : TargetId
-
-    data class Ground(val id: GroundId) : TargetId
+interface TargetId {
+    val raw: Long
 }
 
-fun creatureTargetId(raw: Long) = TargetId.Creature(creatureId(raw))
-fun groundTargetId(raw: Long) = TargetId.Ground(groundId(raw))
+fun creatureTargetId(raw: Long): TargetId = creatureId(raw)
+fun groundTargetId(raw: Long):TargetId = groundId(raw)

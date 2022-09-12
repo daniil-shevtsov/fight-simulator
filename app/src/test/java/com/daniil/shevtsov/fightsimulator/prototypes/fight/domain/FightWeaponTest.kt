@@ -207,8 +207,6 @@ interface FightWeaponTest {
                 prop(TestState.AttackWithItem::state)
                     .prop(FightState::target)
                     .prop(Targetable::targetId)
-                    .isInstanceOf(TargetId.Ground::class)
-                    .prop(TargetId.Ground::id)
                     .isEqualTo(initialState.ground.id)
             }
     }

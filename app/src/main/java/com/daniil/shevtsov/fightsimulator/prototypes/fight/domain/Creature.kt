@@ -10,7 +10,7 @@ data class Creature(
 ) : Targetable {
 
     override val targetId: TargetId
-        get() = TargetId.Creature(id)
+        get() = id
 
     val missingParts: List<BodyPart>
         get() = bodyParts.filter { it.id in missingPartsSet }

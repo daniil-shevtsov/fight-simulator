@@ -6,7 +6,7 @@ data class Ground(
     val items: List<Item>,
 ) : Targetable {
     override val targetId: TargetId
-        get() = TargetId.Ground(id)
+        get() = id
 }
 
 fun ground(

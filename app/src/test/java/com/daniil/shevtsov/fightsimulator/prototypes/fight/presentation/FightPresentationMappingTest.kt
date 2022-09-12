@@ -125,7 +125,7 @@ internal class FightPresentationMappingTest {
         val initialState = fullNormalState().let { state ->
             state.copy(
                 state = state.state.copy(
-                    targetId = TargetId.Ground(state.ground.id)
+                    targetId = state.ground.id
                 )
             )
         }
