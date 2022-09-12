@@ -76,7 +76,7 @@ fun FightScreenPreview() {
                 actionEntryModel("You slap enemy's head with your right hand"),
                 actionEntryModel("You done did it"),
             ),
-            ground = GroundMenu(items = listOf(item(name = "Spear"), item(name = "Helmet"))),
+            ground = GroundMenu(items = listOf(item(name = "Spear"), item(name = "Helmet")), isSelected = false),
         ),
         onAction = {},
     )

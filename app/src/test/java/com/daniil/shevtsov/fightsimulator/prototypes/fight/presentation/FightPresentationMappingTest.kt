@@ -120,6 +120,26 @@ internal class FightPresentationMappingTest {
             }
     }
 
+    @Test
+    fun `should display ground as selectable`() {
+        val initialState = fullNormalState().let { state ->
+            state.copy(
+                state = state.state.copy(
+                    targetId = TargetId.Ground(state.ground.id)
+                )
+            )
+        }
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::ground)
+            .prop(GroundMenu::isSelected)
+            .isTrue()
+    }
+
     private fun fullNormalState(): TestState.AttackWithItem {
         val originalState = TestState.AttackWithItem(
             state = fightFunctionalCore(
