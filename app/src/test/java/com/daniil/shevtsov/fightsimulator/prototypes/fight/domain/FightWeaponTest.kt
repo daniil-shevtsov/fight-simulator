@@ -52,8 +52,10 @@ interface FightWeaponTest {
 
         assertThat(state)
             .all {
-                prop(FightState::controlledBodyPart).prop(BodyPart::id).isEqualTo(initialState.attackerRightHand.id)
-                prop(FightState::targetBodyPart).prop(BodyPart::id).isEqualTo(initialState.targetHead.id)
+                prop(FightState::controlledBodyPart).prop(BodyPart::id)
+                    .isEqualTo(initialState.attackerRightHand.id)
+                prop(FightState::targetBodyPart).prop(BodyPart::id)
+                    .isEqualTo(initialState.targetHead.id)
             }
     }
 
@@ -309,10 +311,22 @@ interface FightWeaponTest {
                     .isEqualTo(initialState.ground.id)
             }
     }
-    
+
     @Test
-    fun `should pick up knife from the ground`() {
-        
+    fun `should select item on the ground`() {
+        val initialState = stateForItemPickup()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+
+        assertThat(state)
+            .prop(FightState::targetSelectable)
+            .isEqualTo(initialState.spear)
     }
 
     private fun stateForItemAttack(): AttackWithItemTestState {
@@ -349,6 +363,49 @@ interface FightWeaponTest {
         )
 
         return AttackWithItemTestState(
+            state = state,
+        )
+    }
+
+    private fun stateForItemPickup(): ItemPickupTestState {
+        val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
+
+        val leftActor = initialState.actors.first().copy(name = "Player")
+        val rightActor = initialState.actors.last().copy(name = "Enemy")
+        val controlled = when (controlledActorName) {
+            leftActor.name -> leftActor.id
+            rightActor.name -> rightActor.id
+            else -> leftActor.id
+        }
+        val target = when (controlled) {
+            leftActor.id -> rightActor.id
+            else -> leftActor.id
+        }
+
+        val spear = item(id = 4L, name = "Spear")
+        val sword = item(id = 5L, name = "Sword")
+        val ground = ground(
+            id = 1L,
+            items = listOf(spear, sword)
+        )
+
+        val state = initialState.copy(
+            world = initialState.world.copy(ground = ground),
+            controlledActorId = controlled,
+            targetId = ground.id,
+            selections = mapOf(
+                leftActor.id to when (leftActor.id) {
+                    controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                    else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
+                },
+                rightActor.id to when (rightActor.id) {
+                    controlled -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                    else -> rightActor.bodyParts.find { it.name == "Head" }!!.id
+                }
+            )
+        )
+
+        return ItemPickupTestState(
             state = state,
         )
     }

@@ -40,6 +40,9 @@ data class FightState(
     val selectables: List<Selectable>
         get() = selectableHolders.flatMap(SelectableHolder::selectables)
 
+    val targetSelectable: Selectable?
+        get() = selectables.find { it.id == selections[targetId as SelectableHolderId] }
+
     val Creature.selectedBodyPart
         get() = functionalParts.find { it.name == bodyParts.find { kek -> kek.id == selections[id] }?.name }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()

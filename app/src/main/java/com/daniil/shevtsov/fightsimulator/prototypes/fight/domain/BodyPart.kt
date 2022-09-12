@@ -2,7 +2,7 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class BodyPart(
     override val id: BodyPartId,
-    val name: String,
+    override val name: String,
     val attackActions: List<AttackAction>,
     val holding: Item? = null,
     val containedBodyParts: Set<BodyPartId> = setOf(),

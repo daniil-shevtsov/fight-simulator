@@ -18,6 +18,15 @@ interface TestState {
         get() = state.world.ground
 }
 
+data class ItemPickupTestState(
+    override val state: FightState,
+) : TestState {
+    val spear: Item
+        get() = state.selectables.find { it.name == "Spear" }!! as Item
+    val sword: Item
+        get() = state.selectables.find { it.name == "Sword" }!! as Item
+}
+
 data class AttackWithItemTestState(
     override val state: FightState,
 ) : TestState {
