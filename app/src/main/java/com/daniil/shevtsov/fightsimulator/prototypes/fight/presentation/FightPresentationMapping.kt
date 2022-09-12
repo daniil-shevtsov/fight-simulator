@@ -44,7 +44,11 @@ fun fightPresentationMapping(state: FightState): FightViewState {
             )
         },
         ground = state.world.ground.let { ground ->
-            GroundMenu(items = ground.items, isSelected = state.targetId is TargetId.Ground && state.targetId.id == ground.id)
+            GroundMenu(
+                id = ground.id,
+                items = ground.items,
+                isSelected = state.targetId is TargetId.Ground && state.targetId.id == ground.id,
+            )
         }
     )
 }

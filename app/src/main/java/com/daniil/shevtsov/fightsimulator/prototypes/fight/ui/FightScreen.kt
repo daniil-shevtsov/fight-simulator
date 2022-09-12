@@ -76,7 +76,11 @@ fun FightScreenPreview() {
                 actionEntryModel("You slap enemy's head with your right hand"),
                 actionEntryModel("You done did it"),
             ),
-            ground = GroundMenu(items = listOf(item(name = "Spear"), item(name = "Helmet")), isSelected = false),
+            ground = GroundMenu(
+                id = GroundId(0L),
+                items = listOf(item(name = "Spear"), item(name = "Helmet")),
+                isSelected = true
+            ),
         ),
         onAction = {},
     )
@@ -101,6 +105,7 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                 )
                 GroundMenu(
                     menu = state.ground,
+                    onClick = {onAction(FightAction.SelectTarget(groundTargetId(state.ground.id.raw)))}
                 )
                 CommandsMenu(
                     menu = state.commandsMenu,
@@ -413,6 +418,7 @@ fun Item(
 @Composable
 fun GroundMenu(
     menu: GroundMenu,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -422,6 +428,17 @@ fun GroundMenu(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.LightGray)
+                .clickable { onClick() }
+                .let { modifier ->
+                    when (menu.isSelected) {
+                        true -> modifier
+                            .padding(2.dp)
+                            .background(Color.Black)
+                            .padding(2.dp)
+                            .background(Color.LightGray)
+                        false -> modifier
+                    }
+                }
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 .background(Color.DarkGray)
         ) {
