@@ -1,15 +1,12 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -175,6 +172,7 @@ private fun ActorsMenu(
                         )
                     )
                 },
+                onTargetClick = { onAction(FightAction.SelectTarget(id = creature.id)) },
                 onControlClick = { onAction(FightAction.SelectControlledActor(actorId = creature.id)) })
         }
     }
@@ -185,6 +183,7 @@ private fun Creature(
     creature: CreatureMenu,
     modifier: Modifier = Modifier,
     onClick: (bodyPart: BodyPartItem) -> Unit,
+    onTargetClick: () -> Unit,
     onControlClick: () -> Unit,
 ) {
     Column(
@@ -196,21 +195,21 @@ private fun Creature(
                     false -> Color(0x40000000).compositeOver(Color.White)
                 }
             )
-            .padding(4.dp)
             .let { modifier ->
                 when (creature.isTarget) {
                     true -> modifier
-//                        .addDecoration(
-//                            Frames.StrokeTriangleCorners(
-//                                color = Color.Black,
-//                                length = 50.dp,
-//                                strokeWidth = 4.dp,
-//                            )
-//                        )
+                        .padding(2.dp)
+                        .background(Color.Black)
+                        .padding(2.dp)
+                        .background(Color.LightGray)
                     false -> modifier
                 }
             }
-            .clickable { onControlClick() }
+            .padding(4.dp)
+            .combinedClickable(
+                onClick = { onTargetClick() },
+                onLongClick = { onControlClick() },
+            )
             .padding(8.dp)
     ) {
         Text(

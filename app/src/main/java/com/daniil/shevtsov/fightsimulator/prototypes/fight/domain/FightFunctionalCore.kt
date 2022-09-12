@@ -26,7 +26,10 @@ fun selectActor(state: FightState, action: FightAction.SelectControlledActor): F
 fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightState {
     val attackerWeapon = state.controlledCreature.bodyParts
         .find { it.name == state.controlledBodyPart.name }?.holding
-    val targetWeapon = state.targetBodyPart.holding
+    val targetBodyPart = state.targetBodyPart ?: return state
+
+
+    val targetWeapon = targetBodyPart.holding
 
     val newControlledCreature = when (action.attackAction) {
         AttackAction.Throw -> {
@@ -46,28 +49,30 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val shouldKnockOutWeapon = action.attackAction in setOf(
         AttackAction.Punch,
         AttackAction.Kick
-    ) && state.targetBodyPart.holding != null
+    ) && targetBodyPart.holding != null
 
     val newTargetCreature = when (action.attackAction) {
         AttackAction.Throw -> {
             val thrownItem = state.controlledBodyPart.holding
             state.targetCreature.copy(bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
                 when (bodyPart) {
-                    state.targetBodyPart -> bodyPart.copy(holding = thrownItem)
+                    targetBodyPart -> bodyPart.copy(holding = thrownItem)
                     else -> bodyPart
                 }
             })
         }
         AttackAction.Pommel -> state.targetCreature.copy(
-            brokenPartsSet = state.targetCreature.brokenPartsSet + (state.targetBodyPartBone?.id
-                ?: state.targetBodyPart.id)
+            brokenPartsSet = state.targetCreature.brokenPartsSet + setOfNotNull(
+                state.targetBodyPartBone?.id
+                    ?: targetBodyPart.id
+            )
         )
         AttackAction.Punch, AttackAction.Kick -> {
             when {
                 shouldKnockOutWeapon -> state.targetCreature.copy(
                     bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
                         when (bodyPart.id) {
-                            state.targetBodyPart.id -> bodyPart.copy(holding = null)
+                            targetBodyPart.id -> bodyPart.copy(holding = null)
                             else -> bodyPart
                         }
                     }
@@ -79,8 +84,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Slash -> {
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet.plus(
-                    state.targetBodyPart.id
-                ) + state.targetBodyPart.containedBodyParts
+                    targetBodyPart.id
+                ) + targetBodyPart.containedBodyParts
             )
         }
         else -> state.targetCreature
@@ -99,7 +104,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val controlledName = state.controlledCreature.name
     val itemName = attackerWeapon?.name?.toLowerCase()
     val targetName = state.targetCreature.name
-    val targetPartName = state.targetBodyPart.name.toLowerCase()
+    val targetPartName = targetBodyPart.name.toLowerCase()
     val controlledPartName = state.controlledBodyPart.name.toLowerCase()
     val controlledAttackSource = when {
         attackerWeapon != null -> "$itemName held by their $controlledPartName"
@@ -117,7 +122,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             val generalMessage =
                 "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource."
             when {
-                state.targetBodyPart.containedBodyParts.isNotEmpty() -> newTargetCreature.bodyParts.find { it.id == state.targetBodyPart.containedBodyParts.first() }!!.name.toLowerCase()
+                targetBodyPart.containedBodyParts.isNotEmpty() -> newTargetCreature.bodyParts.find { it.id == targetBodyPart.containedBodyParts.first() }!!.name.toLowerCase()
                     .let { containedBodyPartName ->
                         "$generalMessage The $containedBodyPartName is fractured!"
                     }
@@ -134,7 +139,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val newWorld = state.world.copy(
         ground = when {
             shouldKnockOutWeapon -> state.world.ground.copy(
-                items = state.world.ground.items + state.targetBodyPart.holding!!
+                items = state.world.ground.items + targetBodyPart.holding!!
             )
             else -> state.world.ground
         }

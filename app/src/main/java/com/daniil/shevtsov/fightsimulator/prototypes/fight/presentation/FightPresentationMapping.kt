@@ -16,7 +16,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         holding = bodyPart.holding,
                         contained = bodyPart.containedBodyParts,
                         isSelected = when (creature.id) {
-                            state.targetCreature.id -> state.targetBodyPart.name == bodyPart.name
+                            state.targetCreature.id -> state.targetBodyPart?.name == bodyPart.name
                             state.controlledCreature.id -> state.controlledBodyPart.name == bodyPart.name
                             else -> false
                         },
