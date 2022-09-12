@@ -13,7 +13,7 @@ data class FightState(
         get() = actors + world.ground
 
     val target: Targetable
-        get() = targets.find { it.targetId == targetId }!!
+        get() = targets.find { it.id == targetId }!!
 
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()

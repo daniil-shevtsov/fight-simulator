@@ -1,5 +1,5 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
-interface Targetable {
-    val id: TargetId
+interface SelectableHolderId {
+    val raw: Long
 }

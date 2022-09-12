@@ -1,16 +1,13 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class Creature(
-    val id: CreatureId,
+    override val id: CreatureId,
     val actor: Actor,
     val name: String,
     val bodyParts: List<BodyPart>,
     val missingPartsSet: Set<BodyPartId> = setOf(),
     val brokenPartsSet: Set<BodyPartId> = setOf(),
-) : Targetable {
-
-    override val targetId: TargetId
-        get() = id
+) : Targetable, SelectableHolder {
 
     val missingParts: List<BodyPart>
         get() = bodyParts.filter { it.id in missingPartsSet }

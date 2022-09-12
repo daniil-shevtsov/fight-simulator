@@ -1,13 +1,10 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class Ground(
-    val id: GroundId,
+    override val id: GroundId,
     val bodyParts: List<BodyPart>,
     val items: List<Item>,
-) : Targetable {
-    override val targetId: TargetId
-        get() = id
-}
+) : Targetable, SelectableHolder
 
 fun ground(
     id: Long = 0L,
