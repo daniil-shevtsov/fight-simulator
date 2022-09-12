@@ -7,7 +7,11 @@ data class Creature(
     val bodyParts: List<BodyPart>,
     val missingPartsSet: Set<SelectableId.BodyPart> = setOf(),
     val brokenPartsSet: Set<SelectableId.BodyPart> = setOf(),
-) {
+) : Targetable {
+
+    override val targetId: TargetId
+        get() = TargetId.Creature(id)
+
     val missingParts: List<BodyPart>
         get() = bodyParts.filter { it.id in missingPartsSet }
     val brokenParts: List<BodyPart>
