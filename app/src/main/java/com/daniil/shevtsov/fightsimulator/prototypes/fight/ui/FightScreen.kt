@@ -467,7 +467,7 @@ fun GroundMenu(
                 ground.items.forEach { item ->
                     Item(
                         item = item,
-                        onClick = {/*onAction(FightAction.SelectSomething(ground.id, item.id))*/}
+                        onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
                     )
                 }
             }
