@@ -44,6 +44,7 @@ fun FightScreenPreview() {
 
                 creatureMenu(
                     actor = Actor.Enemy,
+                    isTarget = true,
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
                             "Head" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
@@ -105,7 +106,7 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                 )
                 GroundMenu(
                     menu = state.ground,
-                    onClick = {onAction(FightAction.SelectTarget(groundTargetId(state.ground.id.raw)))}
+                    onClick = { onAction(FightAction.SelectTarget(groundTargetId(state.ground.id.raw))) }
                 )
                 CommandsMenu(
                     menu = state.commandsMenu,
@@ -195,6 +196,20 @@ private fun Creature(
                     false -> Color(0x40000000).compositeOver(Color.White)
                 }
             )
+            .padding(4.dp)
+            .let { modifier ->
+                when (creature.isTarget) {
+                    true -> modifier
+//                        .addDecoration(
+//                            Frames.StrokeTriangleCorners(
+//                                color = Color.Black,
+//                                length = 50.dp,
+//                                strokeWidth = 4.dp,
+//                            )
+//                        )
+                    false -> modifier
+                }
+            }
             .clickable { onControlClick() }
             .padding(8.dp)
     ) {
