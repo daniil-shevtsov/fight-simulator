@@ -8,11 +8,11 @@ fun fightFunctionalCore(
         FightAction.Init -> createInitialState()
         is FightAction.SelectBodyPart -> selectBodyPart(state, action)
         is FightAction.SelectCommand -> selectCommand(state, action)
-        is FightAction.SelectActor -> selectActor(state, action)
+        is FightAction.SelectControlledActor -> selectActor(state, action)
     }
 }
 
-fun selectActor(state: FightState, action: FightAction.SelectActor): FightState {
+fun selectActor(state: FightState, action: FightAction.SelectControlledActor): FightState {
     return state.copy(controlledActorId = action.actorId)
 }
 

@@ -8,7 +8,7 @@ sealed class FightAction {
 
     data class SelectCommand(val attackAction: AttackAction) : FightAction()
 
-    data class SelectActor(val actorId: CreatureId) : FightAction()
+    data class SelectControlledActor(val actorId: CreatureId) : FightAction()
 
     object Init : FightAction()
 }

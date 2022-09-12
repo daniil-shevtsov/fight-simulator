@@ -131,7 +131,7 @@ internal class FightFunctionalCoreTest {
 
         val state = fightFunctionalCore(
             state = initialState,
-            action = FightAction.SelectActor(actorId = initialState.targetCreature.id)
+            action = FightAction.SelectControlledActor(actorId = initialState.targetCreature.id)
         )
 
         assertThat(state).all {
