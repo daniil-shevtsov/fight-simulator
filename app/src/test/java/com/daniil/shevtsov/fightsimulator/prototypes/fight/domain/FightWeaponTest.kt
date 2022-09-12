@@ -56,37 +56,42 @@ interface FightWeaponTest {
 //            )
 //    }
 
-//    @Test
-//    fun `should display body part actions when selected player and enemy parts`() {
-//        val initialState = stateForItemAttack()
-//        val state = fightFunctionalCore(
-//            state = initialState,
-//            action = FightAction.SelectSomething(
-//                creatureId = initialState.target.id,
-//                selectableId = initialState.attackerRightHand.id,
-//            )
-//        )
-//
-//        assertThat(state)
-//            .prop(FightState::availableCommands)
-//            .extracting(Command::attackAction)
-//            .isEqualTo(initialState.attackerRightHand.attackActions)
-//    }
-//
-//
-//    @Test
-//    fun `should add entry to log when command clicked`() {
-//        val initialState = normalFullState(controlledName = "Player", targetName = "Enemy")
-//        val state = fightFunctionalCore(
-//            state = initialState,
-//            action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
-//        )
-//
-//        assertThat(state)
-//            .prop(FightState::actionLog)
-//            .extracting(ActionEntry::text)
-//            .containsExactly("Player punches Enemy's head with their right hand")
-//    }
+    @Test
+    fun `should display body part actions when selected attacker and target body parts`() {
+        val initialState = stateForItemAttack()
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                creatureId = initialState.attacker.id,
+                selectableId = initialState.attackerLeftHand.id,
+            )
+        )
+
+        assertThat(state)
+            .prop(FightState::availableCommands)
+            .extracting(Command::attackAction)
+            .isEqualTo(initialState.attackerLeftHand.attackActions)
+    }
+
+    @Test
+    fun `should add entry to log when command clicked`() {
+        val initialState = stateForItemAttack()
+        val state = fightFunctionalCore(
+            state = fightFunctionalCore(
+                state = initialState.state,
+                action = FightAction.SelectSomething(
+                    creatureId = initialState.attacker.id,
+                    selectableId = initialState.attackerLeftHand.id
+                )
+            ),
+            action = FightAction.SelectCommand(attackAction = AttackAction.Punch)
+        )
+
+        assertThat(state)
+            .prop(FightState::actionLog)
+            .extracting(ActionEntry::text)
+            .containsExactly("$controlledActorName punches $targetActorName's head with their left hand")
+    }
 //
 //    @Test
 //    fun `should select who I am playing`() {
@@ -325,12 +330,12 @@ interface FightWeaponTest {
 
         val leftActor = initialState.actors.first().copy(name = "Player")
         val rightActor = initialState.actors.last().copy(name = "Enemy")
-        val controlled = when(controlledActorName) {
+        val controlled = when (controlledActorName) {
             leftActor.name -> leftActor.id
             rightActor.name -> rightActor.id
             else -> leftActor.id
         }
-        val target = when(controlled) {
+        val target = when (controlled) {
             leftActor.id -> rightActor.id
             else -> leftActor.id
         }
