@@ -347,6 +347,28 @@ interface FightWeaponTest {
             .containsOnly(AttackAction.Grab)
     }
 
+    @Test
+    fun `should start holding the item when grabbed from the ground`() {
+        val initialState = stateForItemPickup()
+
+        val stateWithSpearSelected = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+        val state = fightFunctionalCore(
+            state = stateWithSpearSelected,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
+        )
+
+        assertThat(state)
+            .prop(FightState::controlledBodyPart)
+            .prop(BodyPart::holding)
+            .isEqualTo(initialState.spear)
+    }
+
     private fun stateForItemAttack(): AttackWithItemTestState {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
