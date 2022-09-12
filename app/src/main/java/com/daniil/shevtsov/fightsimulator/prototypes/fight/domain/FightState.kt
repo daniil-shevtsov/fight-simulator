@@ -23,7 +23,7 @@ data class FightState(
     val controlledBodyPart: BodyPart
         get() = controlledCreature.selectedBodyPart
     val targetBodyPart: BodyPart?
-        get() = targetCreature.selectedBodyPart
+        get() = targetCreature.selectedBodyPart.takeIf { targetCreature.id == targetId }
     val targetBodyPartBone: BodyPart?
         get() = targetCreature.bodyParts.firstOrNull { it.id in targetBodyPart?.containedBodyParts.orEmpty() }
 
