@@ -369,6 +369,29 @@ interface FightWeaponTest {
             .isEqualTo(initialState.spear)
     }
 
+    @Test
+    fun `should add log entry when grabbed item from the ground`() {
+        val initialState = stateForItemPickup()
+
+        val stateWithSpearSelected = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+        val state = fightFunctionalCore(
+            state = stateWithSpearSelected,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
+        )
+
+        assertThat(state)
+            .prop(FightState::actionLog)
+            .index(0)
+            .prop(ActionEntry::text)
+            .isEqualTo("$controlledActorName picks up the spear from the ground.")
+    }
+
     private fun stateForItemAttack(): AttackWithItemTestState {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 

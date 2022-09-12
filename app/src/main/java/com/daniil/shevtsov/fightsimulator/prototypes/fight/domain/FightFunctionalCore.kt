@@ -145,6 +145,9 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                 else -> generalMessage
             }
         }
+        AttackAction.Grab -> {
+            "$controlledName picks up the ${state.targetSelectable?.name?.toLowerCase()} from the ground."
+        }
         else -> when {
             shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${targetWeapon?.name?.toLowerCase()} is knocked out to the ground!"
             else -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource"
