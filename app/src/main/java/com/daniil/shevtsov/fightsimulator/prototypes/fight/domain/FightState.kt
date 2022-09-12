@@ -34,10 +34,13 @@ data class FightState(
             emptyList()
         }.map(::Command)
 
-    val selectables: List<Selectable>
-        get() = controlledCreature.selectables + targetCreature.selectables + world.ground.selectables
+    val selectableHolders: List<SelectableHolder>
+        get() = listOf(controlledCreature, targetCreature, world.ground)
 
-    private val Creature.selectedBodyPart
+    val selectables: List<Selectable>
+        get() = selectableHolders.flatMap(SelectableHolder::selectables)
+
+    val Creature.selectedBodyPart
         get() = functionalParts.find { it.name == bodyParts.find { kek -> kek.id == selections[id] }?.name }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 

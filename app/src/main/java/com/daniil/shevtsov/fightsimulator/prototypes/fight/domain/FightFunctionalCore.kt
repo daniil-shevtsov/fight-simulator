@@ -165,12 +165,14 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): Figh
             .map(BodyPart::id)
     ) {
         state.copy(
-            selections = state.actors.associate {
-                when (it.id) {
-                    action.creatureId -> it.id to action.selectableId
-                    else -> it.id to state.selections[it.id]!!
+            selections = state.selectableHolders
+                .filter { it.id == action.creatureId || state.selections.contains(it.id) }
+                .associate {
+                    when (it.id) {
+                        action.creatureId -> it.id to action.selectableId
+                        else -> it.id to state.selections[it.id]!!
+                    }
                 }
-            }
         )
     } else {
         state
