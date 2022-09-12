@@ -11,11 +11,14 @@ data class Creature(
 
     val missingParts: List<BodyPart>
         get() = bodyParts.filter { it.id in missingPartsSet }
+
     val brokenParts: List<BodyPart>
         get() = bodyParts.filter { it.id in brokenPartsSet }
-
     val functionalParts: List<BodyPart>
         get() = bodyParts.filter { it.id !in missingPartsSet }
+
+    override val selectables: List<Selectable>
+        get() = functionalParts
 
     fun firstPart() = bodyParts.first()
 

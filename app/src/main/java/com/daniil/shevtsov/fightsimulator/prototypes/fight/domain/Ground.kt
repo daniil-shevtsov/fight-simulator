@@ -4,7 +4,10 @@ data class Ground(
     override val id: GroundId,
     val bodyParts: List<BodyPart>,
     val items: List<Item>,
-) : Targetable, SelectableHolder
+) : Targetable, SelectableHolder {
+    override val selectables: List<Selectable>
+        get() = items
+}
 
 fun ground(
     id: Long = 0L,
