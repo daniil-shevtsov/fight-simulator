@@ -17,7 +17,7 @@ fun bodyPart(
     containedBodyParts: Set<SelectableId.BodyPart> = setOf(),
     parentId: SelectableId.BodyPart? = null,
 ) = BodyPart(
-    id = SelectableId.BodyPart(id),
+    id = bodyPartId(id),
     name = name,
     holding = holding,
     attackActions = attackActions,

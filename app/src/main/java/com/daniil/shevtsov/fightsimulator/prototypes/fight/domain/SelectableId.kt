@@ -8,5 +8,5 @@ sealed interface SelectableId {
     value class Item(val raw: Long) : SelectableId
 }
 
-fun SelectableId.BodyPart(raw: Long) = SelectableId.BodyPart(raw = raw)
+fun bodyPartId(raw: Long) = SelectableId.BodyPart(raw = raw)
 fun itemId(raw: Long) = SelectableId.Item(raw = raw)

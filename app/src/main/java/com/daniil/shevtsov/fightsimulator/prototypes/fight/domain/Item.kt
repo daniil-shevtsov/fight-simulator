@@ -11,7 +11,7 @@ fun item(
     name: String = "",
     attackActions: List<AttackAction> = emptyList(),
 ) = Item(
-    id = SelectableId.Item(id),
+    id = itemId(id),
     name = name,
     attackActions = attackActions,
 )

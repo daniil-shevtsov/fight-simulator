@@ -3,6 +3,7 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Item
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.SelectableId
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.bodyPartId
 
 data class BodyPartItem(
     val id: SelectableId.BodyPart,
@@ -21,7 +22,7 @@ fun bodyPartItem(
     statuses: List<BodyPartStatus> = emptyList(),
     isSelected: Boolean = false,
 ) = BodyPartItem(
-    id = SelectableId.BodyPart(id),
+    id = bodyPartId(id),
     name = name,
     holding = holding,
     contained = contained,

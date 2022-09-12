@@ -175,8 +175,8 @@ private fun createInitialState(): FightState {
             AttackAction.Pommel
         )
     )
-    val playerKnife = knife.copy(id = SelectableId.Item(0L))
-    val enemyKnife = knife.copy(id = SelectableId.Item(1L))
+    val playerKnife = knife.copy(id = itemId(0L))
+    val enemyKnife = knife.copy(id = itemId(1L))
     val playerBodyParts = createDefaultBodyParts(idOffset = 0L).map { bodyPart ->
         when (bodyPart.name) {
             "Right Hand" -> bodyPart.copy(
@@ -256,7 +256,7 @@ private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
             name = "Left Foot",
             attackActions = listOf(AttackAction.Kick)
         ),
-    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = SelectableId.BodyPart(idOffset + index.toLong())) }
+    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = bodyPartId(idOffset + index.toLong())) }
 
     val bones = initialMainParts.map { mainPart ->
         val boneName = when (mainPart.name) {
