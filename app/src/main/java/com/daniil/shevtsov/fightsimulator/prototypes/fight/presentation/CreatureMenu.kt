@@ -12,7 +12,7 @@ data class CreatureMenu(
 )
 
 fun creatureMenu(
-    id:String = "",
+    id:Long = 0L,
     actor: Actor = Actor.Enemy,
     bodyParts: List<BodyPartItem> = emptyList(),
     isControlled: Boolean = false,

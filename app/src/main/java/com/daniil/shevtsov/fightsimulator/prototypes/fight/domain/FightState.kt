@@ -44,14 +44,14 @@ data class FightState(
 
 
 fun fightState(
-    controlledActorId: String = "",
-    targetId: TargetId = creatureTargetId(""),
+    controlledActorId: CreatureId = creatureId(0L),
+    targetId: TargetId = creatureTargetId(0L),
     selections: Map<CreatureId, SelectableId> = mapOf(),
-    actors: List<Creature> = listOf(creature(id = "playerId"), creature(id = "enemyId")),
+    actors: List<Creature> = listOf(creature(id = "playerId".hashCode().toLong()), creature(id = "enemyId".hashCode().toLong())),
     actionLog: List<ActionEntry> = emptyList(),
     world: World = world(),
 ) = FightState(
-    controlledActorId = CreatureId(controlledActorId),
+    controlledActorId = controlledActorId,
     targetId = targetId,
     actors = actors,
     selections = selections,

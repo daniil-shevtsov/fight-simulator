@@ -25,7 +25,7 @@ data class Creature(
 }
 
 fun creature(
-    id: String,
+    id: Long,
     actor: Actor = Actor.Enemy,
     name: String = "",
     bodyParts: List<BodyPart> = emptyList(),

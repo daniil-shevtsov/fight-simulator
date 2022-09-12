@@ -204,13 +204,13 @@ private fun createInitialState(): FightState {
     }
 
     val player = Creature(
-        id = creatureId("Player"),
+        id = creatureId("Player".hashCode().toLong()),
         actor = Actor.Player,
         name = "Player",
         bodyParts = playerBodyParts,
     )
     val enemy = Creature(
-        id = creatureId("Enemy"),
+        id = creatureId("Enemy".hashCode().toLong()),
         name = "Enemy",
         actor = Actor.Enemy,
         bodyParts = enemyBodyParts,

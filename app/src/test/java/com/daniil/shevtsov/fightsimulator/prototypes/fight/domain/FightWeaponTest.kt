@@ -218,19 +218,24 @@ interface FightWeaponTest {
 
         val leftActor = initialState.actors.first().copy(name = "Player")
         val rightActor = initialState.actors.last().copy(name = "Enemy")
+        val controlled = when(controlledActorName) {
+            leftActor.name -> leftActor.id
+            rightActor.name -> rightActor.id
+            else -> leftActor.id
+        }
 
         val ground = ground(id = 1L)
 
         val state = initialState.copy(
             world = initialState.world.copy(ground = ground),
-            controlledActorId = creatureId(controlledActorName),
+            controlledActorId = controlled,
             selections = mapOf(
-                leftActor.id to when (leftActor.name) {
-                    controlledActorName -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                leftActor.id to when (leftActor.id) {
+                    controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
                     else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
                 },
-                rightActor.id to when (rightActor.name) {
-                    controlledActorName -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                rightActor.id to when (rightActor.id) {
+                    controlled -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
                     else -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 }
             )

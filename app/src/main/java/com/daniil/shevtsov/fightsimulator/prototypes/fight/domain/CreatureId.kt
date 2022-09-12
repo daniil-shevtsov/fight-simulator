@@ -1,6 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 @JvmInline
-value class CreatureId(val raw: String)
+value class CreatureId(val raw: Long)
 
-fun creatureId(raw: String) = CreatureId(raw)
+fun creatureId(raw: Long) = CreatureId(raw)

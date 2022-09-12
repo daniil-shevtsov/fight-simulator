@@ -15,7 +15,8 @@ internal class FightFunctionalCoreTest {
             action = FightAction.Init
         )
         assertThat(newState).all {
-            prop(FightState::controlledActorId).prop(CreatureId::raw).isEqualTo("Player")
+            prop(FightState::controlledActorId)
+                .isEqualTo(newState.controlledCreature.id)
             prop(FightState::actors)
                 .each {
                     it.prop(Creature::bodyParts)
@@ -110,7 +111,6 @@ internal class FightFunctionalCoreTest {
     }
 
 
-
     @Test
     fun `should add entry to log when command clicked`() {
         val initialState = normalFullState(controlledName = "Player")
@@ -163,24 +163,27 @@ internal class FightFunctionalCoreTest {
         targetPartName: String = "Head",
         missingParts: List<String> = emptyList(),
     ): FightState {
-        val controlled = creatureId(controlledName)
         val player = creature(
-            id = "Player",
+            id = creatureId(0L).raw,
             actor = Actor.Player,
             name = "Player",
             missingPartSet = bodyParts.filter { it.name in missingParts }.map { it.id }.toSet(),
             bodyParts = bodyParts,
         )
         val enemy = creature(
-            id = "Enemy",
+            id = creatureId(1L).raw,
             actor = Actor.Enemy,
             name = "Enemy",
             bodyParts = bodyParts
         )
+        val controlled = when (controlledName) {
+            player.name -> player.id
+            else -> enemy.id
+        }
         val controlledPartId = bodyParts.find { it.name == controlledPartName }?.id
         val targetPartId = bodyParts.find { it.name == targetPartName }?.id
         return fightState(
-            controlledActorId = controlledName,
+            controlledActorId = controlled,
             actors = listOf(player, enemy),
             selections = mapOf(
                 player.id to when (controlled) {
