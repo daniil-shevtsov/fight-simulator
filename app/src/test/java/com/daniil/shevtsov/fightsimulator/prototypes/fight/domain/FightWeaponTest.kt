@@ -364,9 +364,15 @@ interface FightWeaponTest {
         )
 
         assertThat(state)
-            .prop(FightState::controlledBodyPart)
-            .prop(BodyPart::holding)
-            .isEqualTo(initialState.spear)
+            .all {
+                prop(FightState::world)
+                    .prop(World::ground)
+                    .prop(Ground::items)
+                    .containsOnly(initialState.sword)
+                prop(FightState::controlledBodyPart)
+                    .prop(BodyPart::holding)
+                    .isEqualTo(initialState.spear)
+            }
     }
 
     @Test
