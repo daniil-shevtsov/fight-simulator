@@ -26,7 +26,8 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         ),
                     )
                 },
-                isControlled = creature.id == state.controlledActorId
+                isControlled = creature.id == state.controlledActorId,
+                isTarget = creature.id == state.targetId,
             )
         },
         commandsMenu = CommandsMenu(

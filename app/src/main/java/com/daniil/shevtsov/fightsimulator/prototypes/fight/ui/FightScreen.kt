@@ -262,8 +262,6 @@ fun BodyPart(
             .let { modifier ->
                 when (bodyPartItem.isSelected) {
                     true -> modifier
-//                        .background(Color.Black)
-//                        .padding(4.dp)
                         .background(Color.White)
                         .padding(6.dp)
                     false

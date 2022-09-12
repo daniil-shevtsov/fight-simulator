@@ -9,6 +9,7 @@ data class CreatureMenu(
     val actor: Actor,
     val bodyParts: List<BodyPartItem>,
     val isControlled: Boolean,
+    val isTarget: Boolean,
 )
 
 fun creatureMenu(
@@ -16,9 +17,11 @@ fun creatureMenu(
     actor: Actor = Actor.Enemy,
     bodyParts: List<BodyPartItem> = emptyList(),
     isControlled: Boolean = false,
+    isTarget: Boolean = false,
 ) = CreatureMenu(
     id = creatureId(id),
     actor = actor,
     bodyParts = bodyParts,
     isControlled = isControlled,
+    isTarget = isTarget,
 )
