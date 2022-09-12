@@ -167,7 +167,7 @@ private fun ActorsMenu(
                 onClick = {
                     onAction(
                         FightAction.SelectSomething(
-                            creatureId = creature.id,
+                            selectableHolderId = creature.id,
                             selectableId = it.id,
                         )
                     )

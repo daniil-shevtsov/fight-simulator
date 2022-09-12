@@ -161,10 +161,10 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): FightState {
     return state.copy(
         selections = state.selectableHolders
-            .filter { it.id == action.creatureId || state.selections.contains(it.id) }
+            .filter { it.id == action.selectableHolderId || state.selections.contains(it.id) }
             .associate {
                 when (it.id) {
-                    action.creatureId -> it.id to action.selectableId
+                    action.selectableHolderId -> it.id to action.selectableId
                     else -> it.id to state.selections[it.id]!!
                 }
             }
