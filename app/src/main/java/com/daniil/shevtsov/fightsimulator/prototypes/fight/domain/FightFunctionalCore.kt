@@ -262,14 +262,16 @@ private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
         ),
         bodyPart(
             name = "Right Hand",
-            attackActions = listOf(AttackAction.Punch)
+            attackActions = listOf(AttackAction.Punch),
+            canGrab = true,
         ),
         bodyPart(
             name = "Left Arm"
         ),
         bodyPart(
             name = "Left Hand",
-            attackActions = listOf(AttackAction.Punch)
+            attackActions = listOf(AttackAction.Punch),
+            canGrab = true,
         ),
         bodyPart(
             name = "Right Leg"

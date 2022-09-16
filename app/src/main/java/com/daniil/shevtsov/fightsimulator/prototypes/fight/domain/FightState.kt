@@ -29,7 +29,7 @@ data class FightState(
 
     val availableCommands: List<Command>
         get() = when {
-            world.ground.items.contains(targetSelectable) -> listOf(AttackAction.Grab)
+            world.ground.items.contains(targetSelectable) && controlledBodyPart.canGrab -> listOf(AttackAction.Grab)
             controlledCreature.bodyParts.isNotEmpty() -> (controlledBodyPart.attackActions + controlledBodyPart.holding.attackActionsWithThrow)
             else -> emptyList()
         }.map(::Command)

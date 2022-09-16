@@ -47,4 +47,6 @@ internal class FightFunctionalCoreTest {
         }
     }
 
+
+
 }

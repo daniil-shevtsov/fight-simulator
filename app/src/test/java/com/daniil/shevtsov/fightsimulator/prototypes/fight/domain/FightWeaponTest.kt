@@ -330,7 +330,7 @@ interface FightWeaponTest {
     }
 
     @Test
-    fun `should should show command for picking up when selected item on the ground`() {
+    fun `should should show command for picking up when selected item on the groun with grabber part`() {
         val initialState = stateForItemPickup()
 
         val state = fightFunctionalCore(
@@ -398,6 +398,31 @@ interface FightWeaponTest {
             .isEqualTo("$controlledActorName picks up the spear from the ground.")
     }
 
+    @Test
+    fun `should not show Grab action for body parts that can't grab`() {
+        val initialState = stateForItemPickup()
+
+        val stateWithNonGrabberBodyPart = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.nonGrabbingPart.id,
+            )
+        )
+        val stateWithSpearSelected = fightFunctionalCore(
+            state = stateWithNonGrabberBodyPart,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+
+        assertThat(stateWithSpearSelected)
+            .prop(FightState::availableCommands)
+            .extracting(Command::attackAction)
+            .containsNone(AttackAction.Grab)
+    }
+
     private fun stateForItemAttack(): AttackWithItemTestState {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
@@ -444,10 +469,6 @@ interface FightWeaponTest {
         val controlled = when (controlledActorName) {
             leftActor.name -> leftActor.id
             rightActor.name -> rightActor.id
-            else -> leftActor.id
-        }
-        val target = when (controlled) {
-            leftActor.id -> rightActor.id
             else -> leftActor.id
         }
 

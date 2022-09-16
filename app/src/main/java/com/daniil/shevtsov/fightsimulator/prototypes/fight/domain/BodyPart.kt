@@ -7,6 +7,7 @@ data class BodyPart(
     val holding: Item? = null,
     val containedBodyParts: Set<BodyPartId> = setOf(),
     val parentId: BodyPartId? = null,
+    val canGrab: Boolean,
 ) : Selectable
 
 fun bodyPart(
@@ -16,6 +17,7 @@ fun bodyPart(
     attackActions: List<AttackAction> = emptyList(),
     containedBodyParts: Set<BodyPartId> = setOf(),
     parentId: BodyPartId? = null,
+    canGrab: Boolean = false,
 ) = BodyPart(
     id = bodyPartId(id),
     name = name,
@@ -23,4 +25,5 @@ fun bodyPart(
     attackActions = attackActions,
     containedBodyParts = containedBodyParts,
     parentId = parentId,
+    canGrab = canGrab,
 )

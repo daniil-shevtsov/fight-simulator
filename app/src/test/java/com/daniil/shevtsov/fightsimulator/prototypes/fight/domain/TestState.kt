@@ -13,6 +13,8 @@ interface TestState {
         get() = state.targetCreature
     val attackerWeapon: Item
         get() = attacker.functionalParts.find { it.holding != null }?.holding!!
+    val nonGrabbingPart: BodyPart
+        get() = attacker.bodyParts.find { it.name == "Right Leg" }!!
 
     val ground: Ground
         get() = state.world.ground
