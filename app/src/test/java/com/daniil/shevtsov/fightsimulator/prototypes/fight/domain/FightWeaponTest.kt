@@ -448,7 +448,7 @@ interface FightWeaponTest {
                 controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
                 else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
             },
-            realTargetSelectableId = when (leftActor.id) {
+            lastSelectedTargetPartId = when (leftActor.id) {
                 controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
             },
@@ -485,7 +485,7 @@ interface FightWeaponTest {
                 controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
                 else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
             },
-            realTargetSelectableId = when (leftActor.id) {
+            lastSelectedTargetPartId = when (leftActor.id) {
                 controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
             },

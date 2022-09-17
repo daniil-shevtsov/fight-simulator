@@ -95,7 +95,7 @@ internal class FightPresentationMappingTest {
         val initialState = fullNormalState().let { state ->
             state.copy(
                 state = state.state.copy(
-                    realTargetSelectableId = state.state.targetCreature.missingParts.first().id,
+                    lastSelectedTargetPartId = state.state.targetCreature.missingParts.first().id,
                 )
 
             )

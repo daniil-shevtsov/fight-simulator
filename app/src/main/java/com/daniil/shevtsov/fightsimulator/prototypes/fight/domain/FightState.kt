@@ -2,7 +2,7 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class FightState(
     val realControlledSelectableId: SelectableId,
-    val realTargetSelectableId: SelectableId,
+    val lastSelectedTargetPartId: SelectableId,
     val controlledActorId: CreatureId,
     val targetId: SelectableHolderId,
     val actors: List<Creature>,
@@ -16,24 +16,24 @@ data class FightState(
     val selectables: List<Selectable>
         get() = selectableHolders.flatMap(SelectableHolder::selectables)
 
-    val targetSelectable: Selectable?
-        get() = selectables.find { it.id == realTargetSelectableId }
-
     val targetSelectableHolder: SelectableHolder
         get() = selectableHolders.find { holder ->
-            holder.selectables.any { selectable -> selectable.id == realTargetSelectableId }
+            holder.selectables.any { selectable -> selectable.id == lastSelectedTargetPartId }
         }!!
+
+    val targetSelectable: Selectable?
+        get() = selectables.find { it.id == lastSelectedTargetPartId }
 
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()
     val targetCreature: Creature
-        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == realTargetSelectableId } }
+        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == lastSelectedTargetPartId } }
             ?: actors.last()
 
     val controlledBodyPart: BodyPart
         get() = controlledCreature.controlledSelectedBodyPart
     val targetBodyPart: BodyPart?
-        get() = targetCreature.selectedBodyPart.takeIf { targetCreature.id == targetId }
+        get() = targetCreature.targetselectedBodyPart.takeIf { targetCreature.id == targetId }
     val targetBodyPartBone: BodyPart?
         get() = targetCreature.bodyParts.firstOrNull { it.id in targetBodyPart?.containedBodyParts.orEmpty() }
 
@@ -46,8 +46,8 @@ data class FightState(
             else -> emptyList()
         }.map(::Command)
 
-    private val Creature.selectedBodyPart
-        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == realTargetSelectableId }?.id }
+    private val Creature.targetselectedBodyPart
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == lastSelectedTargetPartId }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Creature.controlledSelectedBodyPart
@@ -74,7 +74,7 @@ fun fightState(
     controlledActorId = controlledActorId,
     targetId = targetId,
     realControlledSelectableId = realControlledSelectableId,
-    realTargetSelectableId = realTargetSelectableId,
+    lastSelectedTargetPartId = realTargetSelectableId,
     actors = actors,
     actionLog = actionLog,
     world = world,
