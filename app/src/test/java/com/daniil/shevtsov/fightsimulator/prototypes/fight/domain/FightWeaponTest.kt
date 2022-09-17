@@ -307,7 +307,7 @@ interface FightWeaponTest {
             .all {
                 prop(AttackWithItemTestState::state)
                     .prop(FightState::target)
-                    .prop(Targetable::id)
+                    .prop(SelectableHolder::id)
                     .isEqualTo(initialState.otherCreature.id)
             }
     }

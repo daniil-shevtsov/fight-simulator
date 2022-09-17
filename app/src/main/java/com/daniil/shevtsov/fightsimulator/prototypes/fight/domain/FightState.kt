@@ -11,19 +11,29 @@ data class FightState(
 
     var realTargetSelectableId: SelectableId? = selections[targetId]
 
-    val target: Targetable
-        get() = targets.find { it.id == targetId }!!
+    val selectableHolders: List<SelectableHolder>
+        get() = actors + listOf(world.ground)
 
-    private val targets: List<Targetable>
-        get() = actors + world.ground
+    val selectables: List<Selectable>
+        get() = selectableHolders.flatMap(SelectableHolder::selectables)
+
+    val targetSelectable: Selectable?
+        get() = selectables.find { it.id == realTargetSelectableId }
+
+    val target: SelectableHolder
+        get() = selectableHolders.find { holder ->
+            holder.selectables.any { selectable -> selectable.id == realTargetSelectableId }
+        }!!
+
 
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()
     val targetCreature: Creature
-        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == realTargetSelectableId } } ?: actors.last()
+        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == realTargetSelectableId } }
+            ?: actors.last()
 
     val controlledBodyPart: BodyPart
-        get() = controlledCreature.selectedBodyPart
+        get() = controlledCreature.controlledSelectedBodyPart
     val targetBodyPart: BodyPart?
         get() = targetCreature.selectedBodyPart.takeIf { targetCreature.id == targetId }
     val targetBodyPartBone: BodyPart?
@@ -38,16 +48,11 @@ data class FightState(
             else -> emptyList()
         }.map(::Command)
 
-    val selectableHolders: List<SelectableHolder>
-        get() = listOf(controlledCreature, targetCreature, world.ground)
-
-    val selectables: List<Selectable>
-        get() = selectableHolders.flatMap(SelectableHolder::selectables)
-
-    val targetSelectable: Selectable?
-        get() = selectables.find { it.id == realTargetSelectableId }
-
     private val Creature.selectedBodyPart
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == selections[id] }?.id }
+            ?: functionalParts.firstOrNull() ?: bodyParts.first()
+
+    private val Creature.controlledSelectedBodyPart
         get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == selections[id] }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
