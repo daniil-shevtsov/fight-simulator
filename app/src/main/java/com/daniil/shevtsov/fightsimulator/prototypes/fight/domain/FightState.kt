@@ -1,7 +1,7 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class FightState(
-    val lastSelectedControlledHolderId: CreatureId,
+    val lastSelectedControlledHolderId: SelectableHolderId,
     val lastSelectedControlledPartId: SelectableId,
     val lastSelectedTargetHolderId: SelectableHolderId,
     val lastSelectedTargetPartId: SelectableId,
@@ -23,16 +23,14 @@ data class FightState(
             val lastHolderSelectables = lastHolder?.selectables.orEmpty()
             val newSelectable = when {
                 lastHolderSelectables.any { selectable -> selectable.id == lastSelectedTargetPartId } -> lastSelectedTargetPartId
-                lastHolderSelectables.isNotEmpty() ->lastHolderSelectables.first().id
+                lastHolderSelectables.isNotEmpty() -> lastHolderSelectables.first().id
                 else -> selectableHolders.firstOrNull { it.id != controlledCreature.id }?.selectables?.firstOrNull()?.id
             }
             return newSelectable
         }
 
     val targetSelectableHolder: SelectableHolder
-        get() = selectableHolders.find { holder ->
-            holder.selectables.any { selectable -> selectable.id == currentSelectedTargetId }
-        }!!
+        get() = selectableHolders.find { holder -> holder.selectables.any { selectable -> selectable.id == currentSelectedTargetId } }!!
 
     val targetSelectable: Selectable?
         get() = selectables.find { it.id == currentSelectedTargetId }
@@ -40,13 +38,12 @@ data class FightState(
     val controlledCreature: Creature
         get() = actors.find { it.id == lastSelectedControlledHolderId } ?: actors.first()
     val targetCreature: Creature
-        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == currentSelectedTargetId } }
-            ?: actors.last()
+        get() = actors.find { it.id == lastSelectedTargetHolderId } ?: actors.last()
 
     val controlledBodyPart: BodyPart
         get() = controlledCreature.controlledSelectedBodyPart
     val targetBodyPart: BodyPart?
-        get() = targetCreature.targetSelectedBodyPart.takeIf { targetCreature.id == targetId }
+        get() = targetCreature.targetSelectedBodyPart.takeIf { targetCreature.id == targetSelectableHolder.id }
     val targetBodyPartBone: BodyPart?
         get() = targetCreature.bodyParts.firstOrNull { it.id in targetBodyPart?.containedBodyParts.orEmpty() }
 
