@@ -3,7 +3,7 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 data class FightState(
     val selections: Map<SelectableHolderId, SelectableId>,
     val controlledActorId: CreatureId,
-    val targetId: TargetId,
+    val targetId: SelectableHolderId,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
     val world: World,
@@ -43,7 +43,7 @@ data class FightState(
     val targetSelectable: Selectable?
         get() = selectables.find { it.id == selections[targetId as SelectableHolderId] }
 
-    val Creature.selectedBodyPart
+    private val Creature.selectedBodyPart
         get() = functionalParts.find { it.name == bodyParts.find { kek -> kek.id == selections[id] }?.name }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
@@ -54,7 +54,7 @@ data class FightState(
 
 fun fightState(
     controlledActorId: CreatureId = creatureId(0L),
-    targetId: TargetId = creatureTargetId(0L),
+    targetId: SelectableHolderId = creatureId(0L),
     selections: Map<SelectableHolderId, SelectableId> = mapOf(),
     actors: List<Creature> = listOf(
         creature(id = "playerId".hashCode().toLong()),

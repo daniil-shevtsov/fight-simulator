@@ -185,7 +185,7 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): Figh
                 }
             },
         //TODO: Remove this cast
-        targetId = when(action.selectableHolderId as TargetId) {
+        targetId = when(action.selectableHolderId) {
             state.controlledCreature.id -> state.targetId
             else -> action.selectableHolderId
         }
@@ -236,7 +236,7 @@ private fun createInitialState(): FightState {
     )
     return FightState(
         controlledActorId = player.id,
-        targetId = creatureTargetId(enemy.id.raw),
+        targetId = creatureId(enemy.id.raw),
         selections = mapOf(
             player.id to playerBodyParts.find { it.name == "Left Hand" }?.id!!,
             enemy.id to enemyBodyParts.find { it.name == "Head" }?.id!!
