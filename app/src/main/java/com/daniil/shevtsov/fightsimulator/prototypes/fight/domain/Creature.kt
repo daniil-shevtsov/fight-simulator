@@ -7,7 +7,7 @@ data class Creature(
     val bodyParts: List<BodyPart>,
     val missingPartsSet: Set<BodyPartId> = setOf(),
     val brokenPartsSet: Set<BodyPartId> = setOf(),
-) : Targetable, SelectableHolder {
+) : SelectableHolder {
 
 
 
