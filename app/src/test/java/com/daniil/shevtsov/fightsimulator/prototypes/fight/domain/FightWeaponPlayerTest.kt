@@ -1,6 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
-class FightWeaponPlayerTest : FightWeaponTest {
+class FightWeaponPlayerTest : FightFunctionalCoreTest {
     override val controlledActorName: String
         get() = "Player"
     override val targetActorName: String
