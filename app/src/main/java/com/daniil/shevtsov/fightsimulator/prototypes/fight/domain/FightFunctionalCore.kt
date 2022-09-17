@@ -184,6 +184,10 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): Figh
             action.selectableHolderId != state.controlledCreature.id -> action.selectableId
             else -> state.lastSelectedTargetPartId
         },
+        lastSelectedHolderId = when (action.selectableHolderId) {
+            state.controlledCreature.id -> state.lastSelectedHolderId
+            else -> action.selectableHolderId
+        },
         targetId = when (action.selectableHolderId) {
             state.controlledCreature.id -> state.targetId
             else -> action.selectableHolderId
@@ -238,6 +242,7 @@ private fun createInitialState(): FightState {
         targetId = creatureId(enemy.id.raw),
         realControlledSelectableId = playerBodyParts.find { it.name == "Left Hand" }?.id!!,
         lastSelectedTargetPartId = enemyBodyParts.find { it.name == "Head" }?.id!!,
+        lastSelectedHolderId = enemy.id,
         actors = listOf(player, enemy),
         actionLog = emptyList(),
         world = World(ground = ground())

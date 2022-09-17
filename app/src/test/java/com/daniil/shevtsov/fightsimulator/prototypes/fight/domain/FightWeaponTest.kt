@@ -492,6 +492,10 @@ interface FightWeaponTest {
                 controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
             },
+            lastSelectedHolderId = when (leftActor.id) {
+                controlled -> rightActor.id
+                else -> leftActor.id
+            },
         )
 
         return AttackWithItemTestState(
@@ -528,6 +532,10 @@ interface FightWeaponTest {
             lastSelectedTargetPartId = when (leftActor.id) {
                 controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
+            },
+            lastSelectedHolderId = when (leftActor.id) {
+                controlled -> rightActor.id
+                else -> leftActor.id
             },
         )
 
