@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 internal class FightPresentationMappingTest {
     @Test
     fun `should map state`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
             state = initialState.state
         )
@@ -41,7 +41,7 @@ internal class FightPresentationMappingTest {
 
     @Test
     fun `should display selected player part`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
             state = initialState.state
         )
@@ -67,7 +67,7 @@ internal class FightPresentationMappingTest {
 
     @Test
     fun `should display body part statuses`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
             state = initialState.state
         )
@@ -92,7 +92,7 @@ internal class FightPresentationMappingTest {
 
     @Test
     fun `should display as selected only functional body parts`() {
-        val initialState = fullNormalState().let { state ->
+        val initialState = attackWithItemTestState().let { state ->
             state.copy(
                 state = state.state.copy(
                     lastSelectedTargetPartId = state.state.targetCreature.missingParts.first().id,
@@ -120,7 +120,7 @@ internal class FightPresentationMappingTest {
 
     @Test
     fun `should display ground as target`() {
-        val initialState = fullNormalState().let { state ->
+        val initialState = attackWithItemTestState().let { state ->
             state.copy(
                 state = state.state.copy(
                     lastSelectedTargetHolderId = state.ground.id,
@@ -140,8 +140,24 @@ internal class FightPresentationMappingTest {
     }
 
     @Test
+    fun `should display items on the ground`() {
+        val initialState = attackWithItemTestState()
+
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::ground)
+            .prop(GroundMenu::items)
+            .extracting(Item::name)
+            .containsOnly("Spear")
+    }
+
+    @Test
     fun `should display enemy as target`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
             state = initialState.state
         )
@@ -158,7 +174,7 @@ internal class FightPresentationMappingTest {
 
     @Test
     fun `should display part as selected after changing`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
             state = initialState.state
         )
@@ -173,7 +189,7 @@ internal class FightPresentationMappingTest {
             }
     }
 
-    private fun fullNormalState(): AttackWithItemTestState {
+    private fun attackWithItemTestState(): AttackWithItemTestState {
         val originalState = AttackWithItemTestState(
             state = fightFunctionalCore(
                 state = fightState(),
