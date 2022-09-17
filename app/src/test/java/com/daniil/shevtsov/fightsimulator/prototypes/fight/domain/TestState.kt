@@ -13,7 +13,13 @@ interface TestState {
         get() = attacker.findBodyPart(withName = "Head")
     val target: Creature
         get() = state.targetCreature
-    val attackerWeapon: Item
+    val targetHead: BodyPart
+        get() = target.bodyParts.find { it.name == "Head" }!!
+    val targetSkull: BodyPart
+        get() = target.bodyParts.find { it.name == "Skull" }!!
+    val targetRightHand: BodyPart
+        get() = target.bodyParts.find { it.name == "Right Hand" }!!
+    val attackerWeapon: Selectable
         get() = attacker.functionalParts.find { it.holding != null }?.holding!!
     val nonGrabbingPart: BodyPart
         get() = attacker.bodyParts.find { it.name == "Right Leg" }!!
@@ -41,12 +47,7 @@ data class ItemPickupTestState(
 data class AttackWithItemTestState(
     override val state: FightState,
 ) : TestState {
-    val targetHead: BodyPart
-        get() = target.bodyParts.find { it.name == "Head" }!!
-    val targetSkull: BodyPart
-        get() = target.bodyParts.find { it.name == "Skull" }!!
-    val targetRightHand: BodyPart
-        get() = target.bodyParts.find { it.name == "Right Hand" }!!
+
     val targetWeapon: Item
-        get() = target.functionalParts.find { it.holding != null }?.holding!!
+        get() = target.functionalParts.find { it.holding != null }?.holding!! as Item //TODO: Remove cast
 }

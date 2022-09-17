@@ -63,8 +63,8 @@ data class FightState(
         get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == lastSelectedControlledPartId }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
-    private val Item?.attackActionsWithThrow: List<AttackAction>
-        get() = this?.attackActions?.let { it + listOf(AttackAction.Throw) }.orEmpty()
+    private val Selectable?.attackActionsWithThrow: List<AttackAction>
+        get() = (this as? Item)?.attackActions.orEmpty() + listOf(AttackAction.Throw).takeIf { this != null }.orEmpty()
 }
 
 

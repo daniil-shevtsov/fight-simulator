@@ -426,6 +426,38 @@ interface FightFunctionalCoreTest {
             .containsOnly(AttackAction.Grab)
     }
 
+//    @Test
+//    fun `should start holding body part when grabbed from the ground`() {
+//        val initialState = stateForItemPickup()
+//
+//        val stateWithHeadSlashed = fightFunctionalCore(
+//            initialState.state,
+//            FightAction.SelectCommand(AttackAction.Slash)
+//        )
+//        val stateWithSpearSelected = fightFunctionalCore(
+//            state = stateWithHeadSlashed,
+//            action = FightAction.SelectSomething(
+//                selectableHolderId = initialState.ground.id,
+//                selectableId = initialState.targetHead.id,
+//            )
+//        )
+//        val state = fightFunctionalCore(
+//            state = stateWithSpearSelected,
+//            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
+//        )
+//
+//        assertThat(state)
+//            .all {
+//                prop(FightState::world)
+//                    .prop(World::ground)
+//                    .prop(Ground::selectables)
+//                    .containsNone(initialState.targetHead)
+//                prop(FightState::controlledBodyPart)
+//                    .prop(BodyPart::holding)
+//                    .isEqualTo(initialState.targetHead)
+//            }
+//    }
+
     @Test
     fun `should start holding the item when grabbed from the ground`() {
         val initialState = stateForItemPickup()
