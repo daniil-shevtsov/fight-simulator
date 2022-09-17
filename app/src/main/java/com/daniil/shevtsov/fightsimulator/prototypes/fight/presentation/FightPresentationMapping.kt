@@ -2,7 +2,6 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightState
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Item
 
 fun fightPresentationMapping(state: FightState): FightViewState {
     return FightViewState.Content(
@@ -14,7 +13,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                     BodyPartItem(
                         id = bodyPart.id,
                         name = bodyPart.name,
-                        holding = bodyPart.holding as? Item,//TODO: Support non items
+                        holding = bodyPart.holding,
                         contained = bodyPart.containedBodyParts,
                         isSelected = when (creature.id) {
                             state.targetCreature.id -> state.targetBodyPart?.id == bodyPart.id

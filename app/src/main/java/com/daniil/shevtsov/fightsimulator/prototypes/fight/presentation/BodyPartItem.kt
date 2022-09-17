@@ -2,13 +2,13 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Item
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Selectable
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.bodyPartId
 
 data class BodyPartItem(
     val id: BodyPartId,
     val name: String,
-    val holding: Item?,
+    val holding: Selectable?,
     val contained:  Set<BodyPartId>,
     val statuses: List<BodyPartStatus>,
     val isSelected: Boolean,
@@ -17,7 +17,7 @@ data class BodyPartItem(
 fun bodyPartItem(
     id: Long,
     name: String = "",
-    holding: Item? = null,
+    holding: Selectable? = null,
     contained:  Set<BodyPartId> = setOf(),
     statuses: List<BodyPartStatus> = emptyList(),
     isSelected: Boolean = false,
