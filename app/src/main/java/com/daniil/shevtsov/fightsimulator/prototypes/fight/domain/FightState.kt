@@ -20,7 +20,7 @@ data class FightState(
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()
     val targetCreature: Creature
-        get() = actors.find { it.id == targetId } ?: actors.last()
+        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == realTargetSelectableId } } ?: actors.last()
 
     val controlledBodyPart: BodyPart
         get() = controlledCreature.selectedBodyPart
