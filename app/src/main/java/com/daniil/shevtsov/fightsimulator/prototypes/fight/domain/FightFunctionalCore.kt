@@ -176,23 +176,19 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 
 fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): FightState {
     return state.copy(
-        selections = state.selectableHolders
-            .filter { it.id == action.selectableHolderId || state.selections.contains(it.id) }
-            .associate {
-                when (it.id) {
-                    action.selectableHolderId -> it.id to action.selectableId
-                    else -> it.id to state.selections[it.id]!!
-                }
-            },
+        realControlledSelectableId = when (action.selectableHolderId) {
+            state.controlledCreature.id -> action.selectableId
+            else -> state.realControlledSelectableId
+        },
+        realTargetSelectableId = when {
+            action.selectableHolderId != state.controlledCreature.id -> action.selectableId
+            else -> state.realTargetSelectableId
+        },
         targetId = when (action.selectableHolderId) {
             state.controlledCreature.id -> state.targetId
             else -> action.selectableHolderId
         }
-    ).apply {
-        if(action.selectableHolderId != state.controlledCreature.id) {
-            realTargetSelectableId = action.selectableId
-        }
-    }
+    )
 }
 
 private fun createInitialState(): FightState {
@@ -240,10 +236,8 @@ private fun createInitialState(): FightState {
     return FightState(
         controlledActorId = player.id,
         targetId = creatureId(enemy.id.raw),
-        selections = mapOf(
-            player.id to playerBodyParts.find { it.name == "Left Hand" }?.id!!,
-            enemy.id to enemyBodyParts.find { it.name == "Head" }?.id!!
-        ),
+        realControlledSelectableId = playerBodyParts.find { it.name == "Left Hand" }?.id!!,
+        realTargetSelectableId = enemyBodyParts.find { it.name == "Head" }?.id!!,
         actors = listOf(player, enemy),
         actionLog = emptyList(),
         world = World(ground = ground())

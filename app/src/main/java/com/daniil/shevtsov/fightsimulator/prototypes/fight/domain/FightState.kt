@@ -1,15 +1,14 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class FightState(
-    val selections: Map<SelectableHolderId, SelectableId>,
+    val realControlledSelectableId: SelectableId,
+    val realTargetSelectableId: SelectableId,
     val controlledActorId: CreatureId,
     val targetId: SelectableHolderId,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
     val world: World,
 ) {
-
-    var realTargetSelectableId: SelectableId? = selections[targetId]
 
     val selectableHolders: List<SelectableHolder>
         get() = actors + listOf(world.ground)
@@ -20,11 +19,10 @@ data class FightState(
     val targetSelectable: Selectable?
         get() = selectables.find { it.id == realTargetSelectableId }
 
-    val target: SelectableHolder
+    val targetSelectableHolder: SelectableHolder
         get() = selectableHolders.find { holder ->
             holder.selectables.any { selectable -> selectable.id == realTargetSelectableId }
         }!!
-
 
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()
@@ -49,11 +47,11 @@ data class FightState(
         }.map(::Command)
 
     private val Creature.selectedBodyPart
-        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == selections[id] }?.id }
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == realTargetSelectableId }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Creature.controlledSelectedBodyPart
-        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == selections[id] }?.id }
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == realControlledSelectableId }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Item?.attackActionsWithThrow: List<AttackAction>
@@ -64,7 +62,8 @@ data class FightState(
 fun fightState(
     controlledActorId: CreatureId = creatureId(0L),
     targetId: SelectableHolderId = creatureId(0L),
-    selections: Map<SelectableHolderId, SelectableId> = mapOf(),
+    realControlledSelectableId: SelectableId = bodyPartId(0L),
+    realTargetSelectableId: SelectableId = bodyPartId(0L),
     actors: List<Creature> = listOf(
         creature(id = "playerId".hashCode().toLong()),
         creature(id = "enemyId".hashCode().toLong())
@@ -74,8 +73,9 @@ fun fightState(
 ) = FightState(
     controlledActorId = controlledActorId,
     targetId = targetId,
+    realControlledSelectableId = realControlledSelectableId,
+    realTargetSelectableId = realTargetSelectableId,
     actors = actors,
-    selections = selections,
     actionLog = actionLog,
     world = world,
 )

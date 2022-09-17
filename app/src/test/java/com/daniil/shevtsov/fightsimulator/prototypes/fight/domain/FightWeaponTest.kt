@@ -306,7 +306,7 @@ interface FightWeaponTest {
         assertThat(AttackWithItemTestState(state))
             .all {
                 prop(AttackWithItemTestState::state)
-                    .prop(FightState::target)
+                    .prop(FightState::targetSelectableHolder)
                     .prop(SelectableHolder::id)
                     .isEqualTo(initialState.otherCreature.id)
             }
@@ -444,16 +444,14 @@ interface FightWeaponTest {
             world = initialState.world.copy(ground = ground),
             controlledActorId = controlled,
             targetId = target,
-            selections = mapOf(
-                leftActor.id to when (leftActor.id) {
-                    controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
-                    else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
-                },
-                rightActor.id to when (rightActor.id) {
-                    controlled -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
-                    else -> rightActor.bodyParts.find { it.name == "Head" }!!.id
-                }
-            )
+            realControlledSelectableId = when (leftActor.id) {
+                controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
+            },
+            realTargetSelectableId = when (leftActor.id) {
+                controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
+                else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
+            },
         )
 
         return AttackWithItemTestState(
@@ -483,16 +481,14 @@ interface FightWeaponTest {
             world = initialState.world.copy(ground = ground),
             controlledActorId = controlled,
             targetId = ground.id,
-            selections = mapOf(
-                leftActor.id to when (leftActor.id) {
-                    controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
-                    else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
-                },
-                rightActor.id to when (rightActor.id) {
-                    controlled -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
-                    else -> rightActor.bodyParts.find { it.name == "Head" }!!.id
-                }
-            )
+            realControlledSelectableId = when (leftActor.id) {
+                controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
+                else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
+            },
+            realTargetSelectableId = when (leftActor.id) {
+                controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
+                else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
+            },
         )
 
         return ItemPickupTestState(
