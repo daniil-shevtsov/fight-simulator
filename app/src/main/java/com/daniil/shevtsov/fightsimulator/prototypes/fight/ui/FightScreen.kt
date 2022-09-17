@@ -409,7 +409,7 @@ fun BodyPart(
 
 @Composable
 fun Item(
-    item: Item,
+    item: Selectable,
     textColor: Color = Color.Black,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
@@ -462,12 +462,10 @@ fun GroundMenu(
                 modifier = Modifier
             ) {
                 ground.selectables.forEach { item ->
-                    when(item) {
-                        is Item -> Item(
-                            item = item,
-                            onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
-                        )
-                    }
+                    Item(
+                        item = item,
+                        onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
+                    )
                 }
             }
         }

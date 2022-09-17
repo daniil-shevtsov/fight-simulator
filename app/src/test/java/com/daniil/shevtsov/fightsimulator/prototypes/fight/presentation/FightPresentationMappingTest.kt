@@ -152,7 +152,23 @@ internal class FightPresentationMappingTest {
             .prop(FightViewState.Content::ground)
             .prop(GroundMenu::selectables)
             .extracting(Selectable::name)
-            .containsOnly("Spear")
+            .contains("Spear")
+    }
+
+    @Test
+    fun `should display body parts on the ground`() {
+        val initialState = slashedTestState()
+
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::ground)
+            .prop(GroundMenu::selectables)
+            .extracting(Selectable::name)
+            .contains("Head")
     }
 
     @Test
@@ -212,6 +228,18 @@ internal class FightPresentationMappingTest {
                 actors = listOf(modifiedAttacker, modifiedTarget),
                 world = originalState.state.world.copy(ground = modifiedGround)
             )
+        )
+    }
+
+    private fun slashedTestState(): AttackWithItemTestState {
+        val initial = stateForItemAttack(controlledActorName = "Player").state
+        val slashed = fightFunctionalCore(
+            state = initial,
+            action = FightAction.SelectCommand(AttackAction.Slash)
+        )
+
+        return AttackWithItemTestState(
+            state = slashed
         )
     }
 }
