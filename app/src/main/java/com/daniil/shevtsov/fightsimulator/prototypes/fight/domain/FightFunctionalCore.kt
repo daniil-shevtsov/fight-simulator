@@ -63,6 +63,11 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Kick
     ) && targetBodyPart?.holding != null
 
+    val newSlashedParts: List<BodyPart> = (listOf(targetBodyPart?.id)
+            + targetBodyPart?.containedBodyParts.orEmpty()
+        .toList()).let { ids -> state.targetCreature.bodyParts.filter { it.id in ids } }
+        .takeIf { action.attackAction == AttackAction.Slash }.orEmpty()
+
     val newTargetCreature = when (action.attackAction) {
         AttackAction.Throw -> {
             val thrownItem = state.controlledBodyPart.holding
@@ -96,8 +101,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Slash -> {
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet
-                        + setOfNotNull(targetBodyPart?.id)
-                        + targetBodyPart?.containedBodyParts.orEmpty()
+                        + newSlashedParts.map { it.id }.toSet()
             )
         }
         else -> state.targetCreature
@@ -159,11 +163,15 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             shouldKnockOutWeapon -> state.world.ground.copy(
                 selectables = state.world.ground.selectables + targetBodyPart?.holding!!
             )
-            action.attackAction == AttackAction.Grab -> state.world.ground.copy(
+            newSlashedParts.isNotEmpty() -> state.world.ground.copy(
+                selectables = state.world.ground.selectables + newSlashedParts
+            )
+            action.attackAction == AttackAction.Grab
+            -> state.world.ground.copy(
                 selectables = state.world.ground.selectables.filter { it.id != state.targetSelectable?.id }
             )
             else -> state.world.ground
-        }
+        },
     )
 
     return state.copy(

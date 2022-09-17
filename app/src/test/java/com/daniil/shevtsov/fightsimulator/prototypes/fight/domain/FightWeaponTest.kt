@@ -247,7 +247,26 @@ interface FightWeaponTest {
                 .index(0)
                 .prop(ActionEntry::text)
                 .isEqualTo("$controlledActorName slashes at $targetActorName's head with knife held by their right hand.\nSevered head flies off in an arc!")
+            prop(FightState::world)
+                .prop(World::ground)
+                .prop(Ground::selectables)
+                .contains(initialState.targetHead)
         }
+    }
+
+    @Test
+    fun `should move limb to ground when attacker is slashing`() {
+        val initialState = stateForItemAttack()
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
+        )
+
+        assertThat(state)
+            .prop(FightState::world)
+            .prop(World::ground)
+            .prop(Ground::selectables)
+            .contains(initialState.targetHead)
     }
 
     @Test
