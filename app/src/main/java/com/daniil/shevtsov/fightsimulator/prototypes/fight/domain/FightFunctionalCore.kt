@@ -47,7 +47,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                 itemFromTheGround != null -> state.controlledCreature.copy(
                     bodyParts = state.controlledCreature.bodyParts.map { bodyPart ->
                         when (bodyPart.id) {
-                            state.controlledBodyPart.id -> bodyPart.copy(holding = itemFromTheGround as? Item)
+                            state.controlledBodyPart.id -> bodyPart.copy(holding = itemFromTheGround)
                             else -> bodyPart
                         }
                     }
