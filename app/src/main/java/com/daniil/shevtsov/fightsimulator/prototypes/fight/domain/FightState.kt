@@ -17,7 +17,7 @@ data class FightState(
     val selectables: List<Selectable>
         get() = selectableHolders.flatMap(SelectableHolder::selectables)
 
-    val currentSelectedTargetId: SelectableId?
+    private val currentSelectedTargetId: SelectableId?
         get() {
             val lastHolder = selectableHolders.find { it.id == lastSelectedHolderId }
             val lastHolderSelectables = lastHolder?.selectables.orEmpty()
@@ -26,10 +26,6 @@ data class FightState(
                 lastHolderSelectables.isNotEmpty() ->lastHolderSelectables.first().id
                 else -> selectableHolders.firstOrNull { it.id != controlledCreature.id }?.selectables?.firstOrNull()?.id
             }
-//
-//            val currentHolder =
-//                selectableHolders.find { holder -> holder.selectables.any { selectable -> selectable.id == lastSelectedTargetPartId } }
-//            val currentHolderSelectables = currentHolder?.selectables.orEmpty()
             return newSelectable
         }
 

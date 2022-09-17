@@ -121,8 +121,13 @@ interface FightWeaponTest {
         )
 
         assertThat(state).all {
+            prop(FightState::controlledBodyPart)
+                .isEqualTo(initialState.otherCreatureHead)
             prop(FightState::targetSelectable)
                 .isEqualTo(initialState.attackerHead)
+            prop(FightState::availableCommands)
+                .extracting(Command::attackAction)
+                .contains(AttackAction.Headbutt)
         }
     }
 

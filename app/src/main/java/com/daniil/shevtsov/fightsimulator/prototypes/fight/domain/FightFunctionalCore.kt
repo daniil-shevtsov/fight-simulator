@@ -112,6 +112,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Kick -> "kicks"
         AttackAction.Throw -> "throws"
         AttackAction.Grab -> "grabs"
+        AttackAction.Headbutt -> "headbutts"
     }
 
     val controlledName = state.controlledCreature.name
@@ -257,6 +258,7 @@ private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
     val initialMainParts = listOf(
         bodyPart(
             name = "Head",
+            attackActions = listOf(AttackAction.Headbutt)
         ),
         bodyPart(
             name = "Body"

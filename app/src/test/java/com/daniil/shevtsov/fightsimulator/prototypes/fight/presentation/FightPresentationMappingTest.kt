@@ -155,6 +155,23 @@ internal class FightPresentationMappingTest {
             }
     }
 
+    @Test
+    fun `should display part as selected after changing`() {
+        val initialState = fullNormalState()
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::actors)
+            .all {
+                index(1)
+                    .prop(CreatureMenu::isTarget)
+                    .isTrue()
+            }
+    }
+
     private fun fullNormalState(): AttackWithItemTestState {
         val originalState = AttackWithItemTestState(
             state = fightFunctionalCore(

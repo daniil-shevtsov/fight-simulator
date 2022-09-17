@@ -9,4 +9,5 @@ enum class AttackAction {
     Kick,
     Throw,
     Grab,
+    Headbutt,
 }
