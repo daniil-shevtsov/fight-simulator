@@ -24,7 +24,7 @@ data class FightState(
             return when {
                 currentHolderSelectables.any { selectable -> selectable.id == lastSelectedTargetPartId } -> lastSelectedTargetPartId
                 currentHolderSelectables.isNotEmpty() -> targetSelectableHolder.selectables.first().id
-                else -> null
+                else -> selectableHolders.firstOrNull { it.id != controlledCreature.id }?.selectables?.firstOrNull()?.id
             }
         }
 
