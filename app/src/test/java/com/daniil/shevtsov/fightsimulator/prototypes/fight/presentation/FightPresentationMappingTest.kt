@@ -125,7 +125,6 @@ internal class FightPresentationMappingTest {
                 state = state.state.copy(
                     lastSelectedTargetHolderId = state.ground.id,
                     lastSelectedTargetPartId = state.ground.items.first().id,
-                    targetId = state.ground.id
                 )
             )
         }

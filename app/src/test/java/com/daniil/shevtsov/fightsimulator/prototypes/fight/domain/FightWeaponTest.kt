@@ -503,7 +503,6 @@ interface FightWeaponTest {
         val state = initialState.copy(
             world = initialState.world.copy(ground = ground),
             lastSelectedControlledHolderId = controlled,
-            targetId = target,
             lastSelectedControlledPartId = when (leftActor.id) {
                 controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
                 else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
@@ -544,7 +543,6 @@ interface FightWeaponTest {
         val state = initialState.copy(
             world = initialState.world.copy(ground = ground),
             lastSelectedControlledHolderId = controlled,
-            targetId = ground.id,
             lastSelectedControlledPartId = when (leftActor.id) {
                 controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
                 else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
