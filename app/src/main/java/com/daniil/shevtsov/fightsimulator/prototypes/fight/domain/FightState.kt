@@ -9,11 +9,13 @@ data class FightState(
     val world: World,
 ) {
 
-    val targets: List<Targetable>
-        get() = actors + world.ground
+    var realTargetSelectableId: SelectableId? = selections[targetId]
 
     val target: Targetable
         get() = targets.find { it.id == targetId }!!
+
+    private val targets: List<Targetable>
+        get() = actors + world.ground
 
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()
@@ -29,7 +31,9 @@ data class FightState(
 
     val availableCommands: List<Command>
         get() = when {
-            world.ground.items.contains(targetSelectable) && controlledBodyPart.canGrab -> listOf(AttackAction.Grab)
+            world.ground.items.contains(targetSelectable) && controlledBodyPart.canGrab -> listOf(
+                AttackAction.Grab
+            )
             controlledCreature.bodyParts.isNotEmpty() -> (controlledBodyPart.attackActions + controlledBodyPart.holding.attackActionsWithThrow)
             else -> emptyList()
         }.map(::Command)
@@ -41,10 +45,10 @@ data class FightState(
         get() = selectableHolders.flatMap(SelectableHolder::selectables)
 
     val targetSelectable: Selectable?
-        get() = selectables.find { it.id == selections[targetId as SelectableHolderId] }
+        get() = selectables.find { it.id == realTargetSelectableId }
 
     private val Creature.selectedBodyPart
-        get() = functionalParts.find { it.name == bodyParts.find { kek -> kek.id == selections[id] }?.name }
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == selections[id] }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Item?.attackActionsWithThrow: List<AttackAction>

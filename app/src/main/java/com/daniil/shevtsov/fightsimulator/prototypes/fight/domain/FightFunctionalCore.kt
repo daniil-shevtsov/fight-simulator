@@ -184,12 +184,15 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): Figh
                     else -> it.id to state.selections[it.id]!!
                 }
             },
-        //TODO: Remove this cast
-        targetId = when(action.selectableHolderId) {
+        targetId = when (action.selectableHolderId) {
             state.controlledCreature.id -> state.targetId
             else -> action.selectableHolderId
         }
-    )
+    ).apply {
+        if(action.selectableHolderId != state.controlledCreature.id) {
+            realTargetSelectableId = action.selectableId
+        }
+    }
 }
 
 private fun createInitialState(): FightState {
