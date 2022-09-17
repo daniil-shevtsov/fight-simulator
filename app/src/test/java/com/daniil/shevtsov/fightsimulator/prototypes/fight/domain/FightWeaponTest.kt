@@ -313,6 +313,46 @@ interface FightWeaponTest {
     }
 
     @Test
+    fun `should select another target and part when last selected does not make sense`() {
+        val initialState = stateForItemPickup()
+
+        val stateWithSpearSelected = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+        val stateWithSpearGrabbed = fightFunctionalCore(
+            state = stateWithSpearSelected,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
+        )
+        val stateWithAnotherHandSelected = fightFunctionalCore(
+            state = stateWithSpearGrabbed,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.attackerLeftHand.id,
+            )
+        )
+        val stateWithHelmetGrabbed = fightFunctionalCore(
+            state = stateWithAnotherHandSelected,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
+        )
+
+        assertThat(stateWithHelmetGrabbed)
+            .all {
+                prop(FightState::world)
+                    .prop(World::ground)
+                    .prop(Ground::items)
+                    .isEmpty()
+                prop(FightState::targetSelectable)
+                    .isNotNull()
+                    .prop(Selectable::id)
+                    .isEqualTo(initialState.otherCreatureHead.id)
+            }
+    }
+
+    @Test
     fun `should select item on the ground`() {
         val initialState = stateForItemPickup()
 

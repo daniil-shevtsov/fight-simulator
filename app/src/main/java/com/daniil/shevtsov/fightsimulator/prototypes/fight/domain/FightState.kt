@@ -16,18 +16,30 @@ data class FightState(
     val selectables: List<Selectable>
         get() = selectableHolders.flatMap(SelectableHolder::selectables)
 
+    val currentSelectedTargetId: SelectableId?
+        get() {
+            val currentHolder =
+                selectableHolders.find { holder -> holder.selectables.any { selectable -> selectable.id == lastSelectedTargetPartId } }
+            val currentHolderSelectables = currentHolder?.selectables.orEmpty()
+            return when {
+                currentHolderSelectables.any { selectable -> selectable.id == lastSelectedTargetPartId } -> lastSelectedTargetPartId
+                currentHolderSelectables.isNotEmpty() -> targetSelectableHolder.selectables.first().id
+                else -> null
+            }
+        }
+
     val targetSelectableHolder: SelectableHolder
         get() = selectableHolders.find { holder ->
-            holder.selectables.any { selectable -> selectable.id == lastSelectedTargetPartId }
+            holder.selectables.any { selectable -> selectable.id == currentSelectedTargetId }
         }!!
 
     val targetSelectable: Selectable?
-        get() = selectables.find { it.id == lastSelectedTargetPartId }
+        get() = selectables.find { it.id == currentSelectedTargetId }
 
     val controlledCreature: Creature
         get() = actors.find { it.id == controlledActorId } ?: actors.first()
     val targetCreature: Creature
-        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == lastSelectedTargetPartId } }
+        get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == currentSelectedTargetId } }
             ?: actors.last()
 
     val controlledBodyPart: BodyPart
@@ -47,7 +59,7 @@ data class FightState(
         }.map(::Command)
 
     private val Creature.targetselectedBodyPart
-        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == lastSelectedTargetPartId }?.id }
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == currentSelectedTargetId }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Creature.controlledSelectedBodyPart
