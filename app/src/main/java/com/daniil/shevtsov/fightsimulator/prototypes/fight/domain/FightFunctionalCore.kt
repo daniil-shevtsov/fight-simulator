@@ -190,7 +190,12 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): Figh
                     action.selectableHolderId -> it.id to action.selectableId
                     else -> it.id to state.selections[it.id]!!
                 }
-            }
+            },
+        //TODO: Remove this cast
+        targetId = when(action.selectableHolderId as TargetId) {
+            state.controlledCreature.id -> state.targetId
+            else -> action.selectableHolderId
+        }
     )
 }
 

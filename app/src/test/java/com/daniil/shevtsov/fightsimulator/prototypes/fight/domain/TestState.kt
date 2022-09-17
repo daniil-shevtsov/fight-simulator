@@ -16,8 +16,15 @@ interface TestState {
     val nonGrabbingPart: BodyPart
         get() = attacker.bodyParts.find { it.name == "Right Leg" }!!
 
+    val otherCreature: Creature
+        get() = state.actors.find { it.id != state.controlledCreature.id }!!
+    val otherCreatureHead: BodyPart
+        get() = otherCreature.findBodyPart(withName = "Head")
+
     val ground: Ground
         get() = state.world.ground
+
+    private fun Creature.findBodyPart(withName: String) = bodyParts.find { it.name == withName }!!
 }
 
 data class ItemPickupTestState(
