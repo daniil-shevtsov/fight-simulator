@@ -79,7 +79,7 @@ fun FightScreenPreview() {
             ),
             ground = GroundMenu(
                 id = GroundId(0L),
-                items = listOf(item(name = "Spear"), item(name = "Helmet")),
+                selectables = listOf(item(name = "Spear"), item(name = "Helmet")),
                 isSelected = true
             ),
         ),
@@ -461,11 +461,13 @@ fun GroundMenu(
             Row(
                 modifier = Modifier
             ) {
-                ground.items.forEach { item ->
-                    Item(
-                        item = item,
-                        onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
-                    )
+                ground.selectables.forEach { item ->
+                    when(item) {
+                        is Item -> Item(
+                            item = item,
+                            onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
+                        )
+                    }
                 }
             }
         }

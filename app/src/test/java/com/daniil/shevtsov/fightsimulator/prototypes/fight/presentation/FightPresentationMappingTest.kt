@@ -150,8 +150,8 @@ internal class FightPresentationMappingTest {
         assertThat(viewState)
             .isInstanceOf(FightViewState.Content::class)
             .prop(FightViewState.Content::ground)
-            .prop(GroundMenu::items)
-            .extracting(Item::name)
+            .prop(GroundMenu::selectables)
+            .extracting(Selectable::name)
             .containsOnly("Spear")
     }
 

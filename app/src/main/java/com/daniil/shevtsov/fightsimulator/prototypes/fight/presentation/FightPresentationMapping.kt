@@ -47,7 +47,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
         ground = state.world.ground.let { ground ->
             GroundMenu(
                 id = ground.id,
-                items = ground.selectables.map { it as? Item }.filterNotNull(), //TODO: Handle body parts as well
+                selectables = ground.selectables.map { it as? Item }.filterNotNull(), //TODO: Handle body parts as well
                 isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }
