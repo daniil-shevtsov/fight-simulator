@@ -157,10 +157,10 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val newWorld = state.world.copy(
         ground = when {
             shouldKnockOutWeapon -> state.world.ground.copy(
-                items = state.world.ground.items + targetBodyPart?.holding!!
+                selectables = state.world.ground.selectables + targetBodyPart?.holding!!
             )
             action.attackAction == AttackAction.Grab -> state.world.ground.copy(
-                items = state.world.ground.items.filter { it.id != state.targetSelectable?.id }
+                selectables = state.world.ground.selectables.filter { it.id != state.targetSelectable?.id }
             )
             else -> state.world.ground
         }

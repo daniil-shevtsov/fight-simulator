@@ -48,7 +48,7 @@ data class FightState(
 
     val availableCommands: List<Command>
         get() = when {
-            world.ground.items.contains(targetSelectable) && controlledBodyPart.canGrab -> listOf(
+            world.ground.selectables.contains(targetSelectable) && controlledBodyPart.canGrab -> listOf(
                 AttackAction.Grab
             )
             controlledCreature.bodyParts.isNotEmpty() -> (controlledBodyPart.attackActions + controlledBodyPart.holding.attackActionsWithThrow)

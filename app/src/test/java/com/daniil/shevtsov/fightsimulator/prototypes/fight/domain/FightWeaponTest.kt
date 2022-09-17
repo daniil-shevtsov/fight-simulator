@@ -302,7 +302,7 @@ interface FightWeaponTest {
                     .all {
                         prop(FightState::world)
                             .prop(World::ground)
-                            .prop(Ground::items)
+                            .prop(Ground::selectables)
                             .containsExactly(initialState.targetWeapon)
                         prop(FightState::actionLog)
                             .extracting(ActionEntry::text)
@@ -363,7 +363,7 @@ interface FightWeaponTest {
             .all {
                 prop(FightState::world)
                     .prop(World::ground)
-                    .prop(Ground::items)
+                    .prop(Ground::selectables)
                     .isEmpty()
                 prop(FightState::targetSelectable)
                     .isNotNull()
@@ -427,7 +427,7 @@ interface FightWeaponTest {
             .all {
                 prop(FightState::world)
                     .prop(World::ground)
-                    .prop(Ground::items)
+                    .prop(Ground::selectables)
                     .containsOnly(initialState.sword)
                 prop(FightState::controlledBodyPart)
                     .prop(BodyPart::holding)

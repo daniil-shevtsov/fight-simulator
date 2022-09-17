@@ -2,12 +2,8 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class Ground(
     override val id: GroundId,
-    val bodyParts: List<BodyPart>,
-    val items: List<Item>,
-) : SelectableHolder {
     override val selectables: List<Selectable>
-        get() = items
-}
+) : SelectableHolder
 
 fun ground(
     id: Long = 0L,
@@ -15,6 +11,5 @@ fun ground(
     items: List<Item> = emptyList(),
 ) = Ground(
     id = groundId(id),
-    bodyParts = bodyParts,
-    items = items,
+    selectables = bodyParts + items
 )

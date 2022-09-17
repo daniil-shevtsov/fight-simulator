@@ -124,7 +124,7 @@ internal class FightPresentationMappingTest {
             state.copy(
                 state = state.state.copy(
                     lastSelectedTargetHolderId = state.ground.id,
-                    lastSelectedTargetPartId = state.ground.items.first().id,
+                    lastSelectedTargetPartId = state.ground.selectables.first().id,
                 )
             )
         }
@@ -188,7 +188,7 @@ internal class FightPresentationMappingTest {
         )
         val spear = item(id = 1L, name = "Spear")
         val modifiedGround = originalState.ground.copy(
-            items = listOf(spear)
+            selectables = listOf(spear)
         )
 
         return originalState.copy(
