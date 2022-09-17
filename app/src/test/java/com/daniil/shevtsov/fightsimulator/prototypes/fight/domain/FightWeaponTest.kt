@@ -112,6 +112,21 @@ interface FightWeaponTest {
     }
 
     @Test
+    fun `should change selections when changed controlled creature`() {
+        val initialState = stateForItemAttack()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectControlledActor(actorId = initialState.target.id)
+        )
+
+        assertThat(state).all {
+            prop(FightState::targetSelectable)
+                .isEqualTo(initialState.attackerHead)
+        }
+    }
+
+    @Test
     fun `should display weapon commands when selected attacker and target parts`() {
         val initialState = stateForItemAttack()
         val state = fightFunctionalCore(

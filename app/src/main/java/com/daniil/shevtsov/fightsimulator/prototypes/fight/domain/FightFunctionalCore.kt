@@ -13,7 +13,11 @@ fun fightFunctionalCore(
 }
 
 fun selectActor(state: FightState, action: FightAction.SelectControlledActor): FightState {
-    return state.copy(controlledActorId = action.actorId)
+    return state.copy(
+        controlledActorId = action.actorId,
+        lastSelectedHolderId = state.controlledCreature.id,
+        lastSelectedTargetPartId = state.controlledCreature.firstPart().id
+    )
 }
 
 fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightState {
