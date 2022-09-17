@@ -293,26 +293,6 @@ interface FightWeaponTest {
     }
 
     @Test
-    fun `should select target when selecting target`() {
-        val initialState = stateForItemAttack()
-
-        val state = fightFunctionalCore(
-            state = initialState.state,
-            action = FightAction.SelectTarget(
-                id = initialState.ground.id
-            )
-        )
-
-        assertThat(AttackWithItemTestState(state))
-            .all {
-                prop(AttackWithItemTestState::state)
-                    .prop(FightState::target)
-                    .prop(Targetable::id)
-                    .isEqualTo(initialState.ground.id)
-            }
-    }
-
-    @Test
     fun `should select the target when selecting its part`() {
         val initialState = stateForItemPickup()
 

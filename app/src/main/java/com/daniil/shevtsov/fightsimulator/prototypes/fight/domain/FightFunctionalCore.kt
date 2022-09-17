@@ -9,14 +9,7 @@ fun fightFunctionalCore(
         is FightAction.SelectSomething -> selectBodyPart(state, action)
         is FightAction.SelectCommand -> selectCommand(state, action)
         is FightAction.SelectControlledActor -> selectActor(state, action)
-        is FightAction.SelectTarget -> selectTarget(state, action)
     }
-}
-
-fun selectTarget(state: FightState, action: FightAction.SelectTarget): FightState {
-    return state.copy(
-        targetId = action.id
-    )
 }
 
 fun selectActor(state: FightState, action: FightAction.SelectControlledActor): FightState {

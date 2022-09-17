@@ -1,12 +1,15 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.ui
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -172,7 +175,6 @@ private fun ActorsMenu(
                         )
                     )
                 },
-                onTargetClick = { onAction(FightAction.SelectTarget(id = creature.id)) },
                 onControlClick = { onAction(FightAction.SelectControlledActor(actorId = creature.id)) })
         }
     }
@@ -183,7 +185,6 @@ private fun Creature(
     creature: CreatureMenu,
     modifier: Modifier = Modifier,
     onClick: (bodyPart: BodyPartItem) -> Unit,
-    onTargetClick: () -> Unit,
     onControlClick: () -> Unit,
 ) {
     Column(
@@ -206,10 +207,7 @@ private fun Creature(
                 }
             }
             .padding(4.dp)
-            .combinedClickable(
-                onClick = { onTargetClick() },
-                onLongClick = { onControlClick() },
-            )
+            .clickable { onControlClick() }
             .padding(8.dp)
     ) {
         Text(
@@ -442,7 +440,6 @@ fun GroundMenu(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.LightGray)
-                .clickable { onAction(FightAction.SelectTarget(groundTargetId(ground.id.raw))) }
                 .let { modifier ->
                     when (ground.isSelected) {
                         true -> modifier

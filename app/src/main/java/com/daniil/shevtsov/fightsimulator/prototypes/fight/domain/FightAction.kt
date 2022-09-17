@@ -10,7 +10,5 @@ sealed class FightAction {
 
     data class SelectControlledActor(val actorId: CreatureId) : FightAction()
 
-    data class SelectTarget(val id: TargetId) : FightAction()
-
     object Init : FightAction()
 }
