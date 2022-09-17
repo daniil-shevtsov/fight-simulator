@@ -15,9 +15,9 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         name = bodyPart.name,
                         holding = bodyPart.holding,
                         contained = bodyPart.containedBodyParts,
-                        isSelected = when(creature.id) {
-                            state.targetCreature.id -> state.targetBodyPart.name == bodyPart.name
-                            state.controlledCreature.id -> state.controlledBodyPart.name == bodyPart.name
+                        isSelected = when (creature.id) {
+                            state.targetCreature.id -> state.targetBodyPart?.id == bodyPart.id
+                            state.controlledCreature.id -> state.controlledBodyPart.id == bodyPart.id
                             else -> false
                         },
                         statuses = listOfNotNull(
@@ -26,7 +26,8 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         ),
                     )
                 },
-                isControlled = creature.id == state.controlledActorId
+                isControlled = creature.id == state.controlledCreature.id,
+                isTarget = creature.id == state.targetCreature.id,
             )
         },
         commandsMenu = CommandsMenu(
@@ -40,6 +41,13 @@ fun fightPresentationMapping(state: FightState): FightViewState {
         actionLog = state.actionLog.map { action ->
             ActionEntryModel(
                 text = action.text,
+            )
+        },
+        ground = state.world.ground.let { ground ->
+            GroundMenu(
+                id = ground.id,
+                selectables = ground.selectables,
+                isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }
     )

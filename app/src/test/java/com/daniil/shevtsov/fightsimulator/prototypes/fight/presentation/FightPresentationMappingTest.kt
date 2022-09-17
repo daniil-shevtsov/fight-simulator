@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test
 internal class FightPresentationMappingTest {
     @Test
     fun `should map state`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -21,29 +21,29 @@ internal class FightPresentationMappingTest {
                     .all {
                         index(0)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::name)
-                            .containsExactly(initialState.controlledBodyPart.name)
+                            .extracting(BodyPartItem::id)
+                            .containsAll(initialState.attackerRightHand.id)
                         index(1)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::name)
-                            .containsExactly(
-                                initialState.targetBodyPart.name,
-                                "skull",
-                                initialState.targetCreature.missingParts.first().name,
+                            .extracting(BodyPartItem::id)
+                            .containsAll(
+                                initialState.targetHead.id,
+                                initialState.targetSkull.id,
+                                initialState.targetRightHand.id,
                             )
                     }
                 prop(FightViewState.Content::commandsMenu)
                     .prop(CommandsMenu::commands)
                     .extracting(CommandItem::name)
-                    .containsExactly(initialState.controlledBodyPart.attackActions.first().name)
+                    .containsExactly(initialState.attackerRightHand.attackActions.first().name)
             }
     }
 
     @Test
     fun `should display selected player part`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -53,23 +53,23 @@ internal class FightPresentationMappingTest {
                 index(0)
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
-                    .containsExactly(initialState.controlledBodyPart.name to true)
+                    .containsAll(initialState.state.controlledBodyPart.name to true)
                 index(1)
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
-                    .containsExactly(
-                        initialState.targetBodyPart.name to true,
-                        "skull" to false,
-                        initialState.targetCreature.missingParts.first().name to false,
+                    .containsAll(
+                        initialState.targetHead.name to true,
+                        initialState.targetSkull.name to false,
+                        initialState.targetRightHand.name to false,
                     )
             }
     }
 
     @Test
     fun `should display body part statuses`() {
-        val initialState = fullNormalState()
+        val initialState = attackWithItemTestState()
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -80,10 +80,10 @@ internal class FightPresentationMappingTest {
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::statuses)
                     .containsAll(
-                        initialState.targetCreature.missingParts.first().name to listOf(
+                        initialState.state.targetCreature.missingParts.first().name to listOf(
                             BodyPartStatus.Missing
                         ),
-                        initialState.targetCreature.brokenParts.first().name to listOf(
+                        initialState.state.targetCreature.brokenParts.first().name to listOf(
                             BodyPartStatus.Broken
                         ),
                     )
@@ -92,15 +92,16 @@ internal class FightPresentationMappingTest {
 
     @Test
     fun `should display as selected only functional body parts`() {
-        val initialState = fullNormalState().let { state ->
+        val initialState = attackWithItemTestState().let { state ->
             state.copy(
-                selections = mapOf(
-                    state.targetCreature.id to state.targetCreature.missingParts.first().id
+                state = state.state.copy(
+                    lastSelectedTargetPartId = state.state.targetCreature.missingParts.first().id,
                 )
+
             )
         }
         val viewState = fightPresentationMapping(
-            state = initialState
+            state = initialState.state
         )
 
         assertThat(viewState)
@@ -111,40 +112,134 @@ internal class FightPresentationMappingTest {
                     .prop(CreatureMenu::bodyParts)
                     .extracting(BodyPartItem::name, BodyPartItem::isSelected)
                     .containsAll(
-                        initialState.targetCreature.functionalParts.first().name to true,
-                        initialState.targetCreature.missingParts.first().name to false,
+                        initialState.state.targetCreature.functionalParts.first().name to true,
+                        initialState.state.targetCreature.missingParts.first().name to false,
                     )
             }
     }
 
-    private fun fullNormalState(): FightState {
-        val playerBodyPart = bodyPart(id = 0L, name = "hand", attackActions = listOf(AttackAction.Strike))
-        val skull = bodyPart(id = 1L, name = "skull")
-        val enemyBodyPart = bodyPart(id = 2L, name = "head", containedBodyParts = setOf(skull.id))
-        val missingBodyPart = bodyPart(id = 3L, name = "hand")
-        val player =
-            creature(
-                id = "playerId",
-                name = "Player",
-                actor = Actor.Player,
-                bodyParts = listOf(playerBodyPart)
+    @Test
+    fun `should display ground as target`() {
+        val initialState = attackWithItemTestState().let { state ->
+            state.copy(
+                state = state.state.copy(
+                    lastSelectedTargetHolderId = state.ground.id,
+                    lastSelectedTargetPartId = state.ground.selectables.first().id,
+                )
             )
-        val enemy = creature(
-            id = "enemyId",
-            name = "Enemy",
-            actor = Actor.Enemy,
-            bodyParts = listOf(enemyBodyPart, skull, missingBodyPart),
-            missingPartSet = setOf(missingBodyPart.id),
-            brokenPartSet = setOf(skull.id)
+        }
+        val viewState = fightPresentationMapping(
+            state = initialState.state
         )
 
-        return fightState(
-            controlledActorId = player.id,
-            selections = mapOf(
-                player.id to playerBodyPart.id,
-                enemy.id to enemyBodyPart.id,
-            ),
-            actors = listOf(player, enemy),
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::ground)
+            .prop(GroundMenu::isSelected)
+            .isTrue()
+    }
+
+    @Test
+    fun `should display items on the ground`() {
+        val initialState = attackWithItemTestState()
+
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::ground)
+            .prop(GroundMenu::selectables)
+            .extracting(Selectable::name)
+            .contains("Spear")
+    }
+
+    @Test
+    fun `should display body parts on the ground`() {
+        val initialState = slashedTestState()
+
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::ground)
+            .prop(GroundMenu::selectables)
+            .extracting(Selectable::name)
+            .contains("Head")
+    }
+
+    @Test
+    fun `should display enemy as target`() {
+        val initialState = attackWithItemTestState()
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::actors)
+            .all {
+                index(1)
+                    .prop(CreatureMenu::isTarget)
+                    .isTrue()
+            }
+    }
+
+    @Test
+    fun `should display part as selected after changing`() {
+        val initialState = attackWithItemTestState()
+        val viewState = fightPresentationMapping(
+            state = initialState.state
+        )
+
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::actors)
+            .all {
+                index(1)
+                    .prop(CreatureMenu::isTarget)
+                    .isTrue()
+            }
+    }
+
+    private fun attackWithItemTestState(): AttackWithItemTestState {
+        val originalState = AttackWithItemTestState(
+            state = fightFunctionalCore(
+                state = fightState(),
+                action = FightAction.Init
+            )
+        )
+
+        val modifiedAttacker = originalState.attacker
+        val modifiedTarget = originalState.target.copy(
+            missingPartsSet = setOf(originalState.targetRightHand.id),
+            brokenPartsSet = setOf(originalState.targetSkull.id),
+        )
+        val spear = item(id = 1L, name = "Spear")
+        val modifiedGround = originalState.ground.copy(
+            selectables = listOf(spear)
+        )
+
+        return originalState.copy(
+            state = originalState.state.copy(
+                actors = listOf(modifiedAttacker, modifiedTarget),
+                world = originalState.state.world.copy(ground = modifiedGround)
+            )
+        )
+    }
+
+    private fun slashedTestState(): AttackWithItemTestState {
+        val initial = stateForItemAttack(controlledActorName = "Player").state
+        val slashed = fightFunctionalCore(
+            state = initial,
+            action = FightAction.SelectCommand(AttackAction.Slash)
+        )
+
+        return AttackWithItemTestState(
+            state = slashed
         )
     }
 }

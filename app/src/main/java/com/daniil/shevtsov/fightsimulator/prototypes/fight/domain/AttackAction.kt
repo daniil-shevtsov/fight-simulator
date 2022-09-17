@@ -8,4 +8,6 @@ enum class AttackAction {
     Punch,
     Kick,
     Throw,
+    Grab,
+    Headbutt,
 }

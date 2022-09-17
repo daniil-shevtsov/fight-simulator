@@ -22,10 +22,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Actor
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightAction
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.item
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.*
 
 @Preview(widthDp = 400, heightDp = 600)
@@ -39,7 +36,7 @@ fun FightScreenPreview() {
                     isControlled = true,
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
-                            "Right Hand" -> bodyPart.copy(holding = item("Knife"))
+                            "Right Hand" -> bodyPart.copy(holding = item(name = "Knife"))
                             else -> bodyPart
                         }
                     }
@@ -47,13 +44,19 @@ fun FightScreenPreview() {
 
                 creatureMenu(
                     actor = Actor.Enemy,
+                    isTarget = true,
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
                             "Head" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
-                            "Skull" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken, BodyPartStatus.Missing))
+                            "Skull" -> bodyPart.copy(
+                                statuses = listOf(
+                                    BodyPartStatus.Broken,
+                                    BodyPartStatus.Missing
+                                )
+                            )
                             "Right Arm" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
                             "Left Leg" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Bleeding))
-                            "Right Hand" -> bodyPart.copy(holding = item("Mace"))
+                            "Right Hand" -> bodyPart.copy(holding = item(name = "Mace"))
                             "Left Hand" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
                             else -> bodyPart
                         }
@@ -73,7 +76,12 @@ fun FightScreenPreview() {
             actionLog = listOf(
                 actionEntryModel("You slap enemy's head with your right hand"),
                 actionEntryModel("You done did it"),
-            )
+            ),
+            ground = GroundMenu(
+                id = GroundId(0L),
+                selectables = listOf(item(name = "Spear"), item(name = "Helmet")),
+                isSelected = true
+            ),
         ),
         onAction = {},
     )
@@ -95,6 +103,10 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                     actors = state.actors,
                     modifier = Modifier.weight(1f),
                     onAction = onAction
+                )
+                GroundMenu(
+                    ground = state.ground,
+                    onAction = onAction,
                 )
                 CommandsMenu(
                     menu = state.commandsMenu,
@@ -155,16 +167,15 @@ private fun ActorsMenu(
         actors.forEach { creature ->
             Creature(
                 creature,
-                modifier = Modifier,
                 onClick = {
                     onAction(
-                        FightAction.SelectBodyPart(
-                            creatureId = creature.id,
-                            partId = it.id,
-                            partName = it.name,
+                        FightAction.SelectSomething(
+                            selectableHolderId = creature.id,
+                            selectableId = it.id,
                         )
                     )
-                }, onControlClick = { onAction(FightAction.SelectActor(actorId = creature.id)) })
+                },
+                onControlClick = { onAction(FightAction.SelectControlledActor(actorId = creature.id)) })
         }
     }
 }
@@ -185,6 +196,17 @@ private fun Creature(
                     false -> Color(0x40000000).compositeOver(Color.White)
                 }
             )
+            .let { modifier ->
+                when (creature.isTarget) {
+                    true -> modifier
+                        .padding(2.dp)
+                        .background(Color.Black)
+                        .padding(2.dp)
+                        .background(Color.LightGray)
+                    false -> modifier
+                }
+            }
+            .padding(4.dp)
             .clickable { onControlClick() }
             .padding(8.dp)
     ) {
@@ -252,8 +274,6 @@ fun BodyPart(
             .let { modifier ->
                 when (bodyPartItem.isSelected) {
                     true -> modifier
-//                        .background(Color.Black)
-//                        .padding(4.dp)
                         .background(Color.White)
                         .padding(6.dp)
                     false
@@ -362,16 +382,10 @@ fun BodyPart(
             }
 
             if (bodyPartItem.holding != null) {
-                Text(
-                    text = bodyPartItem.holding.name,
-                    color = textColor,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .background(Color.LightGray)
-                        .padding(2.dp)
-                        .background(Color.Gray)
-                        .padding(4.dp)
-                        .fillMaxWidth()
+                Item(
+                    item = bodyPartItem.holding,
+                    textColor = textColor,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             if (bodyPartItem.contained.isNotEmpty()) {
@@ -392,6 +406,73 @@ fun BodyPart(
         }
     }
 }
+
+@Composable
+fun Item(
+    item: Selectable,
+    textColor: Color = Color.Black,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+) {
+    Text(
+        text = item.name,
+        color = textColor,
+        modifier = modifier
+            .clickable { onClick() }
+            .padding(4.dp)
+            .background(Color.LightGray)
+            .padding(2.dp)
+            .background(Color.Gray)
+            .padding(4.dp)
+    )
+}
+
+@Composable
+fun GroundMenu(
+    ground: GroundMenu,
+    modifier: Modifier = Modifier,
+    onAction: (FightAction) -> Unit,
+) {
+    Box(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.LightGray)
+                .let { modifier ->
+                    when (ground.isSelected) {
+                        true -> modifier
+                            .padding(2.dp)
+                            .background(Color.Black)
+                            .padding(2.dp)
+                            .background(Color.LightGray)
+                        false -> modifier
+                    }
+                }
+                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                .background(Color.DarkGray)
+        ) {
+            Text(
+                text = "Ground", modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.LightGray)
+            )
+            Row(
+                modifier = Modifier
+            ) {
+                ground.selectables.forEach { item ->
+                    Item(
+                        item = item,
+                        onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
+                    )
+                }
+            }
+        }
+
+    }
+}
+
 
 @Composable
 fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {

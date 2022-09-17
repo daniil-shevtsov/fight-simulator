@@ -5,6 +5,7 @@ sealed class FightViewState {
 
     data class Content(
         val actors: List<CreatureMenu>,
+        val ground: GroundMenu,
         val commandsMenu: CommandsMenu,
         val actionLog: List<ActionEntryModel>,
     ) : FightViewState()
