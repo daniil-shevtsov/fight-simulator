@@ -14,8 +14,8 @@ fun fightFunctionalCore(
 
 fun selectActor(state: FightState, action: FightAction.SelectControlledActor): FightState {
     return state.copy(
-        controlledActorId = action.actorId,
-        lastSelectedHolderId = state.controlledCreature.id,
+        lastSelectedControlledHolderId = action.actorId,
+        lastSelectedTargetHolderId = state.controlledCreature.id,
         lastSelectedTargetPartId = state.controlledCreature.firstPart().id
     )
 }
@@ -181,16 +181,16 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 
 fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): FightState {
     return state.copy(
-        realControlledSelectableId = when (action.selectableHolderId) {
+        lastSelectedControlledPartId = when (action.selectableHolderId) {
             state.controlledCreature.id -> action.selectableId
-            else -> state.realControlledSelectableId
+            else -> state.lastSelectedControlledPartId
         },
         lastSelectedTargetPartId = when {
             action.selectableHolderId != state.controlledCreature.id -> action.selectableId
             else -> state.lastSelectedTargetPartId
         },
-        lastSelectedHolderId = when (action.selectableHolderId) {
-            state.controlledCreature.id -> state.lastSelectedHolderId
+        lastSelectedTargetHolderId = when (action.selectableHolderId) {
+            state.controlledCreature.id -> state.lastSelectedTargetHolderId
             else -> action.selectableHolderId
         },
         targetId = when (action.selectableHolderId) {
@@ -243,11 +243,11 @@ private fun createInitialState(): FightState {
         bodyParts = enemyBodyParts,
     )
     return FightState(
-        controlledActorId = player.id,
-        targetId = creatureId(enemy.id.raw),
-        realControlledSelectableId = playerBodyParts.find { it.name == "Left Hand" }?.id!!,
+        lastSelectedControlledHolderId = player.id,
+        lastSelectedControlledPartId = playerBodyParts.find { it.name == "Left Hand" }?.id!!,
+        lastSelectedTargetHolderId = enemy.id,
         lastSelectedTargetPartId = enemyBodyParts.find { it.name == "Head" }?.id!!,
-        lastSelectedHolderId = enemy.id,
+        targetId = creatureId(enemy.id.raw),
         actors = listOf(player, enemy),
         actionLog = emptyList(),
         world = World(ground = ground())

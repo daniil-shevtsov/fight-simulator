@@ -1,10 +1,10 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class FightState(
-    val realControlledSelectableId: SelectableId,
+    val lastSelectedControlledHolderId: CreatureId,
+    val lastSelectedControlledPartId: SelectableId,
+    val lastSelectedTargetHolderId: SelectableHolderId,
     val lastSelectedTargetPartId: SelectableId,
-    val lastSelectedHolderId: SelectableHolderId,
-    val controlledActorId: CreatureId,
     val targetId: SelectableHolderId,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
@@ -19,7 +19,7 @@ data class FightState(
 
     private val currentSelectedTargetId: SelectableId?
         get() {
-            val lastHolder = selectableHolders.find { it.id == lastSelectedHolderId }
+            val lastHolder = selectableHolders.find { it.id == lastSelectedTargetHolderId }
             val lastHolderSelectables = lastHolder?.selectables.orEmpty()
             val newSelectable = when {
                 lastHolderSelectables.any { selectable -> selectable.id == lastSelectedTargetPartId } -> lastSelectedTargetPartId
@@ -38,7 +38,7 @@ data class FightState(
         get() = selectables.find { it.id == currentSelectedTargetId }
 
     val controlledCreature: Creature
-        get() = actors.find { it.id == controlledActorId } ?: actors.first()
+        get() = actors.find { it.id == lastSelectedControlledHolderId } ?: actors.first()
     val targetCreature: Creature
         get() = actors.find { it.bodyParts.any { bodyPart -> bodyPart.id == currentSelectedTargetId } }
             ?: actors.last()
@@ -64,7 +64,7 @@ data class FightState(
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Creature.controlledSelectedBodyPart
-        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == realControlledSelectableId }?.id }
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == lastSelectedControlledPartId }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Item?.attackActionsWithThrow: List<AttackAction>
@@ -85,11 +85,11 @@ fun fightState(
     actionLog: List<ActionEntry> = emptyList(),
     world: World = world(),
 ) = FightState(
-    controlledActorId = controlledActorId,
-    targetId = targetId,
-    realControlledSelectableId = realControlledSelectableId,
+    lastSelectedControlledHolderId = controlledActorId,
+    lastSelectedControlledPartId = realControlledSelectableId,
+    lastSelectedTargetHolderId = lastSelectedHolderId,
     lastSelectedTargetPartId = realTargetSelectableId,
-    lastSelectedHolderId = lastSelectedHolderId,
+    targetId = targetId,
     actors = actors,
     actionLog = actionLog,
     world = world,

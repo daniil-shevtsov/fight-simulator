@@ -106,7 +106,7 @@ interface FightWeaponTest {
         )
 
         assertThat(state).all {
-            prop(FightState::controlledActorId)
+            prop(FightState::lastSelectedControlledHolderId)
                 .isEqualTo(initialState.target.id)
         }
     }
@@ -502,9 +502,9 @@ interface FightWeaponTest {
 
         val state = initialState.copy(
             world = initialState.world.copy(ground = ground),
-            controlledActorId = controlled,
+            lastSelectedControlledHolderId = controlled,
             targetId = target,
-            realControlledSelectableId = when (leftActor.id) {
+            lastSelectedControlledPartId = when (leftActor.id) {
                 controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
                 else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
             },
@@ -512,7 +512,7 @@ interface FightWeaponTest {
                 controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
             },
-            lastSelectedHolderId = when (leftActor.id) {
+            lastSelectedTargetHolderId = when (leftActor.id) {
                 controlled -> rightActor.id
                 else -> leftActor.id
             },
@@ -543,9 +543,9 @@ interface FightWeaponTest {
 
         val state = initialState.copy(
             world = initialState.world.copy(ground = ground),
-            controlledActorId = controlled,
+            lastSelectedControlledHolderId = controlled,
             targetId = ground.id,
-            realControlledSelectableId = when (leftActor.id) {
+            lastSelectedControlledPartId = when (leftActor.id) {
                 controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
                 else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
             },
@@ -553,7 +553,7 @@ interface FightWeaponTest {
                 controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
                 else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
             },
-            lastSelectedHolderId = when (leftActor.id) {
+            lastSelectedTargetHolderId = when (leftActor.id) {
                 controlled -> rightActor.id
                 else -> leftActor.id
             },

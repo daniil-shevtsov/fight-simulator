@@ -14,7 +14,7 @@ internal class FightFunctionalCoreTest {
             action = FightAction.Init
         )
         assertThat(newState).all {
-            prop(FightState::controlledActorId)
+            prop(FightState::lastSelectedControlledHolderId)
                 .isEqualTo(newState.controlledCreature.id)
             prop(FightState::actors)
                 .each {
