@@ -47,7 +47,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
             GroundMenu(
                 id = ground.id,
                 items = ground.items,
-                isSelected = state.targetId == ground.id,
+                isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }
     )

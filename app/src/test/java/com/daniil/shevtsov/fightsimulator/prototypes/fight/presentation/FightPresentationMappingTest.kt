@@ -119,10 +119,12 @@ internal class FightPresentationMappingTest {
     }
 
     @Test
-    fun `should display enemy as target`() {
+    fun `should display ground as target`() {
         val initialState = fullNormalState().let { state ->
             state.copy(
                 state = state.state.copy(
+                    lastSelectedTargetHolderId = state.ground.id,
+                    lastSelectedTargetPartId = state.ground.items.first().id,
                     targetId = state.ground.id
                 )
             )
@@ -139,7 +141,7 @@ internal class FightPresentationMappingTest {
     }
 
     @Test
-    fun `should display ground as target`() {
+    fun `should display enemy as target`() {
         val initialState = fullNormalState()
         val viewState = fightPresentationMapping(
             state = initialState.state
@@ -185,10 +187,15 @@ internal class FightPresentationMappingTest {
             missingPartsSet = setOf(originalState.targetRightHand.id),
             brokenPartsSet = setOf(originalState.targetSkull.id),
         )
+        val spear = item(id = 1L, name = "Spear")
+        val modifiedGround = originalState.ground.copy(
+            items = listOf(spear)
+        )
 
         return originalState.copy(
             state = originalState.state.copy(
-                actors = listOf(modifiedAttacker, modifiedTarget)
+                actors = listOf(modifiedAttacker, modifiedTarget),
+                world = originalState.state.world.copy(ground = modifiedGround)
             )
         )
     }

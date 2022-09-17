@@ -17,7 +17,7 @@ data class FightState(
     val selectables: List<Selectable>
         get() = selectableHolders.flatMap(SelectableHolder::selectables)
 
-    private val currentSelectedTargetId: SelectableId?
+    private val currentTargetSelectableId: SelectableId?
         get() {
             val lastHolder = selectableHolders.find { it.id == lastSelectedTargetHolderId }
             val lastHolderSelectables = lastHolder?.selectables.orEmpty()
@@ -30,10 +30,10 @@ data class FightState(
         }
 
     val targetSelectableHolder: SelectableHolder
-        get() = selectableHolders.find { holder -> holder.selectables.any { selectable -> selectable.id == currentSelectedTargetId } }!!
+        get() = selectableHolders.find { holder -> holder.selectables.any { selectable -> selectable.id == currentTargetSelectableId } }!!
 
     val targetSelectable: Selectable?
-        get() = selectables.find { it.id == currentSelectedTargetId }
+        get() = selectables.find { it.id == currentTargetSelectableId }
 
     val controlledCreature: Creature
         get() = actors.find { it.id == lastSelectedControlledHolderId } ?: actors.first()
@@ -57,7 +57,7 @@ data class FightState(
         }.map(::Command)
 
     private val Creature.targetSelectedBodyPart
-        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == currentSelectedTargetId }?.id }
+        get() = functionalParts.find { it.id == bodyParts.find { kek -> kek.id == currentTargetSelectableId }?.id }
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Creature.controlledSelectedBodyPart
