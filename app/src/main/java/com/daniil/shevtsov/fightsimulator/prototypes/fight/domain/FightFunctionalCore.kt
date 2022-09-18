@@ -242,12 +242,14 @@ private fun createInitialState(): FightState {
         actor = Actor.Player,
         name = "Player",
         bodyParts = playerBodyParts,
+        bodyPartIds = playerBodyParts.map(BodyPart::id),
     )
     val enemy = Creature(
         id = creatureId("Enemy".hashCode().toLong()),
         name = "Enemy",
         actor = Actor.Enemy,
         bodyParts = enemyBodyParts,
+        bodyPartIds = enemyBodyParts.map(BodyPart::id),
     )
     return FightState(
         lastSelectedControlledHolderId = player.id,

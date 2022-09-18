@@ -10,6 +10,11 @@ data class FightState(
     val world: World,
 ) {
 
+    val allSelectables: List<Selectable>
+        get() = selectableHolders.flatMap(SelectableHolder::selectables) + selectableHolders.flatMap(
+            SelectableHolder::selectables
+        ).filterIsInstance<BodyPart>().mapNotNull { it.holding }
+
     val selectableHolders: List<SelectableHolder>
         get() = actors + listOf(world.ground)
 
@@ -64,7 +69,8 @@ data class FightState(
             ?: functionalParts.firstOrNull() ?: bodyParts.first()
 
     private val Selectable?.attackActionsWithThrow: List<AttackAction>
-        get() = (this as? Item)?.attackActions.orEmpty() + listOf(AttackAction.Throw).takeIf { this != null }.orEmpty()
+        get() = (this as? Item)?.attackActions.orEmpty() + listOf(AttackAction.Throw).takeIf { this != null }
+            .orEmpty()
 }
 
 

@@ -5,10 +5,10 @@ data class Creature(
     val actor: Actor,
     val name: String,
     val bodyParts: List<BodyPart>,
+    val bodyPartIds: List<BodyPartId>,
     val missingPartsSet: Set<BodyPartId> = setOf(),
     val brokenPartsSet: Set<BodyPartId> = setOf(),
 ) : SelectableHolder {
-
 
 
     val missingParts: List<BodyPart>
@@ -31,6 +31,7 @@ fun creature(
     actor: Actor = Actor.Enemy,
     name: String = "",
     bodyParts: List<BodyPart> = emptyList(),
+    bodyPartIds: List<BodyPartId> = emptyList(),
     missingPartSet: Set<BodyPartId> = emptySet(),
     brokenPartSet: Set<BodyPartId> = emptySet(),
 ) = Creature(
@@ -38,6 +39,7 @@ fun creature(
     actor = actor,
     name = name,
     bodyParts = bodyParts,
+    bodyPartIds = bodyPartIds,
     brokenPartsSet = brokenPartSet,
     missingPartsSet = missingPartSet,
 )
