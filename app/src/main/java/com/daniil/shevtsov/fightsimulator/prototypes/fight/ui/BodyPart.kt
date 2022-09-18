@@ -3,6 +3,7 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -22,7 +23,7 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPart
 @Preview
 @Composable
 fun BodyPartPreview() {
-    Row() {
+    Column(verticalArrangement = spacedBy(8.dp)) {
         BodyPart(
             bodyPartItem = bodyPartItem(id = 0L, name = "Head", contained = setOf(bodyPartId(1L))),
             onClick = {},
@@ -32,14 +33,14 @@ fun BodyPartPreview() {
             modifier = Modifier.width(100.dp)
         )
         BodyPart(
-            bodyPartItem = bodyPartItem(id = 2L, name = "Hand"),
+            bodyPartItem = bodyPartItem(id = 2L, name = "Hand", canGrab = true),
             onClick = {},
             contained = emptyList(),
             modifier = Modifier.width(100.dp)
         )
         BodyPart(
             bodyPartItem = bodyPartItem(
-                id = 3L, name = "Hand",
+                id = 3L, name = "Hand", canGrab = true,
                 holding = item(id = 4L, name = "Knife")
             ),
             onClick = {},
@@ -50,8 +51,9 @@ fun BodyPartPreview() {
             bodyPartItem = bodyPartItem(
                 id = 5L,
                 name = "Hand",
+                canGrab = true,
                 contained = setOf(bodyPartId(6L)),
-                holding = item(id = 7L, name="Dagger"),
+                holding = item(id = 7L, name = "Dagger"),
             ),
             contained = listOf(bodyPartItem(id = 6L, name = "Bone")),
             onClick = {},
@@ -192,13 +194,6 @@ fun BodyPart(
                 )
             }
 
-            if (bodyPartItem.holding != null) {
-                Item(
-                    item = bodyPartItem.holding,
-                    textColor = textColor,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
             if (bodyPartItem.contained.isNotEmpty()) {
                 val bone = contained.first()
                 BodyPart(
@@ -213,6 +208,27 @@ fun BodyPart(
                         .padding(4.dp)
                         .fillMaxWidth()
                 )
+            }
+
+            if (bodyPartItem.canGrab) {
+                if (bodyPartItem.holding != null) {
+                    Item(
+                        item = bodyPartItem.holding,
+                        textColor = textColor,
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .background(Color.DarkGray)
+                            .fillMaxWidth()
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .background(Color.DarkGray)
+                            .fillMaxSize()
+                            .height(50.dp)
+                    )
+                }
             }
         }
     }
