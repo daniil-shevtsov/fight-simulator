@@ -24,6 +24,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                             BodyPartStatus.Missing.takeIf { bodyPart.id in creature.missingPartsSet },
                             BodyPartStatus.Broken.takeIf { bodyPart.id in creature.brokenPartsSet },
                         ),
+                        canGrab = bodyPart.canGrab,
                     )
                 },
                 isControlled = creature.id == state.controlledCreature.id,

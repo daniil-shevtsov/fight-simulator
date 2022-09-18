@@ -11,6 +11,7 @@ data class BodyPartItem(
     val holding: Selectable?,
     val contained: Set<BodyPartId>,
     val statuses: List<BodyPartStatus>,
+    val canGrab: Boolean,
     val isSelected: Boolean,
 )
 
@@ -20,6 +21,7 @@ fun bodyPartItem(
     holding: Selectable? = null,
     contained: Set<BodyPartId> = setOf(),
     statuses: List<BodyPartStatus> = emptyList(),
+    canGrab: Boolean = false,
     isSelected: Boolean = false,
 ) = BodyPartItem(
     id = bodyPartId(id),
@@ -27,5 +29,6 @@ fun bodyPartItem(
     holding = holding,
     contained = contained,
     statuses = statuses,
+    canGrab = canGrab,
     isSelected = isSelected,
 )
