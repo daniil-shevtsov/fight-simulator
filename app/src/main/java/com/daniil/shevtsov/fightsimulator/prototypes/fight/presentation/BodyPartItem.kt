@@ -9,7 +9,7 @@ data class BodyPartItem(
     val id: BodyPartId,
     val name: String,
     val holding: Selectable?,
-    val contained:  Set<BodyPartId>,
+    val contained: Set<BodyPartId>,
     val statuses: List<BodyPartStatus>,
     val isSelected: Boolean,
 )
@@ -18,7 +18,7 @@ fun bodyPartItem(
     id: Long,
     name: String = "",
     holding: Selectable? = null,
-    contained:  Set<BodyPartId> = setOf(),
+    contained: Set<BodyPartId> = setOf(),
     statuses: List<BodyPartStatus> = emptyList(),
     isSelected: Boolean = false,
 ) = BodyPartItem(
