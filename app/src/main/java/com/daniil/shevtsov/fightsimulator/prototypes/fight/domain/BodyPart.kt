@@ -6,6 +6,7 @@ data class BodyPart(
     val attackActions: List<AttackAction>,
     val holding: Selectable? = null,
     val containedBodyParts: Set<BodyPartId> = setOf(),
+    val lodgedInSelectables: Set<SelectableId> = setOf(),
     val parentId: BodyPartId? = null,
     val canGrab: Boolean,
 ) : Selectable

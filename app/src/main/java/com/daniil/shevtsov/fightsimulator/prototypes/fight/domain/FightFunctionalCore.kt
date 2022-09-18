@@ -73,7 +73,10 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             val thrownItem = state.controlledBodyPart.holding
             state.targetCreature.copy(bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
                 when (bodyPart) {
-                    targetBodyPart -> bodyPart.copy(holding = thrownItem)
+                    targetBodyPart -> bodyPart.copy(
+                        holding = thrownItem,
+                        lodgedInSelectables = bodyPart.lodgedInSelectables + setOfNotNull(thrownItem?.id)
+                    )
                     else -> bodyPart
                 }
             })
