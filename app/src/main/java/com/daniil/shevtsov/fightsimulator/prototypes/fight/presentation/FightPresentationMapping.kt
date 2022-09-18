@@ -25,6 +25,9 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                             BodyPartStatus.Broken.takeIf { bodyPart.id in creature.brokenPartsSet },
                         ),
                         canGrab = bodyPart.canGrab,
+                        lodgedIn = state
+                            .selectables.filter { it.id in bodyPart.lodgedInSelectables }
+                            .toSet(),
                     )
                 },
                 isControlled = creature.id == state.controlledCreature.id,
