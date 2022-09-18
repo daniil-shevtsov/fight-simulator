@@ -15,19 +15,47 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.bodyPartId
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.item
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.BodyPartItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPartItem
 
 @Preview
 @Composable
 fun BodyPartPreview() {
-    Column(Modifier.width(100.dp)) {
+    Row() {
         BodyPart(
             bodyPartItem = bodyPartItem(id = 0L, name = "Head", contained = setOf(bodyPartId(1L))),
             onClick = {},
             contained = listOf(
                 bodyPartItem(id = 1L, name = "Skull")
             ),
+            modifier = Modifier.width(100.dp)
+        )
+        BodyPart(
+            bodyPartItem = bodyPartItem(id = 2L, name = "Hand"),
+            onClick = {},
+            contained = emptyList(),
+            modifier = Modifier.width(100.dp)
+        )
+        BodyPart(
+            bodyPartItem = bodyPartItem(
+                id = 3L, name = "Hand",
+                holding = item(id = 4L, name = "Knife")
+            ),
+            onClick = {},
+            contained = emptyList(),
+            modifier = Modifier.width(100.dp)
+        )
+        BodyPart(
+            bodyPartItem = bodyPartItem(
+                id = 5L,
+                name = "Hand",
+                contained = setOf(bodyPartId(6L)),
+                holding = item(id = 7L, name="Dagger"),
+            ),
+            contained = listOf(bodyPartItem(id = 6L, name = "Bone")),
+            onClick = {},
+            modifier = Modifier.width(100.dp)
         )
     }
 }
