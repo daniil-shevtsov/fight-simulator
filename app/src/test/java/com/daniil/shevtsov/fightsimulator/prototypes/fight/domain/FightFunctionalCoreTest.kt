@@ -252,7 +252,10 @@ interface FightFunctionalCoreTest {
             prop(FightState::world)
                 .prop(World::ground)
                 .prop(Ground::selectables)
-                .contains(initialState.targetHead)
+                .all {
+                    contains(initialState.targetHead)
+//                    containsNone(initialState.targetSkull)
+                }
         }
     }
 

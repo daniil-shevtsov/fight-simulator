@@ -21,11 +21,11 @@ internal class FightPresentationMappingTest {
                     .all {
                         index(0)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::id)
+                            .extracting(SelectableItem::id)
                             .containsAll(initialState.attackerRightHand.id)
                         index(1)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::id)
+                            .extracting(SelectableItem::id)
                             .containsAll(
                                 initialState.targetHead.id,
                                 initialState.targetSkull.id,
@@ -52,11 +52,11 @@ internal class FightPresentationMappingTest {
             .all {
                 index(0)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::isSelected)
                     .containsAll(initialState.state.controlledBodyPart.name to true)
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::isSelected)
                     .containsAll(
                         initialState.targetHead.name to true,
                         initialState.targetSkull.name to false,
@@ -78,7 +78,7 @@ internal class FightPresentationMappingTest {
             .all {
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::statuses)
+                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::statuses)
                     .containsAll(
                         initialState.state.targetCreature.missingParts.first().name to listOf(
                             BodyPartStatus.Missing
@@ -110,7 +110,7 @@ internal class FightPresentationMappingTest {
             .all {
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::isSelected)
                     .containsAll(
                         initialState.state.targetCreature.functionalParts.first().name to true,
                         initialState.state.targetCreature.missingParts.first().name to false,

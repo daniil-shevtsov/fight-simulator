@@ -18,7 +18,7 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Item
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.bodyPartId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.item
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.BodyPartItem
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.SelectableItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPartItem
 
 @Preview
@@ -78,9 +78,9 @@ fun BodyPartPreview() {
 
 @Composable
 fun BodyPart(
-    bodyPartItem: BodyPartItem,
+    bodyPartItem: SelectableItem.BodyPartItem,
     onClick: () -> Unit,
-    contained: List<BodyPartItem>,
+    contained: List<SelectableItem.BodyPartItem>,
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor = when {

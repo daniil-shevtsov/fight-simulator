@@ -76,7 +76,10 @@ fun FightScreenPreview() {
             ),
             ground = GroundMenu(
                 id = GroundId(0L),
-                selectables = listOf(item(name = "Spear"), item(name = "Helmet")),
+                selectables = listOf(
+                    item(name = "Spear"),
+                    item(name = "Helmet"),
+                ),
                 isSelected = true
             ),
         ),
@@ -181,7 +184,7 @@ private fun ActorsMenu(
 private fun Creature(
     creature: CreatureMenu,
     modifier: Modifier = Modifier,
-    onClick: (bodyPart: BodyPartItem) -> Unit,
+    onClick: (bodyPart: SelectableItem) -> Unit,
     onControlClick: () -> Unit,
 ) {
     Column(
@@ -245,7 +248,6 @@ private fun Creature(
         }
     }
 }
-
 
 
 @Composable
@@ -335,7 +337,7 @@ fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {
     }
 }
 
-private fun defaultBodyParts(): List<BodyPartItem> {
+private fun defaultBodyParts(): List<SelectableItem.BodyPartItem> {
     val skull = bodyPartItem(id = 1L, name = "Skull")
     return listOf(
         bodyPartItem(id = 0L, name = "Head", contained = setOf(skull.id)),

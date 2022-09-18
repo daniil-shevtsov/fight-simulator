@@ -10,7 +10,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 id = creature.id,
                 actor = creature.actor,
                 bodyParts = creature.bodyParts.map { bodyPart ->
-                    BodyPartItem(
+                    SelectableItem.BodyPartItem(
                         id = bodyPart.id,
                         name = bodyPart.name,
                         holding = bodyPart.holding,
