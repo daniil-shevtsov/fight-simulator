@@ -10,10 +10,12 @@ data class FightState(
     val world: World,
 ) {
 
-    val allSelectables: List<Selectable>
-        get() = selectableHolders.flatMap(SelectableHolder::selectables) + selectableHolders.flatMap(
-            SelectableHolder::selectables
-        ).filterIsInstance<BodyPart>().mapNotNull { it.holding }
+//    val allSelectables: List<Selectable>
+//        get() = selectableHolders.flatMap(SelectableHolder::selectables) + selectableHolders.flatMap(
+//            SelectableHolder::selectables
+//        ).filterIsInstance<BodyPart>().mapNotNull { it.holding }
+val allSelectables: List<Selectable>
+    get() = actors.flatMap { it.bodyParts } + world.ground.selectables + (actors.flatMap { it.bodyParts } + world.ground.selectables).filterIsInstance<BodyPart>().mapNotNull { it.holding }
 
     val selectableHolders: List<SelectableHolder>
         get() = actors + listOf(world.ground)

@@ -229,7 +229,7 @@ internal class FightPresentationMappingTest {
             missingPartsSet = setOf(originalState.targetRightHand.id),
             brokenPartsSet = setOf(originalState.targetSkull.id),
         )
-        val spear = item(id = 1L, name = "Spear")
+        val spear = item(id = 153L, name = "Spear")
         val modifiedGround = originalState.ground.copy(
             selectables = listOf(spear)
         )
