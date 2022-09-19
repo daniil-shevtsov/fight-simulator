@@ -29,7 +29,6 @@ internal class FightPresentationMappingTest {
                             .containsAll(
                                 initialState.targetHead.id,
                                 initialState.targetSkull.id,
-                                initialState.targetRightHand.id,
                             )
                     }
                 prop(FightViewState.Content::commandsMenu)
@@ -60,7 +59,6 @@ internal class FightPresentationMappingTest {
                     .containsAll(
                         initialState.targetHead.name to true,
                         initialState.targetSkull.name to false,
-                        initialState.targetRightHand.name to false,
                     )
             }
     }
@@ -81,7 +79,6 @@ internal class FightPresentationMappingTest {
                     .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
                     .extracting(SelectableItem::id, SelectableItem.BodyPartItem::statuses)
                     .containsAll(
-                        initialState.state.targetCreature.missingParts.first().id to listOf(BodyPartStatus.Missing),
                         initialState.state.targetCreature.brokenParts.first().id to listOf(BodyPartStatus.Broken)
                     )
             }
@@ -110,7 +107,7 @@ internal class FightPresentationMappingTest {
                     .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(
                         initialState.state.targetCreature.functionalParts.first().name to true,
-                        initialState.state.targetCreature.missingParts.first().name to false,
+                        initialState.state.targetCreature.brokenParts.first().name to false,
                     )
             }
     }
@@ -213,6 +210,7 @@ internal class FightPresentationMappingTest {
         val modifiedAttacker = originalState.attacker
         val modifiedTarget = originalState.target.copy(
             missingPartsSet = setOf(originalState.targetRightHand.id),
+            bodyPartIds = originalState.target.bodyPartIds - originalState.targetRightHand.id,
             bodyParts = originalState.target.bodyParts.map { bodyPart ->
                 when (bodyPart.id) {
                     originalState.targetSkull.id -> bodyPart.copy(
