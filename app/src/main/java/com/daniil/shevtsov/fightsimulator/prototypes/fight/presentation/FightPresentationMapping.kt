@@ -36,7 +36,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 id = ground.id,
                 selectables = state.allSelectables
                     .filter { it.id in ground.selectableIds }
-                    .map { it.toItem(state, ground) },
+                    .map { it.toItem(state.allSelectables, state.targetSelectable?.id) },
                 isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }
@@ -44,30 +44,29 @@ fun fightPresentationMapping(state: FightState): FightViewState {
 }
 
 private fun Selectable.toItem(
-    state: FightState,
-    ground: Ground,
+    allSelectables: List<Selectable>,
+    targetSelectableId: SelectableId?,
 ): SelectableItem = when (this) {
     is Item -> SelectableItem.Item(
         id = id,
         name = name,
-        isSelected = state.targetSelectable?.id == id
+        isSelected = targetSelectableId == id
     )
     is BodyPart -> SelectableItem.BodyPartItem(
         id = id,
         name = name,
-        holding = holding?.toItem(state = state, ground = ground),
-        contained = containedBodyParts.mapNotNull { containedId ->
-            state.selectables.find { it.id == containedId }?.toItem(state, ground)
-        }.toSet(),
-        isSelected = id == state.targetSelectable?.id,
+        holding = holding?.toItem(allSelectables, targetSelectableId),
+        contained = containedBodyParts
+            .mapNotNull { containedId ->
+                allSelectables.find { it.id == containedId }?.toItem(allSelectables, targetSelectableId)
+            }.toSet(),
+        isSelected = id == targetSelectableId,
         statuses = emptyList(),
         canGrab = canGrab,
-        lodgedIn = state
-            .selectables.filter { it.id in lodgedInSelectables }
-            .map { it.toItem(state, ground) }
+        lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
+            .map { it.toItem(allSelectables, targetSelectableId) }
             .toSet(),
     )
-    else -> throw Throwable("I think I have compiler version problem")
 }
 
 private fun Selectable.toItem(
