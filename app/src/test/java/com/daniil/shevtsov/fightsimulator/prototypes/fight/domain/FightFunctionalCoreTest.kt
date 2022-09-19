@@ -239,7 +239,6 @@ interface FightFunctionalCoreTest {
                 .prop(Creature::missingPartsSet)
                 .containsAll(
                     initialState.targetHead.id,
-                    initialState.targetSkull.id
                 )
             prop(FightState::targetCreature)
                 .prop(Creature::bodyPartIds)

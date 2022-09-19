@@ -78,26 +78,12 @@ internal class FightPresentationMappingTest {
             .all {
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .all {
-                        any {
-                            it.isInstanceOf(SelectableItem.BodyPartItem::class)
-                                .all {
-                                    prop(SelectableItem::name).isEqualTo(initialState.state.targetCreature.missingParts.first().name)
-                                    prop(SelectableItem.BodyPartItem::statuses).containsExactly(
-                                        BodyPartStatus.Missing
-                                    )
-                                }
-                        }
-                        any {
-                            it.isInstanceOf(SelectableItem.BodyPartItem::class)
-                                .all {
-                                    prop(SelectableItem::name).isEqualTo(initialState.state.targetCreature.brokenParts.first().name)
-                                    prop(SelectableItem.BodyPartItem::statuses).containsExactly(
-                                        BodyPartStatus.Broken
-                                    )
-                                }
-                        }
-                    }
+                    .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
+                    .extracting(SelectableItem::id, SelectableItem.BodyPartItem::statuses)
+                    .containsAll(
+                        initialState.state.targetCreature.missingParts.first().id to listOf(BodyPartStatus.Missing),
+                        initialState.state.targetCreature.brokenParts.first().id to listOf(BodyPartStatus.Broken)
+                    )
             }
     }
 

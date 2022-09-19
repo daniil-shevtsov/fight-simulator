@@ -91,6 +91,7 @@ private fun Selectable.toItem(
             else -> false
         },
         statuses = statuses + listOfNotNull(
+//            BodyPartStatus.Missing.takeIf { id !in creature.bodyPartIds },
             BodyPartStatus.Missing.takeIf { id in creature.missingPartsSet },
         ),
         canGrab = canGrab,
