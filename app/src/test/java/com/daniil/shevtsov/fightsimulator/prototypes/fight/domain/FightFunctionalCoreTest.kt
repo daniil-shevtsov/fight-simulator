@@ -242,7 +242,7 @@ interface FightFunctionalCoreTest {
                 )
             prop(FightState::targetCreature)
                 .prop(Creature::bodyPartIds)
-                .containsNone(initialState.targetHead.id)
+                .containsNone(initialState.targetHead.id, initialState.targetSkull.id)
             prop(FightState::allSelectables)
                 .any {
                     it.isInstanceOf(BodyPart::class)
@@ -250,6 +250,7 @@ interface FightFunctionalCoreTest {
                         .contains(BodyPartStatus.Missing)
                 }
             prop(FightState::targetBodyPart)
+                .isNotNull()
                 .prop(BodyPart::id)
                 .isNotEqualTo(initialState.targetHead.id)
 
@@ -261,10 +262,7 @@ interface FightFunctionalCoreTest {
                 .prop(World::ground)
                 .prop(Ground::selectables)
                 .extracting(Selectable::id)
-                .all {
-                    contains(initialState.targetHead.id)
-//                    containsNone(initialState.targetSkull)
-                }
+                .containsExactly(initialState.targetHead.id)
         }
     }
 

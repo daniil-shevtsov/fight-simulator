@@ -64,7 +64,6 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     ) && targetBodyPart?.holding != null
 
     val newSlashedParts: List<BodyPart> = (listOf(targetBodyPart?.id)
-            + targetBodyPart?.containedBodyParts.orEmpty()
         .toList()).let { ids -> state.targetCreature.bodyParts.filter { it.id in ids } }
         .takeIf { action.attackAction == AttackAction.Slash }
         .orEmpty()
@@ -119,8 +118,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                 missingPartsSet = state.targetCreature.missingPartsSet
                         + newSlashedParts.map { it.id }.toSet(),
                 bodyPartIds = state.targetCreature.bodyPartIds.filter {
-                    it !in newSlashedParts.map(
-                        BodyPart::id
+                    it !in newSlashedParts.map(BodyPart::id) && it !in newSlashedParts.flatMap(
+                        BodyPart::containedBodyParts
                     )
                 }
             )
