@@ -84,9 +84,15 @@ data class FightState(
         get() = findSelected(lastSelectedId = lastSelectedControlledPartId)!!
 
     private fun Creature.findSelected(lastSelectedId: SelectableId?): BodyPart? {
-        return (functionalParts.find { id -> id == allBodyParts.find { bodyPart -> bodyPart.id == lastSelectedId }?.id }
-            ?: functionalParts.firstOrNull()
-            ?: allBodyParts.first { it.id in bodyPartIds }).let { id -> allBodyParts.find { it.id == id } }!!
+        val creatureBodyParts = allBodyParts.filter { bodyPart -> bodyPart.id in (bodyPartIds + missingPartsSet) }
+
+        val part1 = functionalParts.find { it == lastSelectedId }
+        val part2 = functionalParts.firstOrNull()
+        val part3 = creatureBodyParts.first().id
+
+        val finalPart = (part1 ?: part2 ?: part3).let { id -> creatureBodyParts.find { kek -> kek.id == id } }
+
+        return finalPart!!
     }
 
     private val Selectable?.attackActionsWithThrow: List<AttackAction>

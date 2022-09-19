@@ -8,10 +8,6 @@ data class Creature(
     val missingPartsSet: Set<BodyPartId> = setOf(),
 ) : SelectableHolder {
 
-
-    val missingParts: List<BodyPartId>
-        get() = bodyPartIds.filter { it in missingPartsSet }
-
     val functionalParts: List<BodyPartId>
         get() = bodyPartIds.filter { it !in missingPartsSet }
 

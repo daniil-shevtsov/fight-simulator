@@ -210,9 +210,9 @@ interface FightFunctionalCoreTest {
         assertThat(state).all {
             prop(FightState::controlledCreatureBodyParts)
                 .each { it.prop(BodyPart::holding).isNull() }
-            prop(FightState::allBodyParts)
+            prop(FightState::targetCreatureBodyParts)
                 .extracting(BodyPart::id, BodyPart::holding)
-                .contains(testState.attackerHead.id to testState.attackerWeapon.id)
+                .contains(testState.targetHead.id to testState.attackerWeapon.id)
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
