@@ -7,7 +7,6 @@ data class Creature(
     val bodyParts: List<BodyPart>,
     val bodyPartIds: List<BodyPartId>,
     val missingPartsSet: Set<BodyPartId> = setOf(),
-    val brokenPartsSet: Set<BodyPartId> = setOf(),
 ) : SelectableHolder {
 
 
@@ -15,7 +14,7 @@ data class Creature(
         get() = bodyParts.filter { it.id in missingPartsSet }
 
     val brokenParts: List<BodyPart>
-        get() = bodyParts.filter { it.id in brokenPartsSet }
+        get() = bodyParts.filter { it.statuses.contains(BodyPartStatus.Broken)}
     val functionalParts: List<BodyPart>
         get() = bodyParts.filter { it.id !in missingPartsSet }
 
@@ -35,13 +34,11 @@ fun creature(
     bodyParts: List<BodyPart> = emptyList(),
     bodyPartIds: List<BodyPartId> = emptyList(),
     missingPartSet: Set<BodyPartId> = emptySet(),
-    brokenPartSet: Set<BodyPartId> = emptySet(),
 ) = Creature(
     id = creatureId(id),
     actor = actor,
     name = name,
     bodyParts = bodyParts,
     bodyPartIds = bodyPartIds,
-    brokenPartsSet = brokenPartSet,
     missingPartsSet = missingPartSet,
 )

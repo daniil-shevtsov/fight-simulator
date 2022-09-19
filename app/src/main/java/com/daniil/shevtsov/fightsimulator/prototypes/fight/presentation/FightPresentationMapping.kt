@@ -61,7 +61,7 @@ private fun Selectable.toItem(
                 allSelectables.find { it.id == containedId }?.toItem(allSelectables, targetSelectableId)
             }.toSet(),
         isSelected = id == targetSelectableId,
-        statuses = emptyList(),
+        statuses = statuses,
         canGrab = canGrab,
         lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
             .map { it.toItem(allSelectables, targetSelectableId) }
@@ -90,9 +90,8 @@ private fun Selectable.toItem(
             state.controlledCreature.id -> state.controlledBodyPart.id == id
             else -> false
         },
-        statuses = listOfNotNull(
+        statuses = statuses + listOfNotNull(
             BodyPartStatus.Missing.takeIf { id in creature.missingPartsSet },
-            BodyPartStatus.Broken.takeIf { id in creature.brokenPartsSet },
         ),
         canGrab = canGrab,
         lodgedIn = state

@@ -295,9 +295,6 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::targetCreature)
-                .prop(Creature::brokenPartsSet)
-                .containsOnly(initialState.targetSkull.id)
             prop(FightState::allSelectables)
                 .transform { it.filterIsInstance<BodyPart>() }
                 .extracting(BodyPart::id, BodyPart::statuses)

@@ -227,7 +227,14 @@ internal class FightPresentationMappingTest {
         val modifiedAttacker = originalState.attacker
         val modifiedTarget = originalState.target.copy(
             missingPartsSet = setOf(originalState.targetRightHand.id),
-            brokenPartsSet = setOf(originalState.targetSkull.id),
+            bodyParts = originalState.target.bodyParts.map { bodyPart ->
+                when (bodyPart.id) {
+                    originalState.targetSkull.id -> bodyPart.copy(
+                        statuses = bodyPart.statuses + BodyPartStatus.Broken
+                    )
+                    else -> bodyPart
+                }
+            }
         )
         val spear = item(id = 153L, name = "Spear")
         val modifiedGround = originalState.ground.copy(

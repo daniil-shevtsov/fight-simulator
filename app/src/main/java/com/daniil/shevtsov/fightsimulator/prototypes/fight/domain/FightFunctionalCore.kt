@@ -90,9 +90,6 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Pommel -> {
             val brokenPart = state.targetBodyPartBone ?: targetBodyPart
             state.targetCreature.copy(
-                brokenPartsSet = state.targetCreature.brokenPartsSet + setOfNotNull(
-                    brokenPart?.id
-                ),
                 bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
                     when (bodyPart.id) {
                         brokenPart?.id -> bodyPart.copy(
