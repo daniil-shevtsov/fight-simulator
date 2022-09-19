@@ -241,6 +241,15 @@ interface FightFunctionalCoreTest {
                     initialState.targetHead.id,
                     initialState.targetSkull.id
                 )
+            prop(FightState::targetCreature)
+                .prop(Creature::bodyPartIds)
+                .containsNone(initialState.targetHead.id)
+            prop(FightState::allSelectables)
+                .any {
+                    it.isInstanceOf(BodyPart::class)
+                        .prop(BodyPart::statuses)
+                        .contains(BodyPartStatus.Missing)
+                }
             prop(FightState::targetBodyPart)
                 .prop(BodyPart::id)
                 .isNotEqualTo(initialState.targetHead.id)
@@ -252,8 +261,9 @@ interface FightFunctionalCoreTest {
             prop(FightState::world)
                 .prop(World::ground)
                 .prop(Ground::selectables)
+                .extracting(Selectable::id)
                 .all {
-                    contains(initialState.targetHead)
+                    contains(initialState.targetHead.id)
 //                    containsNone(initialState.targetSkull)
                 }
         }
@@ -271,7 +281,8 @@ interface FightFunctionalCoreTest {
             .prop(FightState::world)
             .prop(World::ground)
             .prop(Ground::selectables)
-            .contains(initialState.targetHead)
+            .extracting(Selectable::id)
+            .contains(initialState.targetHead.id)
     }
 
     @Test
@@ -456,10 +467,13 @@ interface FightFunctionalCoreTest {
                 prop(FightState::world)
                     .prop(World::ground)
                     .prop(Ground::selectables)
-                    .containsNone(initialState.targetHead)
+                    .extracting(Selectable::id)
+                    .containsNone(initialState.targetHead.id)
                 prop(FightState::controlledBodyPart)
                     .prop(BodyPart::holding)
-                    .isEqualTo(initialState.targetHead)
+                    .isNotNull()
+                    .prop(BodyPart::id)
+                    .isEqualTo(initialState.targetHead.id)
             }
     }
 
