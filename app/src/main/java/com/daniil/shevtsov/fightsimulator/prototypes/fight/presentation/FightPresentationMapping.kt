@@ -12,7 +12,11 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                     .allBodyParts
                     .filter { it.id in creature.bodyPartIds }
                     .map { bodyPart ->
-                        bodyPart.toItem(state, creature)
+                        bodyPart.toItem(
+                            state.allSelectables,
+                            state.controlledBodyPart.id,
+                            state.targetSelectable?.id
+                        )
                     },
                 isControlled = creature.id == state.controlledCreature.id,
                 isTarget = creature.id == state.targetCreature.id,
@@ -36,7 +40,13 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 id = ground.id,
                 selectables = state.allSelectables
                     .filter { it.id in ground.selectableIds }
-                    .map { it.toItem(state.allSelectables, state.targetSelectable?.id) },
+                    .map {
+                        it.toItem(
+                            state.allSelectables,
+                            state.controlledBodyPart.id,
+                            state.targetSelectable?.id
+                        )
+                    },
                 isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }
@@ -45,61 +55,36 @@ fun fightPresentationMapping(state: FightState): FightViewState {
 
 private fun Selectable.toItem(
     allSelectables: List<Selectable>,
+    controlledSelectableId: SelectableId,
     targetSelectableId: SelectableId?,
-): SelectableItem = when (this) {
-    is Item -> SelectableItem.Item(
-        id = id,
-        name = name,
-        isSelected = targetSelectableId == id
-    )
-    is BodyPart -> SelectableItem.BodyPartItem(
-        id = id,
-        name = name,
-        holding = holding?.toItem(allSelectables, targetSelectableId),
-        contained = containedBodyParts
-            .mapNotNull { containedId ->
-                allSelectables.find { it.id == containedId }?.toItem(allSelectables, targetSelectableId)
-            }.toSet(),
-        isSelected = id == targetSelectableId,
-        statuses = statuses,
-        canGrab = canGrab,
-        lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
-            .map { it.toItem(allSelectables, targetSelectableId) }
-            .toSet(),
-    )
+): SelectableItem {
+    val toItem = { selectable: Selectable ->
+        selectable.toItem(
+            allSelectables,
+            controlledSelectableId,
+            targetSelectableId
+        )
+    }
+    return when (this) {
+        is Item -> SelectableItem.Item(
+            id = id,
+            name = name,
+            isSelected = targetSelectableId == id
+        )
+        is BodyPart -> SelectableItem.BodyPartItem(
+            id = id,
+            name = name,
+            holding = holding?.let { toItem(it) },
+            contained = containedBodyParts
+                .mapNotNull { containedId ->
+                    allSelectables.find { it.id == containedId }?.let { toItem(it) }
+                }.toSet(),
+            isSelected = id == targetSelectableId || id == controlledSelectableId,
+            statuses = statuses,
+            canGrab = canGrab,
+            lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
+                .map { toItem(it) }
+                .toSet(),
+        )
+    }
 }
-
-private fun Selectable.toItem(
-    state: FightState,
-    creature: Creature,
-): SelectableItem = when (this) {
-    is Item -> SelectableItem.Item(
-        id = id,
-        name = name,
-        isSelected = state.targetSelectable?.id == id
-    )
-    is BodyPart -> SelectableItem.BodyPartItem(
-        id = id,
-        name = name,
-        holding = holding?.toItem(state = state, creature = creature),
-        contained = containedBodyParts.mapNotNull { containedId ->
-            state.selectables.find { it.id == containedId }?.toItem(state, creature)
-        }.toSet(),
-        isSelected = when (creature.id) {
-            state.targetCreature.id -> state.targetBodyPart?.id == id
-            state.controlledCreature.id -> state.controlledBodyPart.id == id
-            else -> false
-        },
-        statuses = statuses + listOfNotNull(
-            BodyPartStatus.Missing.takeIf { id !in creature.bodyPartIds },
-//            BodyPartStatus.Missing.takeIf { id in creature.missingPartsSet },
-        ),
-        canGrab = canGrab,
-        lodgedIn = state
-            .selectables.filter { it.id in lodgedInSelectables }
-            .map { it.toItem(state, creature) }
-            .toSet(),
-    )
-    else -> throw Throwable("I think I have compiler version problem")
-}
-
