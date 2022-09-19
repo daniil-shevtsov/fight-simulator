@@ -52,11 +52,11 @@ internal class FightPresentationMappingTest {
             .all {
                 index(0)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(initialState.state.controlledBodyPart.name to true)
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(
                         initialState.targetHead.name to true,
                         initialState.targetSkull.name to false,
@@ -78,15 +78,26 @@ internal class FightPresentationMappingTest {
             .all {
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::statuses)
-                    .containsAll(
-                        initialState.state.targetCreature.missingParts.first().name to listOf(
-                            BodyPartStatus.Missing
-                        ),
-                        initialState.state.targetCreature.brokenParts.first().name to listOf(
-                            BodyPartStatus.Broken
-                        ),
-                    )
+                    .all {
+                        any {
+                            it.isInstanceOf(SelectableItem.BodyPartItem::class)
+                                .all {
+                                    prop(SelectableItem::name).isEqualTo(initialState.state.targetCreature.missingParts.first().name)
+                                    prop(SelectableItem.BodyPartItem::statuses).containsExactly(
+                                        BodyPartStatus.Missing
+                                    )
+                                }
+                        }
+                        any {
+                            it.isInstanceOf(SelectableItem.BodyPartItem::class)
+                                .all {
+                                    prop(SelectableItem::name).isEqualTo(initialState.state.targetCreature.brokenParts.first().name)
+                                    prop(SelectableItem.BodyPartItem::statuses).containsExactly(
+                                        BodyPartStatus.Broken
+                                    )
+                                }
+                        }
+                    }
             }
     }
 
@@ -110,7 +121,7 @@ internal class FightPresentationMappingTest {
             .all {
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(SelectableItem::name, SelectableItem.BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(
                         initialState.state.targetCreature.functionalParts.first().name to true,
                         initialState.state.targetCreature.missingParts.first().name to false,
@@ -151,7 +162,7 @@ internal class FightPresentationMappingTest {
             .isInstanceOf(FightViewState.Content::class)
             .prop(FightViewState.Content::ground)
             .prop(GroundMenu::selectables)
-            .extracting(Selectable::name)
+            .extracting(SelectableItem::name)
             .contains("Spear")
     }
 
@@ -167,7 +178,7 @@ internal class FightPresentationMappingTest {
             .isInstanceOf(FightViewState.Content::class)
             .prop(FightViewState.Content::ground)
             .prop(GroundMenu::selectables)
-            .extracting(Selectable::name)
+            .extracting(SelectableItem::name)
             .contains("Head")
     }
 

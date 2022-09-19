@@ -19,7 +19,10 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Actor
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightAction
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.GroundId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.*
 
 @Preview(widthDp = 400, heightDp = 600)
@@ -33,7 +36,7 @@ fun FightScreenPreview() {
                     isControlled = true,
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
-                            "Right Hand" -> bodyPart.copy(holding = item(name = "Knife"))
+                            "Right Hand" -> bodyPart.copy(holding = selectableItem(name = "Knife"))
                             else -> bodyPart
                         }
                     }
@@ -53,7 +56,7 @@ fun FightScreenPreview() {
                             )
                             "Right Arm" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Broken))
                             "Left Leg" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Bleeding))
-                            "Right Hand" -> bodyPart.copy(holding = item(name = "Mace"))
+                            "Right Hand" -> bodyPart.copy(holding = selectableItem(name = "Mace"))
                             "Left Hand" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
                             else -> bodyPart
                         }
@@ -77,8 +80,8 @@ fun FightScreenPreview() {
             ground = GroundMenu(
                 id = GroundId(0L),
                 selectables = listOf(
-                    item(name = "Spear"),
-                    item(name = "Helmet"),
+                    selectableItem(name = "Spear"),
+                    selectableItem(name = "Helmet"),
                 ),
                 isSelected = true
             ),
@@ -233,8 +236,9 @@ private fun Creature(
                 .padding(6.dp)
         ) {
             creature.bodyParts
+                .filterIsInstance<SelectableItem.BodyPartItem>()
                 .filter { bodyPart ->
-                    creature.bodyParts.none { otherBodyPart ->
+                    creature.bodyParts.filterIsInstance<SelectableItem.BodyPartItem>().none { otherBodyPart ->
                         bodyPart.id in otherBodyPart.contained
                     }
                 }
@@ -242,7 +246,7 @@ private fun Creature(
                     BodyPart(
                         bodyPartItem = bodyPartItem,
                         onClick = { onClick(bodyPartItem) },
-                        contained = creature.bodyParts.filter { it.id in bodyPartItem.contained })
+                        contained = creature.bodyParts.filterIsInstance<SelectableItem.BodyPartItem>().filter { it.id in bodyPartItem.contained })
 
                 }
         }
@@ -252,7 +256,7 @@ private fun Creature(
 
 @Composable
 fun Item(
-    item: Selectable,
+    item: SelectableItem,
     textColor: Color = Color.Black,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},

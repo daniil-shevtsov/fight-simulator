@@ -1,7 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightState
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 
 fun fightPresentationMapping(state: FightState): FightViewState {
     return FightViewState.Content(
@@ -10,25 +9,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 id = creature.id,
                 actor = creature.actor,
                 bodyParts = creature.bodyParts.map { bodyPart ->
-                    SelectableItem.BodyPartItem(
-                        id = bodyPart.id,
-                        name = bodyPart.name,
-                        holding = bodyPart.holding,
-                        contained = bodyPart.containedBodyParts,
-                        isSelected = when (creature.id) {
-                            state.targetCreature.id -> state.targetBodyPart?.id == bodyPart.id
-                            state.controlledCreature.id -> state.controlledBodyPart.id == bodyPart.id
-                            else -> false
-                        },
-                        statuses = listOfNotNull(
-                            BodyPartStatus.Missing.takeIf { bodyPart.id in creature.missingPartsSet },
-                            BodyPartStatus.Broken.takeIf { bodyPart.id in creature.brokenPartsSet },
-                        ),
-                        canGrab = bodyPart.canGrab,
-                        lodgedIn = state
-                            .selectables.filter { it.id in bodyPart.lodgedInSelectables }
-                            .toSet(),
-                    )
+                    bodyPart.toItem(state, creature)
                 },
                 isControlled = creature.id == state.controlledCreature.id,
                 isTarget = creature.id == state.targetCreature.id,
@@ -50,10 +31,67 @@ fun fightPresentationMapping(state: FightState): FightViewState {
         ground = state.world.ground.let { ground ->
             GroundMenu(
                 id = ground.id,
-                selectables = ground.selectables,
+                selectables = ground.selectables.map { it.toItem(state, ground) },
                 isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }
     )
+}
+
+private fun Selectable.toItem(
+    state: FightState,
+    ground: Ground,
+): SelectableItem = when (this) {
+    is Item -> SelectableItem.Item(
+        id = id,
+        name = name,
+        isSelected = state.targetSelectable?.id == id
+    )
+    is BodyPart -> SelectableItem.BodyPartItem(
+        id = id,
+        name = name,
+        holding = holding?.toItem(state = state, ground = ground),
+        contained = containedBodyParts,
+        isSelected = id == state.targetSelectable?.id,
+        statuses = emptyList(),
+        canGrab = canGrab,
+        lodgedIn = state
+            .selectables.filter { it.id in lodgedInSelectables }
+            .map { it.toItem(state, ground) }
+            .toSet(),
+    )
+    else -> throw Throwable("I think I have compiler version problem")
+}
+
+private fun Selectable.toItem(
+    state: FightState,
+    creature: Creature,
+): SelectableItem = when (this) {
+    is Item -> SelectableItem.Item(
+        id = id,
+        name = name,
+        isSelected = state.targetSelectable?.id == id
+    )
+    is BodyPart -> SelectableItem.BodyPartItem(
+        id = id,
+        name = name,
+        holding = holding?.toItem(state = state, creature = creature),
+        contained = containedBodyParts,
+        isSelected = when (creature.id) {
+            state.targetCreature.id -> state.targetBodyPart?.id == id
+            state.controlledCreature.id -> state.controlledBodyPart.id == id
+            else -> false
+        },
+        statuses = listOfNotNull(
+            BodyPartStatus.Missing.takeIf { id in creature.missingPartsSet },
+            BodyPartStatus.Broken.takeIf { id in creature.brokenPartsSet },
+        ),
+        canGrab = canGrab,
+        lodgedIn = state
+            .selectables.filter { it.id in lodgedInSelectables }
+            .map { it.toItem(state, creature) }
+            .toSet(),
+    )
+    else -> throw Throwable("I think I have compiler version problem")
 }
 

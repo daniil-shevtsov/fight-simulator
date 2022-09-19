@@ -15,11 +15,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Item
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.bodyPartId
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.item
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.SelectableItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPartItem
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.selectableItem
 
 @Preview
 @Composable
@@ -42,7 +41,7 @@ fun BodyPartPreview() {
         BodyPart(
             bodyPartItem = bodyPartItem(
                 id = 3L, name = "Hand", canGrab = true,
-                holding = item(id = 4L, name = "Knife")
+                holding = selectableItem(id = 4L, name = "Knife")
             ),
             onClick = {},
             contained = emptyList(),
@@ -54,7 +53,7 @@ fun BodyPartPreview() {
                 name = "Hand",
                 canGrab = true,
                 contained = setOf(bodyPartId(6L)),
-                holding = item(id = 7L, name = "Dagger"),
+                holding = selectableItem(id = 7L, name = "Dagger"),
             ),
             contained = listOf(bodyPartItem(id = 6L, name = "Bone")),
             onClick = {},
@@ -65,7 +64,7 @@ fun BodyPartPreview() {
                 id = 0L,
                 name = "Head",
                 contained = setOf(bodyPartId(1L)),
-                lodgedIn = setOf(item(id = 2L, name = "Arrow"))
+                lodgedIn = setOf(selectableItem(id = 2L, name = "Arrow"))
             ),
             onClick = {},
             contained = listOf(
@@ -225,18 +224,16 @@ fun BodyPart(
             }
 
             bodyPartItem.lodgedIn.forEach { lodgedIn ->
-                if(lodgedIn is Item) {
-                    Item(
-                        item = lodgedIn,
-                        textColor = textColor,
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .background(Color(0xAAA80202))
-                            .padding(2.dp)
-                            .background(Color.DarkGray)
-                            .fillMaxWidth()
-                    )
-                }
+                Item(
+                    item = lodgedIn,
+                    textColor = textColor,
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .background(Color(0xAAA80202))
+                        .padding(2.dp)
+                        .background(Color.DarkGray)
+                        .fillMaxWidth()
+                )
             }
 
             if (bodyPartItem.canGrab) {

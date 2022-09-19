@@ -2,15 +2,14 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Selectable
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.bodyPartId
 
 fun bodyPartItem(
     id: Long,
     name: String = "",
-    holding: Selectable? = null,
+    holding: SelectableItem? = null,
     contained: Set<BodyPartId> = setOf(),
-    lodgedIn: Set<Selectable> = setOf(),
+    lodgedIn: Set<SelectableItem> = setOf(),
     statuses: List<BodyPartStatus> = emptyList(),
     canGrab: Boolean = false,
     isSelected: Boolean = false,
