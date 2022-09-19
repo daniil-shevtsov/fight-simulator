@@ -38,7 +38,14 @@ data class FightState(
         }
 
     val targetSelectableHolder: SelectableHolder
-        get() = selectableHolders.find { holder -> holder.selectableIds.any { selectableId -> selectableId == currentTargetSelectableId } }!!
+        get() {
+            val targetHolder = selectableHolders.find { holder ->
+                holder.selectableIds.any { selectableId ->
+                    selectableId == currentTargetSelectableId || selectableId == lastSelectedTargetPartId
+                }
+            }
+            return targetHolder!!
+        }
 
     val targetSelectable: Selectable?
         get() = selectables.find { it.id == currentTargetSelectableId }
@@ -50,7 +57,7 @@ data class FightState(
     val targetCreature: Creature
         get() = actors.find { it.id == lastSelectedTargetHolderId } ?: actors.last()
     val targetCreatureBodyParts: List<BodyPart>
-        get() = allBodyParts.filter { bodyPart -> bodyPart.id in targetCreature.bodyPartIds }
+        get() = allBodyParts.filter { bodyPart -> bodyPart.id in targetCreature.bodyPartIds || bodyPart.id in targetCreature.missingPartsSet }
 
     val controlledBodyPart: BodyPart
         get() = allBodyParts.find { it.id == controlledCreature.controlledSelectedBodyPart.id }!!
