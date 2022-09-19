@@ -87,12 +87,22 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                 }
             })
         }
-        AttackAction.Pommel -> state.targetCreature.copy(
-            brokenPartsSet = state.targetCreature.brokenPartsSet + setOfNotNull(
-                state.targetBodyPartBone?.id
-                    ?: targetBodyPart?.id
+        AttackAction.Pommel -> {
+            val brokenPart = state.targetBodyPartBone ?: targetBodyPart
+            state.targetCreature.copy(
+                brokenPartsSet = state.targetCreature.brokenPartsSet + setOfNotNull(
+                    brokenPart?.id
+                ),
+                bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
+                    when (bodyPart.id) {
+                        brokenPart?.id -> bodyPart.copy(
+                            statuses = bodyPart.statuses + BodyPartStatus.Broken
+                        )
+                        else -> bodyPart
+                    }
+                }
             )
-        )
+        }
         AttackAction.Punch, AttackAction.Kick -> {
             when {
                 shouldKnockOutWeapon -> state.targetCreature.copy(
@@ -111,7 +121,11 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             state.targetCreature.copy(
                 missingPartsSet = state.targetCreature.missingPartsSet
                         + newSlashedParts.map { it.id }.toSet(),
-                bodyPartIds = state.targetCreature.bodyPartIds.filter { it !in newSlashedParts.map(BodyPart::id) }
+                bodyPartIds = state.targetCreature.bodyPartIds.filter {
+                    it !in newSlashedParts.map(
+                        BodyPart::id
+                    )
+                }
             )
         }
         else -> state.targetCreature

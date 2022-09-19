@@ -298,6 +298,10 @@ interface FightFunctionalCoreTest {
             prop(FightState::targetCreature)
                 .prop(Creature::brokenPartsSet)
                 .containsOnly(initialState.targetSkull.id)
+            prop(FightState::allSelectables)
+                .transform { it.filterIsInstance<BodyPart>() }
+                .extracting(BodyPart::id, BodyPart::statuses)
+                .contains(initialState.targetSkull.id to listOf(BodyPartStatus.Broken))
             prop(FightState::actionLog)
                 .extracting(ActionEntry::text)
                 .index(0)
