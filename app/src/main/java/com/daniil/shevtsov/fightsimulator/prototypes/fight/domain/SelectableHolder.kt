@@ -4,4 +4,5 @@ interface SelectableHolder {
     val id: SelectableHolderId
 
     val selectables: List<Selectable>
+    val selectableIds: List<SelectableId>
 }

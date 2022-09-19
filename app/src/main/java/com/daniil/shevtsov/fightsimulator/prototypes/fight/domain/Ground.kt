@@ -3,7 +3,10 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 data class Ground(
     override val id: GroundId,
     override val selectables: List<Selectable>
-) : SelectableHolder
+) : SelectableHolder {
+    override val selectableIds: List<SelectableId>
+        get() = selectables.map(Selectable::id)
+}
 
 fun ground(
     id: Long = 0L,

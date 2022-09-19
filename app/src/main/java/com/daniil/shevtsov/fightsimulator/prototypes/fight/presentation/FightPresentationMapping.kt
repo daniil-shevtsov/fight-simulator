@@ -9,8 +9,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 id = creature.id,
                 actor = creature.actor,
                 bodyParts = state
-                    .allSelectables
-                    .filterIsInstance<BodyPart>()
+                    .allBodyParts
                     .filter { it.id in creature.bodyPartIds }
                     .map { bodyPart ->
                         bodyPart.toItem(state, creature)
@@ -35,7 +34,9 @@ fun fightPresentationMapping(state: FightState): FightViewState {
         ground = state.world.ground.let { ground ->
             GroundMenu(
                 id = ground.id,
-                selectables = ground.selectables.map { it.toItem(state, ground) },
+                selectables = state.allSelectables
+                    .filter { it.id in ground.selectableIds }
+                    .map { it.toItem(state, ground) },
                 isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }

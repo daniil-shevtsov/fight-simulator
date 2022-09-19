@@ -21,6 +21,8 @@ data class Creature(
 
     override val selectables: List<Selectable>
         get() = functionalParts
+    override val selectableIds: List<SelectableId>
+        get() = bodyPartIds
 
     fun firstPart() = bodyParts.first()
 
