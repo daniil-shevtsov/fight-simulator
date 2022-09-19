@@ -78,14 +78,16 @@ data class FightState(
         }.map(::Command)
 
     private val Creature.targetSelectedBodyPart: BodyPart?
-        get() = (functionalParts.find { id -> id == allBodyParts.find { bodyPart -> bodyPart.id == currentTargetSelectableId }?.id }
-            ?: functionalParts.firstOrNull()
-            ?: allBodyParts.first { it.id in bodyPartIds }).let { id -> allBodyParts.find { it.id == id } }
+        get() = findSelected(lastSelectedId = currentTargetSelectableId)
 
     private val Creature.controlledSelectedBodyPart: BodyPart
-        get() = (functionalParts.find { id -> id == allBodyParts.find { bodyPart -> bodyPart.id == lastSelectedControlledPartId }?.id }
+        get() = findSelected(lastSelectedId = lastSelectedControlledPartId)!!
+
+    private fun Creature.findSelected(lastSelectedId: SelectableId?): BodyPart? {
+        return (functionalParts.find { id -> id == allBodyParts.find { bodyPart -> bodyPart.id == lastSelectedId }?.id }
             ?: functionalParts.firstOrNull()
             ?: allBodyParts.first { it.id in bodyPartIds }).let { id -> allBodyParts.find { it.id == id } }!!
+    }
 
     private val Selectable?.attackActionsWithThrow: List<AttackAction>
         get() = (this as? Item)?.attackActions.orEmpty() + listOf(AttackAction.Throw).takeIf { this != null }

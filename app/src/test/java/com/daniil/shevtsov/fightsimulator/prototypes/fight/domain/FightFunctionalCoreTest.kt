@@ -52,9 +52,12 @@ interface FightFunctionalCoreTest {
 
         assertThat(state)
             .all {
-                prop(FightState::controlledBodyPart).prop(BodyPart::id)
+                prop(FightState::controlledBodyPart)
+                    .prop(BodyPart::id)
                     .isEqualTo(initialState.attackerRightHand.id)
-                prop(FightState::targetBodyPart).prop(BodyPart::id)
+                prop(FightState::targetBodyPart)
+                    .isNotNull()
+                    .prop(BodyPart::id)
                     .isEqualTo(initialState.targetHead.id)
             }
     }
@@ -184,9 +187,7 @@ interface FightFunctionalCoreTest {
                 .isNotNull()
                 .all {
                     prop(BodyPart::holding)
-                        .isNotNull()
-                        .prop(Item::name)
-                        .isEqualTo(testState.attackerWeapon.name)
+                        .isEqualTo(testState.attackerWeapon.id)
                     prop(BodyPart::lodgedInSelectables)
                         .contains(testState.attackerWeapon.id)
                 }
@@ -459,8 +460,6 @@ interface FightFunctionalCoreTest {
                     .containsNone(initialState.targetHead.id)
                 prop(FightState::controlledBodyPart)
                     .prop(BodyPart::holding)
-                    .isNotNull()
-                    .prop(BodyPart::id)
                     .isEqualTo(initialState.targetHead.id)
             }
     }
