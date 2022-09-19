@@ -238,16 +238,16 @@ private fun Creature(
             creature.bodyParts
                 .filterIsInstance<SelectableItem.BodyPartItem>()
                 .filter { bodyPart ->
-                    creature.bodyParts.filterIsInstance<SelectableItem.BodyPartItem>().none { otherBodyPart ->
-                        bodyPart.id in otherBodyPart.contained
-                    }
+                    creature.bodyParts.filterIsInstance<SelectableItem.BodyPartItem>()
+                        .none { otherBodyPart ->
+                            bodyPart.id in otherBodyPart.contained.map(SelectableItem::id)
+                        }
                 }
                 .forEach { bodyPartItem ->
                     BodyPart(
                         bodyPartItem = bodyPartItem,
-                        onClick = { onClick(bodyPartItem) },
-                        contained = creature.bodyParts.filterIsInstance<SelectableItem.BodyPartItem>().filter { it.id in bodyPartItem.contained })
-
+                        onClick = { onClick(bodyPartItem) }
+                    )
                 }
         }
     }
@@ -344,7 +344,7 @@ fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {
 private fun defaultBodyParts(): List<SelectableItem.BodyPartItem> {
     val skull = bodyPartItem(id = 1L, name = "Skull")
     return listOf(
-        bodyPartItem(id = 0L, name = "Head", contained = setOf(skull.id)),
+        bodyPartItem(id = 0L, name = "Head", contained = setOf(skull)),
         skull,
         bodyPartItem(id = 2L, name = "Body"),
         bodyPartItem(id = 3L, name = "Right Arm"),

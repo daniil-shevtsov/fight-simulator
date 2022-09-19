@@ -51,7 +51,9 @@ private fun Selectable.toItem(
         id = id,
         name = name,
         holding = holding?.toItem(state = state, ground = ground),
-        contained = containedBodyParts,
+        contained = containedBodyParts.mapNotNull { containedId ->
+            state.selectables.find { it.id == containedId }?.toItem(state, ground)
+        }.toSet(),
         isSelected = id == state.targetSelectable?.id,
         statuses = emptyList(),
         canGrab = canGrab,
@@ -76,7 +78,9 @@ private fun Selectable.toItem(
         id = id,
         name = name,
         holding = holding?.toItem(state = state, creature = creature),
-        contained = containedBodyParts,
+        contained = containedBodyParts.mapNotNull { containedId ->
+            state.selectables.find { it.id == containedId }?.toItem(state, creature)
+        }.toSet(),
         isSelected = when (creature.id) {
             state.targetCreature.id -> state.targetBodyPart?.id == id
             state.controlledCreature.id -> state.controlledBodyPart.id == id

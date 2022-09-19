@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.bodyPartId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.SelectableItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPartItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.selectableItem
@@ -24,18 +23,15 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.selectab
 @Composable
 fun BodyPartPreview() {
     Column(verticalArrangement = spacedBy(8.dp)) {
+        val skull = bodyPartItem(id = 1L, name = "Skull")
         BodyPart(
-            bodyPartItem = bodyPartItem(id = 0L, name = "Head", contained = setOf(bodyPartId(1L))),
+            bodyPartItem = bodyPartItem(id = 0L, name = "Head", contained = setOf(skull)),
             onClick = {},
-            contained = listOf(
-                bodyPartItem(id = 1L, name = "Skull")
-            ),
             modifier = Modifier.width(100.dp)
         )
         BodyPart(
             bodyPartItem = bodyPartItem(id = 2L, name = "Hand", canGrab = true),
             onClick = {},
-            contained = emptyList(),
             modifier = Modifier.width(100.dp)
         )
         BodyPart(
@@ -44,18 +40,17 @@ fun BodyPartPreview() {
                 holding = selectableItem(id = 4L, name = "Knife")
             ),
             onClick = {},
-            contained = emptyList(),
             modifier = Modifier.width(100.dp)
         )
+        val bone = bodyPartItem(id = 6L, name = "Bone")
         BodyPart(
             bodyPartItem = bodyPartItem(
                 id = 5L,
                 name = "Hand",
                 canGrab = true,
-                contained = setOf(bodyPartId(6L)),
+                contained = setOf(bone),
                 holding = selectableItem(id = 7L, name = "Dagger"),
             ),
-            contained = listOf(bodyPartItem(id = 6L, name = "Bone")),
             onClick = {},
             modifier = Modifier.width(100.dp)
         )
@@ -63,13 +58,10 @@ fun BodyPartPreview() {
             bodyPartItem = bodyPartItem(
                 id = 0L,
                 name = "Head",
-                contained = setOf(bodyPartId(1L)),
+                contained = setOf(skull),
                 lodgedIn = setOf(selectableItem(id = 2L, name = "Arrow"))
             ),
             onClick = {},
-            contained = listOf(
-                bodyPartItem(id = 1L, name = "Skull")
-            ),
             modifier = Modifier.width(100.dp)
         )
     }
@@ -79,7 +71,6 @@ fun BodyPartPreview() {
 fun BodyPart(
     bodyPartItem: SelectableItem.BodyPartItem,
     onClick: () -> Unit,
-    contained: List<SelectableItem.BodyPartItem>,
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor = when {
@@ -208,19 +199,20 @@ fun BodyPart(
             }
 
             if (bodyPartItem.contained.isNotEmpty()) {
-                val bone = contained.first()
-                BodyPart(
-                    bodyPartItem = bone,
-                    onClick = { },
-                    contained = emptyList(),
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .background(Color.LightGray)
-                        .padding(2.dp)
-                        .background(Color.Gray)
-                        .padding(4.dp)
-                        .fillMaxWidth()
-                )
+                val bone = bodyPartItem.contained.first()
+                if(bone is SelectableItem.BodyPartItem) {
+                    BodyPart(
+                        bodyPartItem = bone,
+                        onClick = { },
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .background(Color.LightGray)
+                            .padding(2.dp)
+                            .background(Color.Gray)
+                            .padding(4.dp)
+                            .fillMaxWidth()
+                    )
+                }
             }
 
             bodyPartItem.lodgedIn.forEach { lodgedIn ->

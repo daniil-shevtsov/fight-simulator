@@ -16,7 +16,7 @@ sealed interface SelectableItem {
         override val name: String,
         override val isSelected: Boolean,
         val holding: SelectableItem?,
-        val contained: Set<BodyPartId>,
+        val contained: Set<SelectableItem>,
         val lodgedIn: Set<SelectableItem>,
         val statuses: List<BodyPartStatus>,
         val canGrab: Boolean,
