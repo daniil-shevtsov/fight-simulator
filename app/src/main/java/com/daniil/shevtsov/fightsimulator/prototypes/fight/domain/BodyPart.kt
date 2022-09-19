@@ -5,7 +5,7 @@ data class BodyPart(
     override val name: String,
     val attackActions: List<AttackAction>,
     val statuses: List<BodyPartStatus>,
-    val holding: Selectable? = null,
+    val holding: SelectableId? = null,
     val containedBodyParts: Set<BodyPartId> = setOf(),
     val lodgedInSelectables: Set<SelectableId> = setOf(),
     val parentId: BodyPartId? = null,
@@ -15,7 +15,7 @@ data class BodyPart(
 fun bodyPart(
     id: Long = 0L,
     name: String = "",
-    holding: Selectable? = null,
+    holding: SelectableId? = null,
     attackActions: List<AttackAction> = emptyList(),
     statuses: List<BodyPartStatus> = emptyList(),
     containedBodyParts: Set<BodyPartId> = setOf(),

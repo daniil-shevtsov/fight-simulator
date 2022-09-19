@@ -74,7 +74,9 @@ private fun Selectable.toItem(
         is BodyPart -> SelectableItem.BodyPartItem(
             id = id,
             name = name,
-            holding = holding?.let { toItem(it) },
+            holding = holding?.let { id ->
+                allSelectables.find { it.id == id }?.let { toItem(it) }
+            },
             contained = containedBodyParts
                 .mapNotNull { containedId ->
                     allSelectables.find { it.id == containedId }?.let { toItem(it) }

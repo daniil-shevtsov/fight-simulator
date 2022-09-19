@@ -6,33 +6,31 @@ interface TestState {
     val attacker: Creature
         get() = state.controlledCreature
     val attackerRightHand: BodyPart
-        get() = attacker.bodyParts.find { it.name == "Right Hand" }!!
+        get() = state.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!
     val attackerLeftHand: BodyPart
-        get() = attacker.bodyParts.find { it.name == "Left Hand" }!!
+        get() = state.controlledCreatureBodyParts.find { it.name == "Left Hand" }!!
     val attackerHead: BodyPart
-        get() = attacker.findBodyPart(withName = "Head")
+        get() = state.controlledCreatureBodyParts.find { it.name == "Head" }!!
     val target: Creature
         get() = state.targetCreature
     val targetHead: BodyPart
-        get() = target.bodyParts.find { it.name == "Head" }!!
+        get() = state.targetCreatureBodyParts.find { it.name == "Head" }!!
     val targetSkull: BodyPart
-        get() = target.bodyParts.find { it.name == "Skull" }!!
+        get() = state.targetCreatureBodyParts.find { it.name == "Skull" }!!
     val targetRightHand: BodyPart
-        get() = target.bodyParts.find { it.name == "Right Hand" }!!
+        get() = state.targetCreatureBodyParts.find { it.name == "Right Hand" }!!
     val attackerWeapon: Selectable
-        get() = attacker.functionalParts.find { it.holding != null }?.holding!!
+        get() = state.controlledCreatureBodyParts.find { it.holding != null }?.holding?.let { id -> state.allSelectables.find { it.id == id } }!!
     val nonGrabbingPart: BodyPart
-        get() = attacker.bodyParts.find { it.name == "Right Leg" }!!
+        get() = state.controlledCreatureBodyParts.find { it.name == "Right Leg" }!!
 
     val otherCreature: Creature
         get() = state.actors.find { it.id != state.controlledCreature.id }!!
     val otherCreatureHead: BodyPart
-        get() = otherCreature.findBodyPart(withName = "Head")
+        get() = state.targetCreatureBodyParts.find { it.name == "Head" }!!
 
     val ground: Ground
         get() = state.world.ground
-
-    private fun Creature.findBodyPart(withName: String) = bodyParts.find { it.name == withName }!!
 }
 
 data class ItemPickupTestState(
@@ -49,5 +47,5 @@ data class AttackWithItemTestState(
 ) : TestState {
 
     val targetWeapon: Item
-        get() = target.functionalParts.find { it.holding != null }?.holding!! as Item //TODO: Remove cast
+        get() = state.targetCreatureBodyParts.find { it.holding != null }?.holding?.let { id -> state.allItems.find { it.id == id } }!!
 }

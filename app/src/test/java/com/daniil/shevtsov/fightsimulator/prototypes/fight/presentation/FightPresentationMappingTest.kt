@@ -79,7 +79,9 @@ internal class FightPresentationMappingTest {
                     .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
                     .extracting(SelectableItem::id, SelectableItem.BodyPartItem::statuses)
                     .containsAll(
-                        initialState.state.targetCreature.brokenParts.first().id to listOf(BodyPartStatus.Broken)
+                        initialState.targetSkull.id to listOf(
+                            BodyPartStatus.Broken
+                        )
                     )
             }
     }
@@ -89,7 +91,7 @@ internal class FightPresentationMappingTest {
         val initialState = attackWithItemTestState().let { state ->
             state.copy(
                 state = state.state.copy(
-                    lastSelectedTargetPartId = state.state.targetCreature.missingParts.first().id,
+                    lastSelectedTargetPartId = state.targetRightHand.id,
                 )
 
             )
@@ -106,8 +108,8 @@ internal class FightPresentationMappingTest {
                     .prop(CreatureMenu::bodyParts)
                     .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(
-                        initialState.state.targetCreature.functionalParts.first().name to true,
-                        initialState.state.targetCreature.brokenParts.first().name to false,
+                        initialState.targetHead.name to true,
+                        initialState.targetSkull.name to false,
                     )
             }
     }
@@ -118,7 +120,7 @@ internal class FightPresentationMappingTest {
             state.copy(
                 state = state.state.copy(
                     lastSelectedTargetHolderId = state.ground.id,
-                    lastSelectedTargetPartId = state.ground.selectables.first().id,
+                    lastSelectedTargetPartId = state.ground.selectableIds.first(),
                 )
             )
         }
@@ -212,22 +214,22 @@ internal class FightPresentationMappingTest {
         val modifiedTarget = originalState.target.copy(
             missingPartsSet = setOf(originalState.targetRightHand.id),
             bodyPartIds = originalState.target.bodyPartIds - originalState.targetRightHand.id,
-            bodyParts = originalState.target.bodyParts.map { bodyPart ->
-                when (bodyPart.id) {
-                    originalState.targetSkull.id -> bodyPart.copy(
-                        statuses = bodyPart.statuses + BodyPartStatus.Broken
-                    )
-                    else -> bodyPart
-                }
-            }
         )
         val spear = item(id = 153L, name = "Spear")
         val modifiedGround = originalState.ground.copy(
-            selectables = listOf(spear)
+            selectableIds = listOf(spear.id)
         )
 
         return originalState.copy(
             state = originalState.state.copy(
+                allSelectables = originalState.state.allSelectables.map { selectable ->
+                    when {
+                        selectable is BodyPart && selectable.id == originalState.targetSkull.id -> selectable.copy(
+                            statuses = selectable.statuses + BodyPartStatus.Broken
+                        )
+                        else -> selectable
+                    }
+                } + listOf(spear),
                 actors = listOf(modifiedAttacker, modifiedTarget),
                 world = originalState.state.world.copy(ground = modifiedGround)
             )

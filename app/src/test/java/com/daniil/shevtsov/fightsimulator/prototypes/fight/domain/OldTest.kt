@@ -16,26 +16,23 @@ internal class OldTest {
         assertThat(newState).all {
             prop(FightState::lastSelectedControlledHolderId)
                 .isEqualTo(newState.controlledCreature.id)
-            prop(FightState::actors)
-                .each {
-                    it.prop(Creature::bodyParts)
-                        .extracting(BodyPart::name)
-                        .containsAll(
-                            "Head",
-                            "Skull",
-                            "Body",
-                            "Right Arm",
-                            "Right Hand",
-                            "Left Arm",
-                            "Left Hand",
-                            "Right Leg",
-                            "Right Foot",
-                            "Left Leg",
-                            "Left Foot",
-                        )
-                }
-            val head = newState.targetCreature.bodyParts.find { it.name == "Head" }!!
-            val skull = newState.targetCreature.bodyParts.find { it.name == "Skull" }!!
+            prop(FightState::controlledCreatureBodyParts)
+                .extracting(BodyPart::name)
+                .containsAll(
+                    "Head",
+                    "Skull",
+                    "Body",
+                    "Right Arm",
+                    "Right Hand",
+                    "Left Arm",
+                    "Left Hand",
+                    "Right Leg",
+                    "Right Foot",
+                    "Left Leg",
+                    "Left Foot",
+                )
+            val head = newState.targetCreatureBodyParts.find { it.name == "Head" }!!
+            val skull = newState.targetCreatureBodyParts.find { it.name == "Skull" }!!
             assertThat(head).prop(BodyPart::containedBodyParts).containsOnly(skull.id)
             assertThat(skull).prop(BodyPart::parentId).isNotNull().isEqualTo(head.id)
 
@@ -46,7 +43,4 @@ internal class OldTest {
                 .containsExactly(AttackAction.Punch)
         }
     }
-
-
-
 }
