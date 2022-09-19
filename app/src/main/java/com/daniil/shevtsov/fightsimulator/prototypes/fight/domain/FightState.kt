@@ -11,8 +11,8 @@ data class FightState(
 ) {
 
     val allSelectables: List<Selectable>
-        get() = actors.flatMap { it.bodyParts } + world.ground.selectables + (actors.flatMap { it.bodyParts } + world.ground.selectables).filterIsInstance<BodyPart>()
-            .mapNotNull { it.holding }
+        get() = (actors.flatMap { it.bodyParts } + world.ground.selectables + (actors.flatMap { it.bodyParts } + world.ground.selectables).filterIsInstance<BodyPart>()
+            .mapNotNull { it.holding }).associateBy { it.id }.toList().map { it.second }
     val allBodyParts: List<BodyPart>
         get() = allSelectables.filterIsInstance<BodyPart>()
     val allItems: List<Item>

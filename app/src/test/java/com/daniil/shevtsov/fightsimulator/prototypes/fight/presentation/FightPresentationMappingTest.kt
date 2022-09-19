@@ -161,8 +161,9 @@ internal class FightPresentationMappingTest {
             .isInstanceOf(FightViewState.Content::class)
             .prop(FightViewState.Content::ground)
             .prop(GroundMenu::selectables)
+            .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
             .extracting(SelectableItem::name)
-            .contains("Head")
+            .containsExactly("Head")
     }
 
     @Test
