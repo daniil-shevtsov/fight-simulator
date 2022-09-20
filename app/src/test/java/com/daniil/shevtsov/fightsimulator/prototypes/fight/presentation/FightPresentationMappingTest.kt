@@ -237,7 +237,7 @@ internal class FightPresentationMappingTest {
     }
 
     private fun slashedTestState(): AttackWithItemTestState {
-        val initial = stateForItemAttack(controlledActorName = "Player").state
+        val initial = stateForItemAttack(actorName = "Player").state
         val slashed = fightFunctionalCore(
             state = initial,
             action = FightAction.SelectCommand(AttackAction.Slash)

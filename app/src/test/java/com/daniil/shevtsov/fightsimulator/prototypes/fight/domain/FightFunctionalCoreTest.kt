@@ -541,15 +541,7 @@ interface FightFunctionalCoreTest {
     }
 
     private fun stateForItemPickupWithMissingTargetRightHand(): ItemPickupTestState {
-        val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
-
-        val leftActor = initialState.actors.first().copy(name = "Player")
-        val rightActor = initialState.actors.last().copy(name = "Enemy")
-        val controlled = when (controlledActorName) {
-            leftActor.name -> leftActor.id
-            rightActor.name -> rightActor.id
-            else -> leftActor.id
-        }
+        val initialState = createInitialStateWithControlled(controlledActorName)
 
         val spear = item(id = 401L, name = "Spear")
         val sword = item(id = 501L, name = "Sword")
@@ -562,13 +554,8 @@ interface FightFunctionalCoreTest {
         val state = initialState.copy(
             allSelectables = initialState.allSelectables + listOf(spear, sword),
             world = initialState.world.copy(ground = ground),
-            lastSelectedControlledHolderId = controlled,
             lastSelectedControlledPartId = initialState.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!.id,
             lastSelectedTargetPartId = initialState.targetCreatureBodyParts.find { it.name == "Head" }!!.id,
-            lastSelectedTargetHolderId = when (leftActor.id) {
-                controlled -> rightActor.id
-                else -> leftActor.id
-            },
         )
 
         return ItemPickupTestState(
@@ -579,32 +566,34 @@ interface FightFunctionalCoreTest {
     private fun stateForItemAttack() = stateForItemAttack(controlledActorName)
 }
 
-fun stateForItemAttack(controlledActorName: String): AttackWithItemTestState {
-    val originalState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
-
-    val leftActor = originalState.actors.first().copy(name = "Player")
-    val rightActor = originalState.actors.last().copy(name = "Enemy")
-    val controlled = when (controlledActorName) {
-        leftActor.name -> leftActor.id
-        rightActor.name -> rightActor.id
-        else -> leftActor.id
-    }
-    val initialState = fightFunctionalCore(state = originalState, action = FightAction.SelectControlledActor(controlled))
+fun stateForItemAttack(actorName: String): AttackWithItemTestState {
+    val initialState = createInitialStateWithControlled(actorName)
 
     val ground = ground(id = 1L)
 
     val state = initialState.copy(
         world = initialState.world.copy(ground = ground),
-        lastSelectedControlledHolderId = controlled,
         lastSelectedControlledPartId = initialState.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!.id,
         lastSelectedTargetPartId = initialState.targetCreatureBodyParts.find { it.name == "Head" }!!.id,
-        lastSelectedTargetHolderId = when (leftActor.id) {
-            controlled -> rightActor.id
-            else -> leftActor.id
-        },
     )
 
     return AttackWithItemTestState(
         state = state,
+    )
+}
+
+private fun createInitialStateWithControlled(actorName: String): FightState {
+    val originalState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
+
+    val leftActor = originalState.actors.first().copy(name = "Player")
+    val rightActor = originalState.actors.last().copy(name = "Enemy")
+    val controlled = when (actorName) {
+        leftActor.name -> leftActor.id
+        rightActor.name -> rightActor.id
+        else -> leftActor.id
+    }
+    return fightFunctionalCore(
+        state = originalState,
+        action = FightAction.SelectControlledActor(controlled)
     )
 }
