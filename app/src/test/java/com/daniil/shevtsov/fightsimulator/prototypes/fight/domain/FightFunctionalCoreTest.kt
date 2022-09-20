@@ -554,8 +554,6 @@ interface FightFunctionalCoreTest {
         val state = initialState.copy(
             allSelectables = initialState.allSelectables + listOf(spear, sword),
             world = initialState.world.copy(ground = ground),
-            lastSelectedControlledPartId = initialState.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!.id,
-            lastSelectedTargetPartId = initialState.targetCreatureBodyParts.find { it.name == "Head" }!!.id,
         )
 
         return ItemPickupTestState(
@@ -573,8 +571,6 @@ fun stateForItemAttack(actorName: String): AttackWithItemTestState {
 
     val state = initialState.copy(
         world = initialState.world.copy(ground = ground),
-        lastSelectedControlledPartId = initialState.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!.id,
-        lastSelectedTargetPartId = initialState.targetCreatureBodyParts.find { it.name == "Head" }!!.id,
     )
 
     return AttackWithItemTestState(
@@ -592,8 +588,25 @@ private fun createInitialStateWithControlled(actorName: String): FightState {
         rightActor.name -> rightActor.id
         else -> leftActor.id
     }
-    return fightFunctionalCore(
+    val stateWithSelectedBodyParts = fightFunctionalCore(
         state = originalState,
         action = FightAction.SelectControlledActor(controlled)
-    )
+    ).let { state ->
+        fightFunctionalCore(
+            state = state,
+            action = FightAction.SelectSomething(
+                state.controlledCreature.id,
+                state.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!.id
+            )
+        )
+    }.let { state ->
+        fightFunctionalCore(
+            state = state,
+            action = FightAction.SelectSomething(
+                state.targetCreature.id,
+                state.targetCreatureBodyParts.find { it.name == "Head" }!!.id
+            )
+        )
+    }
+    return stateWithSelectedBodyParts
 }
