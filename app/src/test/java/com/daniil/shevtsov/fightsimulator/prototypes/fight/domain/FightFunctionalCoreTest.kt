@@ -127,7 +127,7 @@ interface FightFunctionalCoreTest {
             prop(FightState::controlledBodyPart)
                 .isEqualTo(initialState.otherCreatureHead)
             prop(FightState::targetSelectable)
-                .isEqualTo(initialState.attackerHead)
+                .isEqualTo(initialState.attackerRightHand)
             prop(FightState::availableCommands)
                 .extracting(Command::attackAction)
                 .contains(AttackAction.Headbutt)
