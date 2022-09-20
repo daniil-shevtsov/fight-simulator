@@ -13,10 +13,23 @@ fun fightFunctionalCore(
 }
 
 fun selectActor(state: FightState, action: FightAction.SelectControlledActor): FightState {
+    val oldControlled = state.controlledCreature
+    val oldTarget = state.targetCreature
+    val newControlledId = when (action.actorId) {
+        oldControlled.id -> oldControlled.id
+        else -> oldTarget.id
+    }
+    val newTargetId = when (action.actorId) {
+        oldControlled.id -> oldTarget.id
+        else -> oldControlled.id
+    }
+    val newControlled = state.actors.find { it.id == newControlledId }!!
+    val newTarget = state.actors.find { it.id == newTargetId }!!
     return state.copy(
-        lastSelectedControlledHolderId = action.actorId,
-        lastSelectedTargetHolderId = state.controlledCreature.id,
-        lastSelectedTargetPartId = state.controlledCreature.bodyPartIds.first()
+        lastSelectedControlledHolderId = newControlled.id,
+        lastSelectedControlledPartId = state.targetBodyPart?.id!!,
+        lastSelectedTargetHolderId = newTarget.id,
+        lastSelectedTargetPartId = state.controlledBodyPart.id,
     )
 }
 
