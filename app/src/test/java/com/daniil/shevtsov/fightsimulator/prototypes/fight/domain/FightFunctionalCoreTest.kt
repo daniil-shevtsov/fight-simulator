@@ -339,7 +339,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should select the target when selecting its part`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -359,7 +359,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should select another target and part when last selected does not make sense`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithSpearSelected = fightFunctionalCore(
             state = initialState.state,
@@ -399,7 +399,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should select item on the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -416,7 +416,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should should show command for picking up when selected item on the groun with grabber part`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -434,7 +434,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should start holding body part when grabbed from the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithHeadSlashed = fightFunctionalCore(
             initialState.state,
@@ -466,7 +466,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should start holding the item when grabbed from the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithSpearSelected = fightFunctionalCore(
             state = initialState.state,
@@ -494,7 +494,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should add log entry when grabbed item from the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithSpearSelected = fightFunctionalCore(
             state = initialState.state,
@@ -517,7 +517,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should not show Grab action for body parts that can't grab`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithNonGrabberBodyPart = fightFunctionalCore(
             state = initialState.state,
@@ -540,7 +540,7 @@ interface FightFunctionalCoreTest {
             .containsNone(AttackAction.Grab)
     }
 
-    private fun stateForItemPickup(): ItemPickupTestState {
+    private fun stateForItemPickupWithMissingTargetRightHand(): ItemPickupTestState {
         val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
         val leftActor = initialState.actors.first().copy(name = "Player")
@@ -580,15 +580,16 @@ interface FightFunctionalCoreTest {
 }
 
 fun stateForItemAttack(controlledActorName: String): AttackWithItemTestState {
-    val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
+    val originalState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
-    val leftActor = initialState.actors.first().copy(name = "Player")
-    val rightActor = initialState.actors.last().copy(name = "Enemy")
+    val leftActor = originalState.actors.first().copy(name = "Player")
+    val rightActor = originalState.actors.last().copy(name = "Enemy")
     val controlled = when (controlledActorName) {
         leftActor.name -> leftActor.id
         rightActor.name -> rightActor.id
         else -> leftActor.id
     }
+    val initialState = fightFunctionalCore(state = originalState, action = FightAction.SelectControlledActor(controlled))
 
     val ground = ground(id = 1L)
 
