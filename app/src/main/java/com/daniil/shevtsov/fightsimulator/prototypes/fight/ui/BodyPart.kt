@@ -82,37 +82,6 @@ fun BodyPart(
         bodyPartItem.statuses.contains(BodyPartStatus.Broken) -> Color.White
         else -> Color.Black
     }
-//    if (bodyPartItem.statuses.contains(BodyPartStatus.Bleeding)) {
-//        Surface(color = Color(0xAAA80202)) {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(10.dp)
-//            )
-//        }
-//    }
-//    if (bodyPartItem.statuses.contains(BodyPartStatus.Missing)) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxHeight()
-//                .fillMaxWidth()
-//        ) {
-//            Box(
-//                modifier = Modifier
-//                    .background(Color(0xAAA80202))
-//                    .fillMaxWidth()
-//                    .fillMaxHeight()
-//                    .weight(0.1f)
-//            )
-//            Box(
-//                modifier = Modifier
-//                    .background(Color(0xAB252222))
-//                    .fillMaxHeight()
-//                    .fillMaxWidth()
-//                    .weight(0.9f)
-//            )
-//        }
-//    }
 
     Column(
         modifier = modifier
@@ -244,45 +213,4 @@ fun BodyPart(
             }
         }
     }
-//    Box(
-//        contentAlignment = Alignment.BottomCenter,
-//        modifier = modifier
-//            .height(IntrinsicSize.Min)
-//            .let { modifier ->
-//                when (bodyPartItem.isSelected) {
-//                    true -> modifier
-//                        .background(Color.White)
-//                        .padding(6.dp)
-//                    false
-//                    -> modifier
-//                }
-//            }
-//            .background(backgroundColor, shape = when {
-//                bodyPartItem.statuses.contains(BodyPartStatus.Broken) -> GenericShape { size, direction ->
-//                    val fractureWidth = 10f
-//                    val fractureOffset = 10f
-//                    val fractureAngle = 45f
-//
-//                    val fractureX = size.width / 2
-//                    val leftPartEnd = fractureX - fractureWidth
-//                    val rightPartStart = fractureX + fractureWidth
-//                    lineTo(leftPartEnd + fractureOffset, 0f)
-//                    lineTo(leftPartEnd - fractureOffset, size.height)
-//                    lineTo(0f, size.height)
-//                    lineTo(0f, 0f)
-//
-//                    moveTo(rightPartStart + fractureOffset, 0f)
-//
-//                    lineTo(size.width, 0f)
-//                    lineTo(size.width, size.height)
-//                    lineTo(rightPartStart - fractureOffset, size.height)
-//                    lineTo(rightPartStart + fractureOffset, 0f)
-//
-//                    close()
-//                }
-//                else -> RectangleShape
-//            })
-//    ) {
-//
-//    }
 }
