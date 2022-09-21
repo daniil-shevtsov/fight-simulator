@@ -262,54 +262,6 @@ private fun Creature(
     }
 }
 
-
-@Composable
-fun GroundMenu(
-    ground: GroundMenu,
-    modifier: Modifier = Modifier,
-    onAction: (FightAction) -> Unit,
-) {
-    Box(
-        modifier = modifier
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.LightGray)
-                .let { modifier ->
-                    when (ground.isSelected) {
-                        true -> modifier
-                            .padding(2.dp)
-                            .background(Color.Black)
-                            .padding(2.dp)
-                            .background(Color.LightGray)
-                        false -> modifier
-                    }
-                }
-                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                .background(Color.DarkGray)
-        ) {
-            Text(
-                text = "Ground", modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.LightGray)
-            )
-            Row(
-                modifier = Modifier
-            ) {
-                ground.selectables.forEach { item ->
-                    SelectableItem(
-                        item = item,
-                        onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
-                    )
-                }
-            }
-        }
-
-    }
-}
-
-
 @Composable
 fun CommandsMenu(menu: CommandsMenu, onClick: (item: CommandItem) -> Unit) {
     Pane(
