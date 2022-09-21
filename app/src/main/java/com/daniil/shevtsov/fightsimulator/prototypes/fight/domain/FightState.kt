@@ -99,7 +99,6 @@ data class FightState(
 
 
 fun fightState(
-    controlledActorId: CreatureId = creatureId(0L),
     realControlledSelectableId: SelectableId = bodyPartId(0L),
     realTargetSelectableId: SelectableId = bodyPartId(0L),
     lastSelectedHolderId: SelectableHolderId = creatureId(0L),
@@ -111,7 +110,6 @@ fun fightState(
     actionLog: List<ActionEntry> = emptyList(),
     world: World = world(),
 ) = FightState(
-//    lastSelectedControlledHolderId = controlledActorId,
     lastSelectedControlledPartId = realControlledSelectableId,
     lastSelectedTargetHolderId = lastSelectedHolderId,
     lastSelectedTargetPartId = realTargetSelectableId,
