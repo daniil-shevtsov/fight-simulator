@@ -10,10 +10,6 @@ data class FightState(
     val actionLog: List<ActionEntry>,
     val world: World,
 ) {
-
-    //    val allSelectables: List<Selectable>
-//        get() = (actors.flatMap { it.bodyParts } + world.ground.selectables + (actors.flatMap { it.bodyParts } + world.ground.selectables).filterIsInstance<BodyPart>()
-//            .mapNotNull { it.holding }).let { holdingIds -> allItems.filter { it.id in holdingIds  } }.associateBy { it.id }.toList().map { it.second }
     val allBodyParts: List<BodyPart>
         get() = allSelectables.filterIsInstance<BodyPart>()
     val allItems: List<Item>
@@ -84,13 +80,15 @@ data class FightState(
         get() = findSelected(lastSelectedId = lastSelectedControlledPartId)!!
 
     private fun Creature.findSelected(lastSelectedId: SelectableId?): BodyPart? {
-        val creatureBodyParts = allBodyParts.filter { bodyPart -> bodyPart.id in (bodyPartIds + missingPartsSet) }
+        val creatureBodyParts =
+            allBodyParts.filter { bodyPart -> bodyPart.id in (bodyPartIds + missingPartsSet) }
 
         val part1 = functionalParts.find { it == lastSelectedId }
         val part2 = functionalParts.firstOrNull()
         val part3 = creatureBodyParts.first().id
 
-        val finalPart = (part1 ?: part2 ?: part3).let { id -> creatureBodyParts.find { kek -> kek.id == id } }
+        val finalPart =
+            (part1 ?: part2 ?: part3).let { id -> creatureBodyParts.find { kek -> kek.id == id } }
 
         return finalPart!!
     }
@@ -103,7 +101,6 @@ data class FightState(
 
 fun fightState(
     controlledActorId: CreatureId = creatureId(0L),
-    targetId: SelectableHolderId = creatureId(0L),
     realControlledSelectableId: SelectableId = bodyPartId(0L),
     realTargetSelectableId: SelectableId = bodyPartId(0L),
     lastSelectedHolderId: SelectableHolderId = creatureId(0L),
