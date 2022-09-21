@@ -1,7 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class FightState(
-//    val lastSelectedControlledHolderId: SelectableHolderId,
     val lastSelectedControlledPartId: SelectableId,
     val lastSelectedTargetHolderId: SelectableHolderId,
     val lastSelectedTargetPartId: SelectableId,
