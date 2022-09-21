@@ -17,53 +17,53 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.Selectab
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPartItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.selectableItem
 
-@Preview
-@Composable
-fun BodyPartPreview() {
-    Column(verticalArrangement = spacedBy(8.dp)) {
-        val skull = bodyPartItem(id = 1L, name = "Skull")
-        BodyPart(
-            bodyPartItem = bodyPartItem(id = 0L, name = "Head", contained = setOf(skull)),
-            onClick = {},
-            modifier = Modifier
-        )
-        BodyPart(
-            bodyPartItem = bodyPartItem(id = 2L, name = "Hand", canGrab = true),
-            onClick = {},
-            modifier = Modifier
-        )
-        BodyPart(
-            bodyPartItem = bodyPartItem(
-                id = 3L, name = "Hand", canGrab = true,
-                holding = selectableItem(id = 4L, name = "Knife")
-            ),
-            onClick = {},
-            modifier = Modifier
-        )
-        val bone = bodyPartItem(id = 6L, name = "Bone")
-        BodyPart(
-            bodyPartItem = bodyPartItem(
-                id = 5L,
-                name = "Hand",
-                canGrab = true,
-                contained = setOf(bone),
-                holding = selectableItem(id = 7L, name = "Dagger"),
-            ),
-            onClick = {},
-            modifier = Modifier
-        )
-        BodyPart(
-            bodyPartItem = bodyPartItem(
-                id = 0L,
-                name = "Head",
-                contained = setOf(skull),
-                lodgedIn = listOf(selectableItem(id = 2L, name = "Arrow"))
-            ),
-            onClick = {},
-            modifier = Modifier
-        )
-    }
-}
+//@Preview
+//@Composable
+//fun BodyPartPreview() {
+//    Column(verticalArrangement = spacedBy(8.dp)) {
+//        val skull = bodyPartItem(id = 1L, name = "Skull")
+//        BodyPart(
+//            bodyPartItem = bodyPartItem(id = 0L, name = "Head", contained = setOf(skull)),
+//            onClick = {},
+//            modifier = Modifier
+//        )
+//        BodyPart(
+//            bodyPartItem = bodyPartItem(id = 2L, name = "Hand", canGrab = true),
+//            onClick = {},
+//            modifier = Modifier
+//        )
+//        BodyPart(
+//            bodyPartItem = bodyPartItem(
+//                id = 3L, name = "Hand", canGrab = true,
+//                holding = selectableItem(id = 4L, name = "Knife")
+//            ),
+//            onClick = {},
+//            modifier = Modifier
+//        )
+//        val bone = bodyPartItem(id = 6L, name = "Bone")
+//        BodyPart(
+//            bodyPartItem = bodyPartItem(
+//                id = 5L,
+//                name = "Hand",
+//                canGrab = true,
+//                contained = setOf(bone),
+//                holding = selectableItem(id = 7L, name = "Dagger"),
+//            ),
+//            onClick = {},
+//            modifier = Modifier
+//        )
+//        BodyPart(
+//            bodyPartItem = bodyPartItem(
+//                id = 0L,
+//                name = "Head",
+//                contained = setOf(skull),
+//                lodgedIn = listOf(selectableItem(id = 2L, name = "Arrow"))
+//            ),
+//            onClick = {},
+//            modifier = Modifier
+//        )
+//    }
+//}
 
 private fun generateBodyParts() = (0..5).toList()
     .map {
@@ -85,10 +85,11 @@ private fun generateBodyParts() = (0..5).toList()
 @Preview
 @Composable
 fun BodyPartColumnPreview() {
-    Column(verticalArrangement = spacedBy(8.dp)) {
+    Column(verticalArrangement = spacedBy(8.dp), modifier = Modifier.width(IntrinsicSize.Max)) {
         generateBodyParts().forEach { part ->
             BodyPart(
                 bodyPartItem = part,
+                modifier = Modifier.fillMaxWidth(),
                 onClick = { /*TODO*/ })
         }
     }
@@ -101,6 +102,7 @@ fun BodyPartRowPreview() {
         generateBodyParts().forEach { part ->
             BodyPart(
                 bodyPartItem = part,
+                modifier = Modifier.width(90.dp),
                 onClick = { /*TODO*/ })
         }
     }
@@ -127,7 +129,7 @@ fun BodyPart(
     Column(
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .width(IntrinsicSize.Max)
+            .fillMaxWidth()
             .let { modifier ->
                 when (bodyPartItem.isSelected) {
                     true -> modifier
