@@ -15,7 +15,7 @@ internal class OldTest {
         )
         assertThat(newState).all {
             prop(FightState::lastSelectedControlledPartId)
-                .isEqualTo(newState.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!.id)
+                .isEqualTo(newState.controlledCreatureBodyParts.find { it.name == "Left Hand" }!!.id)
             prop(FightState::controlledCreatureBodyParts)
                 .extracting(BodyPart::name)
                 .containsAll(
