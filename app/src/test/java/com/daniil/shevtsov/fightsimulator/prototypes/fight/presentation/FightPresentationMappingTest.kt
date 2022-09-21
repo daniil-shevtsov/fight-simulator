@@ -202,6 +202,46 @@ internal class FightPresentationMappingTest {
             }
     }
 
+    @Test
+    fun `should display lodged in item`() {
+        val initialState = attackWithItemTestState()
+        val finalState = initialState.state.let { state ->
+            fightFunctionalCore(
+                state,
+                FightAction.SelectSomething(
+                    state.controlledCreature.id,
+                    initialState.attackerRightHand.id
+                )
+            )
+        }.let { state ->
+            fightFunctionalCore(state, FightAction.SelectCommand(AttackAction.Throw))
+        }
+
+        val viewState = fightPresentationMapping(
+            state = finalState
+        )
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::actors)
+            .all {
+                index(1)
+                    .prop(CreatureMenu::bodyParts)
+                    .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
+                    .extracting(
+                        SelectableItem.BodyPartItem::id,
+                        SelectableItem.BodyPartItem::lodgedIn
+                    )
+                    .contains(
+                        initialState.targetHead.id to setOf(
+                            selectableItem(
+                                id = initialState.attackerWeapon.id.raw,
+                                name = initialState.attackerWeapon.name,
+                            )
+                        )
+                    )
+            }
+    }
+
     private fun attackWithItemTestState(): AttackWithItemTestState {
         val originalState = AttackWithItemTestState(
             state = fightFunctionalCore(
