@@ -1,7 +1,7 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
 data class FightState(
-    val lastSelectedControlledHolderId: SelectableHolderId,
+//    val lastSelectedControlledHolderId: SelectableHolderId,
     val lastSelectedControlledPartId: SelectableId,
     val lastSelectedTargetHolderId: SelectableHolderId,
     val lastSelectedTargetPartId: SelectableId,
@@ -47,7 +47,7 @@ data class FightState(
         get() = selectables.find { it.id == currentTargetSelectableId }
 
     val controlledCreature: Creature
-        get() = actors.find { it.id == lastSelectedControlledHolderId } ?: actors.first()
+        get() = actors.find { it.bodyPartIds.contains(lastSelectedControlledPartId) } ?: actors.first()
     val controlledCreatureBodyParts: List<BodyPart>
         get() = allBodyParts.filter { bodyPart -> bodyPart.id in controlledCreature.bodyPartIds }
     val controlledBodyPart: BodyPart
@@ -112,7 +112,7 @@ fun fightState(
     actionLog: List<ActionEntry> = emptyList(),
     world: World = world(),
 ) = FightState(
-    lastSelectedControlledHolderId = controlledActorId,
+//    lastSelectedControlledHolderId = controlledActorId,
     lastSelectedControlledPartId = realControlledSelectableId,
     lastSelectedTargetHolderId = lastSelectedHolderId,
     lastSelectedTargetPartId = realTargetSelectableId,

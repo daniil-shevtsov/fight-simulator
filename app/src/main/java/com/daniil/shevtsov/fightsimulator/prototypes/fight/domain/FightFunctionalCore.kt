@@ -26,7 +26,7 @@ fun selectActor(state: FightState, action: FightAction.SelectControlledActor): F
     val newControlled = state.actors.find { it.id == newControlledId }!!
     val newTarget = state.actors.find { it.id == newTargetId }!!
     return state.copy(
-        lastSelectedControlledHolderId = newControlled.id,
+//        lastSelectedControlledHolderId = newControlled.id,
         lastSelectedControlledPartId = state.targetBodyPart?.id!!,
         lastSelectedTargetHolderId = newTarget.id,
         lastSelectedTargetPartId = state.controlledBodyPart.id,
@@ -270,7 +270,7 @@ private fun createInitialState(): FightState {
         bodyPartIds = enemyBodyParts.map(BodyPart::id),
     )
     return FightState(
-        lastSelectedControlledHolderId = player.id,
+//        lastSelectedControlledHolderId = player.id,
         lastSelectedControlledPartId = playerBodyParts.find { it.name == "Left Hand" }?.id!!,
         lastSelectedTargetHolderId = enemy.id,
         lastSelectedTargetPartId = enemyBodyParts.find { it.name == "Head" }?.id!!,

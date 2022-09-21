@@ -109,8 +109,8 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::lastSelectedControlledHolderId)
-                .isEqualTo(initialState.target.id)
+            prop(FightState::lastSelectedControlledPartId)
+                .isEqualTo(initialState.targetHead.id)
         }
     }
 
