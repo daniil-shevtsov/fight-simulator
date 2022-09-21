@@ -361,30 +361,35 @@ interface FightFunctionalCoreTest {
     fun `should select another target and part when last selected does not make sense`() {
         val initialState = stateForItemPickupWithMissingTargetRightHand()
 
-        val stateWithSpearSelected = fightFunctionalCore(
-            state = initialState.state,
-            action = FightAction.SelectSomething(
-                selectableHolderId = initialState.ground.id,
-                selectableId = initialState.spear.id,
+        val finalState = initialState.state.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectSomething(
+                    selectableHolderId = initialState.ground.id,
+                    selectableId = initialState.spear.id,
+                )
             )
-        )
-        val stateWithSpearGrabbed = fightFunctionalCore(
-            state = stateWithSpearSelected,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
-        )
-        val stateWithAnotherHandSelected = fightFunctionalCore(
-            state = stateWithSpearGrabbed,
-            action = FightAction.SelectSomething(
-                selectableHolderId = initialState.attacker.id,
-                selectableId = initialState.attackerLeftHand.id,
+        }.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
             )
-        )
-        val stateWithHelmetGrabbed = fightFunctionalCore(
-            state = stateWithAnotherHandSelected,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
-        )
+        }.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectSomething(
+                    selectableHolderId = initialState.attacker.id,
+                    selectableId = initialState.attackerLeftHand.id,
+                )
+            )
+        }.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
+            )
+        }
 
-        assertThat(stateWithHelmetGrabbed)
+        assertThat(finalState)
             .all {
                 prop(FightState::world)
                     .prop(World::ground)
