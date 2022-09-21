@@ -2,6 +2,7 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -69,7 +70,8 @@ fun GroundMenu(
                     .background(Color.LightGray)
             )
             Row(
-                modifier = Modifier.height(IntrinsicSize.Max)
+                modifier = Modifier.height(IntrinsicSize.Max).padding(4.dp),
+                horizontalArrangement = spacedBy(4.dp),
             ) {
                 ground.selectables.forEach { item ->
                     SelectableItem(

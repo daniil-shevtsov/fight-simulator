@@ -70,6 +70,7 @@ private fun generateBodyParts() = (0..5).toList()
         bodyPartItem(
             id = it.toLong(),
             name = "Part$it",
+            canGrab = it % 2 == 0 || it == 5,
             holding = when {
                 it % 2 == 0 -> selectableItem(id = it + 100L, name = "item$it")
                 else -> null
@@ -82,7 +83,7 @@ private fun generateBodyParts() = (0..5).toList()
         )
     }
 
-@Preview
+@Preview(heightDp = 800)
 @Composable
 fun BodyPartColumnPreview() {
     Column(verticalArrangement = spacedBy(8.dp), modifier = Modifier.width(IntrinsicSize.Max)) {
@@ -139,11 +140,11 @@ fun BodyPart(
                     -> modifier
                 }
             }
+            .background(Color.Gray)
             .background(backgroundColor, shape = when {
                 bodyPartItem.statuses.contains(BodyPartStatus.Broken) -> GenericShape { size, direction ->
                     val fractureWidth = 10f
                     val fractureOffset = 10f
-                    val fractureAngle = 45f
 
                     val fractureX = size.width / 2
                     val leftPartEnd = fractureX - fractureWidth
@@ -168,7 +169,6 @@ fun BodyPart(
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
                 .clickable { onClick() }
                 .padding(4.dp)
-//                .fillMaxWidth()
             ) {
                 val left: String
                 val right: String
@@ -219,7 +219,6 @@ fun BodyPart(
                         .padding(2.dp)
                         .background(Color.Gray)
                         .padding(4.dp)
-//                        .fillMaxWidth()
                 )
             }
         }
@@ -232,6 +231,7 @@ fun BodyPart(
                     .background(Color(0xAAA80202))
                     .padding(2.dp)
                     .background(Color.DarkGray)
+                    .padding(2.dp)
                     .fillMaxWidth()
             )
         }
@@ -243,6 +243,7 @@ fun BodyPart(
                     modifier = Modifier
                         .padding(4.dp)
                         .background(Color.DarkGray)
+                        .padding(4.dp)
                         .fillMaxWidth()
                 )
             } else {

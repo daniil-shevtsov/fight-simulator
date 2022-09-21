@@ -21,7 +21,6 @@ fun Item(
         color = Color.Black,
         modifier = modifier
             .clickable { onClick() }
-            .padding(4.dp)
             .background(Color.LightGray)
             .padding(2.dp)
             .background(Color.Gray)
