@@ -1,7 +1,6 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightState
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 
 fun fightPresentationMapping(state: FightState): FightViewState {
     return FightViewState.Content(
@@ -9,23 +8,16 @@ fun fightPresentationMapping(state: FightState): FightViewState {
             CreatureMenu(
                 id = creature.id,
                 actor = creature.actor,
-                bodyParts = creature.bodyParts.map { bodyPart ->
-                    BodyPartItem(
-                        id = bodyPart.id,
-                        name = bodyPart.name,
-                        holding = bodyPart.holding,
-                        contained = bodyPart.containedBodyParts,
-                        isSelected = when (creature.id) {
-                            state.targetCreature.id -> state.targetBodyPart?.id == bodyPart.id
-                            state.controlledCreature.id -> state.controlledBodyPart.id == bodyPart.id
-                            else -> false
-                        },
-                        statuses = listOfNotNull(
-                            BodyPartStatus.Missing.takeIf { bodyPart.id in creature.missingPartsSet },
-                            BodyPartStatus.Broken.takeIf { bodyPart.id in creature.brokenPartsSet },
-                        ),
-                    )
-                },
+                bodyParts = state
+                    .allBodyParts
+                    .filter { it.id in creature.bodyPartIds }
+                    .map { bodyPart ->
+                        bodyPart.toItem(
+                            state.allSelectables,
+                            state.controlledBodyPart.id,
+                            state.targetSelectable?.id
+                        )
+                    },
                 isControlled = creature.id == state.controlledCreature.id,
                 isTarget = creature.id == state.targetCreature.id,
             )
@@ -46,10 +38,54 @@ fun fightPresentationMapping(state: FightState): FightViewState {
         ground = state.world.ground.let { ground ->
             GroundMenu(
                 id = ground.id,
-                selectables = ground.selectables,
+                selectables = state.allSelectables
+                    .filter { it.id in ground.selectableIds }
+                    .map {
+                        it.toItem(
+                            state.allSelectables,
+                            state.controlledBodyPart.id,
+                            state.targetSelectable?.id
+                        )
+                    },
                 isSelected = state.targetSelectableHolder.id == ground.id,
             )
         }
     )
 }
 
+private fun Selectable.toItem(
+    allSelectables: List<Selectable>,
+    controlledSelectableId: SelectableId,
+    targetSelectableId: SelectableId?,
+): SelectableItem {
+    val toItem = { selectable: Selectable ->
+        selectable.toItem(
+            allSelectables,
+            controlledSelectableId,
+            targetSelectableId
+        )
+    }
+    return when (this) {
+        is Item -> SelectableItem.Item(
+            id = id,
+            name = name,
+            isSelected = targetSelectableId == id
+        )
+        is BodyPart -> SelectableItem.BodyPartItem(
+            id = id,
+            name = name,
+            holding = holding?.let { id ->
+                allSelectables.find { it.id == id }?.let { toItem(it) }
+            },
+            contained = containedBodyParts
+                .mapNotNull { containedId ->
+                    allSelectables.find { it.id == containedId }?.let { toItem(it) }
+                }.toSet(),
+            isSelected = id == targetSelectableId || id == controlledSelectableId,
+            statuses = statuses,
+            canGrab = canGrab,
+            lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
+                .map { toItem(it) },
+        )
+    }
+}

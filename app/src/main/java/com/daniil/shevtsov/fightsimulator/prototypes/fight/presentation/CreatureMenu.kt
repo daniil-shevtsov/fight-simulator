@@ -7,7 +7,7 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.creatureId
 data class CreatureMenu(
     val id: CreatureId,
     val actor: Actor,
-    val bodyParts: List<BodyPartItem>,
+    val bodyParts: List<SelectableItem>,
     val isControlled: Boolean,
     val isTarget: Boolean,
 )
@@ -15,7 +15,7 @@ data class CreatureMenu(
 fun creatureMenu(
     id:Long = 0L,
     actor: Actor = Actor.Enemy,
-    bodyParts: List<BodyPartItem> = emptyList(),
+    bodyParts: List<SelectableItem> = emptyList(),
     isControlled: Boolean = false,
     isTarget: Boolean = false,
 ) = CreatureMenu(

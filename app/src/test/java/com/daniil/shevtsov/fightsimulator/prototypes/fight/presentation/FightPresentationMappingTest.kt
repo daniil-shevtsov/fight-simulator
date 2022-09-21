@@ -21,15 +21,14 @@ internal class FightPresentationMappingTest {
                     .all {
                         index(0)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::id)
+                            .extracting(SelectableItem::id)
                             .containsAll(initialState.attackerRightHand.id)
                         index(1)
                             .prop(CreatureMenu::bodyParts)
-                            .extracting(BodyPartItem::id)
+                            .extracting(SelectableItem::id)
                             .containsAll(
                                 initialState.targetHead.id,
                                 initialState.targetSkull.id,
-                                initialState.targetRightHand.id,
                             )
                     }
                 prop(FightViewState.Content::commandsMenu)
@@ -52,15 +51,14 @@ internal class FightPresentationMappingTest {
             .all {
                 index(0)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(initialState.state.controlledBodyPart.name to true)
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(
                         initialState.targetHead.name to true,
                         initialState.targetSkull.name to false,
-                        initialState.targetRightHand.name to false,
                     )
             }
     }
@@ -78,14 +76,12 @@ internal class FightPresentationMappingTest {
             .all {
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::statuses)
+                    .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
+                    .extracting(SelectableItem::id, SelectableItem.BodyPartItem::statuses)
                     .containsAll(
-                        initialState.state.targetCreature.missingParts.first().name to listOf(
-                            BodyPartStatus.Missing
-                        ),
-                        initialState.state.targetCreature.brokenParts.first().name to listOf(
+                        initialState.targetSkull.id to listOf(
                             BodyPartStatus.Broken
-                        ),
+                        )
                     )
             }
     }
@@ -95,7 +91,7 @@ internal class FightPresentationMappingTest {
         val initialState = attackWithItemTestState().let { state ->
             state.copy(
                 state = state.state.copy(
-                    lastSelectedTargetPartId = state.state.targetCreature.missingParts.first().id,
+                    lastSelectedTargetPartId = state.targetRightHand.id,
                 )
 
             )
@@ -110,10 +106,10 @@ internal class FightPresentationMappingTest {
             .all {
                 index(1)
                     .prop(CreatureMenu::bodyParts)
-                    .extracting(BodyPartItem::name, BodyPartItem::isSelected)
+                    .extracting(SelectableItem::name, SelectableItem::isSelected)
                     .containsAll(
-                        initialState.state.targetCreature.functionalParts.first().name to true,
-                        initialState.state.targetCreature.missingParts.first().name to false,
+                        initialState.targetHead.name to true,
+                        initialState.targetSkull.name to false,
                     )
             }
     }
@@ -124,7 +120,7 @@ internal class FightPresentationMappingTest {
             state.copy(
                 state = state.state.copy(
                     lastSelectedTargetHolderId = state.ground.id,
-                    lastSelectedTargetPartId = state.ground.selectables.first().id,
+                    lastSelectedTargetPartId = state.ground.selectableIds.first(),
                 )
             )
         }
@@ -151,7 +147,7 @@ internal class FightPresentationMappingTest {
             .isInstanceOf(FightViewState.Content::class)
             .prop(FightViewState.Content::ground)
             .prop(GroundMenu::selectables)
-            .extracting(Selectable::name)
+            .extracting(SelectableItem::name)
             .contains("Spear")
     }
 
@@ -167,8 +163,9 @@ internal class FightPresentationMappingTest {
             .isInstanceOf(FightViewState.Content::class)
             .prop(FightViewState.Content::ground)
             .prop(GroundMenu::selectables)
-            .extracting(Selectable::name)
-            .contains("Head")
+            .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
+            .extracting(SelectableItem::name)
+            .containsExactly("Head")
     }
 
     @Test
@@ -205,6 +202,46 @@ internal class FightPresentationMappingTest {
             }
     }
 
+    @Test
+    fun `should display lodged in item`() {
+        val initialState = attackWithItemTestState()
+        val finalState = initialState.state.let { state ->
+            fightFunctionalCore(
+                state,
+                FightAction.SelectSomething(
+                    state.controlledCreature.id,
+                    initialState.attackerRightHand.id
+                )
+            )
+        }.let { state ->
+            fightFunctionalCore(state, FightAction.SelectCommand(AttackAction.Throw))
+        }
+
+        val viewState = fightPresentationMapping(
+            state = finalState
+        )
+        assertThat(viewState)
+            .isInstanceOf(FightViewState.Content::class)
+            .prop(FightViewState.Content::actors)
+            .all {
+                index(1)
+                    .prop(CreatureMenu::bodyParts)
+                    .transform { it.filterIsInstance<SelectableItem.BodyPartItem>() }
+                    .extracting(
+                        SelectableItem.BodyPartItem::id,
+                        SelectableItem.BodyPartItem::lodgedIn
+                    )
+                    .contains(
+                        initialState.targetHead.id to listOf(
+                            selectableItem(
+                                id = initialState.attackerWeapon.id.raw,
+                                name = initialState.attackerWeapon.name,
+                            )
+                        )
+                    )
+            }
+    }
+
     private fun attackWithItemTestState(): AttackWithItemTestState {
         val originalState = AttackWithItemTestState(
             state = fightFunctionalCore(
@@ -216,15 +253,23 @@ internal class FightPresentationMappingTest {
         val modifiedAttacker = originalState.attacker
         val modifiedTarget = originalState.target.copy(
             missingPartsSet = setOf(originalState.targetRightHand.id),
-            brokenPartsSet = setOf(originalState.targetSkull.id),
+            bodyPartIds = originalState.target.bodyPartIds - originalState.targetRightHand.id,
         )
-        val spear = item(id = 1L, name = "Spear")
+        val spear = item(id = 153L, name = "Spear")
         val modifiedGround = originalState.ground.copy(
-            selectables = listOf(spear)
+            selectableIds = listOf(spear.id)
         )
 
         return originalState.copy(
             state = originalState.state.copy(
+                allSelectables = originalState.state.allSelectables.map { selectable ->
+                    when {
+                        selectable is BodyPart && selectable.id == originalState.targetSkull.id -> selectable.copy(
+                            statuses = selectable.statuses + BodyPartStatus.Broken
+                        )
+                        else -> selectable
+                    }
+                } + listOf(spear),
                 actors = listOf(modifiedAttacker, modifiedTarget),
                 world = originalState.state.world.copy(ground = modifiedGround)
             )
@@ -232,7 +277,7 @@ internal class FightPresentationMappingTest {
     }
 
     private fun slashedTestState(): AttackWithItemTestState {
-        val initial = stateForItemAttack(controlledActorName = "Player").state
+        val initial = stateForItemAttack(actorName = "Player").state
         val slashed = fightFunctionalCore(
             state = initial,
             action = FightAction.SelectCommand(AttackAction.Slash)

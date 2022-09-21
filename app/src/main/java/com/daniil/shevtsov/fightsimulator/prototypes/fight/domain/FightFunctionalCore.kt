@@ -13,99 +13,122 @@ fun fightFunctionalCore(
 }
 
 fun selectActor(state: FightState, action: FightAction.SelectControlledActor): FightState {
+    val oldControlled = state.controlledCreature
+    val oldTarget = state.targetCreature
+    val newControlledId = when (action.actorId) {
+        oldControlled.id -> oldControlled.id
+        else -> oldTarget.id
+    }
+    val newTargetId = when (action.actorId) {
+        oldControlled.id -> oldTarget.id
+        else -> oldControlled.id
+    }
+    val newControlled = state.actors.find { it.id == newControlledId }!!
+    val newControlledSelectedPart = newControlled.bodyPartIds.find { it == when(newControlled.id) {
+        state.targetCreature.id -> state.targetSelectable?.id
+        else -> state.controlledBodyPart.id
+    } }
+    val newTarget = state.actors.find { it.id == newTargetId }!!
     return state.copy(
-        lastSelectedControlledHolderId = action.actorId,
-        lastSelectedTargetHolderId = state.controlledCreature.id,
-        lastSelectedTargetPartId = state.controlledCreature.firstPart().id
+        lastSelectedControlledPartId =newControlledSelectedPart!!,
+        lastSelectedTargetHolderId = newTarget.id,
+        lastSelectedTargetPartId = state.controlledBodyPart.id,
     )
 }
 
 fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightState {
-    val attackerWeapon = state.controlledCreature.bodyParts
-        .find { it.name == state.controlledBodyPart.name }?.holding
+    val attackerWeaponId = state.allBodyParts
+        .find { bodyPart -> bodyPart.id == state.controlledBodyPart.id }
+        ?.holding
+    val attackerWeapon = state.allSelectables.find { it.id == attackerWeaponId }
     state.targetBodyPart ?: state.targetSelectable ?: return state
     val targetBodyPart = state.targetBodyPart
 
 
-    val targetWeapon = targetBodyPart?.holding
-
-    val newControlledCreature = when (action.attackAction) {
-        AttackAction.Throw -> {
-            val thrownItem = state.controlledBodyPart.holding
-            state.controlledCreature.copy(
-                bodyParts = state.controlledCreature.bodyParts.map { bodyPart ->
-                    when (bodyPart.holding) {
-                        thrownItem -> bodyPart.copy(holding = null)
-                        else -> bodyPart
-                    }
-                }
-            )
-        }
-        AttackAction.Grab -> {
-            val itemFromTheGround = state.targetSelectable
-            when {
-                itemFromTheGround != null -> state.controlledCreature.copy(
-                    bodyParts = state.controlledCreature.bodyParts.map { bodyPart ->
-                        when (bodyPart.id) {
-                            state.controlledBodyPart.id -> bodyPart.copy(holding = itemFromTheGround)
-                            else -> bodyPart
-                        }
-                    }
-                )
-                else -> state.controlledCreature
-            }
-        }
-        else -> state.controlledCreature
-    }
+    val targetWeaponId = targetBodyPart?.holding
+    val targetWeapon = state.allSelectables.find { it.id == targetWeaponId }
 
     val shouldKnockOutWeapon = action.attackAction in setOf(
         AttackAction.Punch,
         AttackAction.Kick
     ) && targetBodyPart?.holding != null
 
-    val newSlashedParts: List<BodyPart> = (listOf(targetBodyPart?.id)
-            + targetBodyPart?.containedBodyParts.orEmpty()
-        .toList()).let { ids -> state.targetCreature.bodyParts.filter { it.id in ids } }
-        .takeIf { action.attackAction == AttackAction.Slash }.orEmpty()
+    val newSlashedParts: List<BodyPart> = state.allBodyParts
+        .filter { bodyPart -> bodyPart.id in state.targetCreature.bodyPartIds && bodyPart.id == state.targetBodyPart?.id }
+        .takeIf { action.attackAction == AttackAction.Slash }
+        .orEmpty()
+        .map { bodyPart: BodyPart ->
+            bodyPart.copy(
+                statuses = bodyPart.statuses + BodyPartStatus.Missing
+            )
+        }
 
-    val newTargetCreature = when (action.attackAction) {
-        AttackAction.Throw -> {
-            val thrownItem = state.controlledBodyPart.holding
-            state.targetCreature.copy(bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
-                when (bodyPart) {
-                    targetBodyPart -> bodyPart.copy(holding = thrownItem)
-                    else -> bodyPart
+
+    val newSelectables = state.allSelectables.map { selectable ->
+        when (action.attackAction) {
+            AttackAction.Throw -> {
+                when {
+                    selectable is BodyPart && state.controlledBodyPart.id == selectable.id -> selectable.copy(
+                        holding = null
+                    )
+                    selectable is BodyPart && state.targetBodyPart?.id == selectable.id -> selectable.copy(
+                        holding = state.controlledBodyPart.holding,
+                        lodgedInSelectables = selectable.lodgedInSelectables + setOfNotNull(state.controlledBodyPart.holding)
+                    )
+                    else -> selectable
                 }
-            })
-        }
-        AttackAction.Pommel -> state.targetCreature.copy(
-            brokenPartsSet = state.targetCreature.brokenPartsSet + setOfNotNull(
-                state.targetBodyPartBone?.id
-                    ?: targetBodyPart?.id
-            )
-        )
-        AttackAction.Punch, AttackAction.Kick -> {
-            when {
-                shouldKnockOutWeapon -> state.targetCreature.copy(
-                    bodyParts = state.targetCreature.bodyParts.map { bodyPart ->
-                        when (bodyPart.id) {
-                            targetBodyPart?.id -> bodyPart.copy(holding = null)
-                            else -> bodyPart
-                        }
-                    }
-                )
-                else -> state.targetCreature
             }
-
+            AttackAction.Grab -> {
+                val itemFromTheGround = state.targetSelectable
+                when {
+                    selectable is BodyPart && state.controlledBodyPart.id == selectable.id && itemFromTheGround != null -> selectable.copy(
+                        holding = itemFromTheGround.id
+                    )
+                    else -> selectable
+                }
+            }
+            AttackAction.Pommel -> {
+                val brokenPart = state.targetBodyPartBone ?: targetBodyPart
+                when {
+                    selectable is BodyPart && selectable.id == brokenPart?.id -> {
+                        selectable.copy(
+                            statuses = selectable.statuses + BodyPartStatus.Broken
+                        )
+                    }
+                    else -> selectable
+                }
+            }
+            AttackAction.Punch, AttackAction.Kick -> {
+                when {
+                    selectable is BodyPart && selectable.id == targetBodyPart?.id && shouldKnockOutWeapon -> {
+                        selectable.copy(
+                            holding = null
+                        )
+                    }
+                    else -> selectable
+                }
+            }
+            AttackAction.Slash -> {
+                when {
+                    else -> selectable
+                }
+            }
+            else -> selectable
         }
-        AttackAction.Slash -> {
-            state.targetCreature.copy(
-                missingPartsSet = state.targetCreature.missingPartsSet
-                        + newSlashedParts.map { it.id }.toSet()
-            )
-        }
-        else -> state.targetCreature
     }
+
+    val newControlledCreature = state.controlledCreature
+    val newTargetCreature = state.targetCreature.copy(
+        missingPartsSet = state.targetCreature.missingPartsSet + newSlashedParts.map { it.id }
+            .toSet(),
+        bodyPartIds = state.targetCreature.bodyPartIds.filter {
+            val notSlashedPart = it !in newSlashedParts.map(BodyPart::id)
+            val notContainedInSlashedPart =
+                it !in newSlashedParts.flatMap(BodyPart::containedBodyParts)
+
+            notSlashedPart && notContainedInSlashedPart
+        },
+    )
 
     val actionName = when (action.attackAction) {
         AttackAction.Strike -> "strikes"
@@ -124,6 +147,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val targetName = state.targetCreature.name
     val targetPartName = targetBodyPart?.name?.toLowerCase().orEmpty()
     val controlledPartName = state.controlledBodyPart.name.toLowerCase()
+    val containedPartName =
+        newSelectables.find { it.id in targetBodyPart?.containedBodyParts.orEmpty() }?.name?.toLowerCase()
     val controlledAttackSource = when {
         attackerWeapon != null -> "$itemName held by their $controlledPartName"
         else -> "their $controlledPartName"
@@ -140,8 +165,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             val generalMessage =
                 "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource."
             when {
-                !targetBodyPart?.containedBodyParts.isNullOrEmpty() -> newTargetCreature.bodyParts.find { it.id == targetBodyPart?.containedBodyParts?.first() }!!.name.toLowerCase()
-                    .let { containedBodyPartName ->
+                !targetBodyPart?.containedBodyParts.isNullOrEmpty() ->
+                    containedPartName.let { containedBodyPartName ->
                         "$generalMessage The $containedBodyPartName is fractured!"
                     }
                 else -> generalMessage
@@ -161,14 +186,14 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val newWorld = state.world.copy(
         ground = when {
             shouldKnockOutWeapon -> state.world.ground.copy(
-                selectables = state.world.ground.selectables + targetBodyPart?.holding!!
+                selectableIds = state.world.ground.selectableIds + targetWeapon!!.id
             )
             newSlashedParts.isNotEmpty() -> state.world.ground.copy(
-                selectables = state.world.ground.selectables + newSlashedParts
+                selectableIds = state.world.ground.selectableIds + newSlashedParts.map(Selectable::id)
             )
             action.attackAction == AttackAction.Grab
             -> state.world.ground.copy(
-                selectables = state.world.ground.selectables.filter { it.id != state.targetSelectable?.id }
+                selectableIds = state.world.ground.selectableIds.filter { it != state.targetSelectable?.id }
             )
             else -> state.world.ground
         },
@@ -182,6 +207,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                 else -> actor
             }
         },
+        allSelectables = newSelectables,
         world = newWorld,
         actionLog = state.actionLog + listOf(actionEntry(text = newEntry))
     )
@@ -213,12 +239,12 @@ private fun createInitialState(): FightState {
             AttackAction.Pommel
         )
     )
-    val playerKnife = knife.copy(id = itemId(0L))
-    val enemyKnife = knife.copy(id = itemId(1L))
+    val playerKnife = knife.copy(id = itemId(100L))
+    val enemyKnife = knife.copy(id = itemId(101L))
     val playerBodyParts = createDefaultBodyParts(idOffset = 0L).map { bodyPart ->
         when (bodyPart.name) {
             "Right Hand" -> bodyPart.copy(
-                holding = playerKnife
+                holding = playerKnife.id
             )
             else -> bodyPart
         }
@@ -228,7 +254,7 @@ private fun createInitialState(): FightState {
     ).map { bodyPart ->
         when (bodyPart.name) {
             "Right Hand" -> bodyPart.copy(
-                holding = enemyKnife
+                holding = enemyKnife.id
             )
             else -> bodyPart
         }
@@ -238,20 +264,24 @@ private fun createInitialState(): FightState {
         id = creatureId("Player".hashCode().toLong()),
         actor = Actor.Player,
         name = "Player",
-        bodyParts = playerBodyParts,
+        bodyPartIds = playerBodyParts.map(BodyPart::id),
     )
     val enemy = Creature(
         id = creatureId("Enemy".hashCode().toLong()),
         name = "Enemy",
         actor = Actor.Enemy,
-        bodyParts = enemyBodyParts,
+        bodyPartIds = enemyBodyParts.map(BodyPart::id),
     )
     return FightState(
-        lastSelectedControlledHolderId = player.id,
+//        lastSelectedControlledHolderId = player.id,
         lastSelectedControlledPartId = playerBodyParts.find { it.name == "Left Hand" }?.id!!,
         lastSelectedTargetHolderId = enemy.id,
         lastSelectedTargetPartId = enemyBodyParts.find { it.name == "Head" }?.id!!,
         actors = listOf(player, enemy),
+        allSelectables = playerBodyParts + enemyBodyParts + listOf(
+            playerKnife,
+            enemyKnife
+        ),
         actionLog = emptyList(),
         world = World(ground = ground())
     )

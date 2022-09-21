@@ -52,9 +52,12 @@ interface FightFunctionalCoreTest {
 
         assertThat(state)
             .all {
-                prop(FightState::controlledBodyPart).prop(BodyPart::id)
+                prop(FightState::controlledBodyPart)
+                    .prop(BodyPart::id)
                     .isEqualTo(initialState.attackerRightHand.id)
-                prop(FightState::targetBodyPart).prop(BodyPart::id)
+                prop(FightState::targetBodyPart)
+                    .isNotNull()
+                    .prop(BodyPart::id)
                     .isEqualTo(initialState.targetHead.id)
             }
     }
@@ -106,8 +109,8 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::lastSelectedControlledHolderId)
-                .isEqualTo(initialState.target.id)
+            prop(FightState::lastSelectedControlledPartId)
+                .isEqualTo(initialState.targetHead.id)
         }
     }
 
@@ -124,7 +127,7 @@ interface FightFunctionalCoreTest {
             prop(FightState::controlledBodyPart)
                 .isEqualTo(initialState.otherCreatureHead)
             prop(FightState::targetSelectable)
-                .isEqualTo(initialState.attackerHead)
+                .isEqualTo(initialState.attackerRightHand)
             prop(FightState::availableCommands)
                 .extracting(Command::attackAction)
                 .contains(AttackAction.Headbutt)
@@ -178,16 +181,15 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::controlledCreature)
-                .prop(Creature::bodyParts)
+            prop(FightState::controlledCreatureBodyParts)
                 .each { it.prop(BodyPart::holding).isNull() }
-            prop(FightState::targetCreature)
-                .prop(Creature::bodyParts)
-                .any {
-                    it.prop(BodyPart::holding)
-                        .isNotNull()
-                        .prop(Item::name)
-                        .isEqualTo(testState.attackerWeapon.name)
+            prop(FightState::targetBodyPart)
+                .isNotNull()
+                .all {
+                    prop(BodyPart::holding)
+                        .isEqualTo(testState.attackerWeapon.id)
+                    prop(BodyPart::lodgedInSelectables)
+                        .contains(testState.attackerWeapon.id)
                 }
             prop(FightState::actionLog)
                 .index(0)
@@ -206,17 +208,11 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::controlledCreature)
-                .prop(Creature::bodyParts)
+            prop(FightState::controlledCreatureBodyParts)
                 .each { it.prop(BodyPart::holding).isNull() }
-            prop(FightState::targetCreature)
-                .prop(Creature::bodyParts)
-                .any {
-                    it.prop(BodyPart::holding)
-                        .isNotNull()
-                        .prop(Item::name)
-                        .isEqualTo(testState.attackerWeapon.name)
-                }
+            prop(FightState::targetCreatureBodyParts)
+                .extracting(BodyPart::id, BodyPart::holding)
+                .contains(testState.targetHead.id to testState.attackerWeapon.id)
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
@@ -237,9 +233,18 @@ interface FightFunctionalCoreTest {
                 .prop(Creature::missingPartsSet)
                 .containsAll(
                     initialState.targetHead.id,
-                    initialState.targetSkull.id
                 )
+            prop(FightState::targetCreature)
+                .prop(Creature::bodyPartIds)
+                .containsNone(initialState.targetHead.id, initialState.targetSkull.id)
+//            prop(FightState::allSelectables)
+//                .any {
+//                    it.isInstanceOf(BodyPart::class)
+//                        .prop(BodyPart::statuses)
+//                        .contains(BodyPartStatus.Missing)
+//                }
             prop(FightState::targetBodyPart)
+                .isNotNull()
                 .prop(BodyPart::id)
                 .isNotEqualTo(initialState.targetHead.id)
 
@@ -249,8 +254,8 @@ interface FightFunctionalCoreTest {
                 .isEqualTo("$controlledActorName slashes at $targetActorName's head with knife held by their right hand.\nSevered head flies off in an arc!")
             prop(FightState::world)
                 .prop(World::ground)
-                .prop(Ground::selectables)
-                .contains(initialState.targetHead)
+                .prop(Ground::selectableIds)
+                .containsExactly(initialState.targetHead.id)
         }
     }
 
@@ -265,8 +270,8 @@ interface FightFunctionalCoreTest {
         assertThat(state)
             .prop(FightState::world)
             .prop(World::ground)
-            .prop(Ground::selectables)
-            .contains(initialState.targetHead)
+            .prop(Ground::selectableIds)
+            .contains(initialState.targetHead.id)
     }
 
     @Test
@@ -279,9 +284,10 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::targetCreature)
-                .prop(Creature::brokenPartsSet)
-                .containsOnly(initialState.targetSkull.id)
+            prop(FightState::allSelectables)
+                .transform { it.filterIsInstance<BodyPart>() }
+                .extracting(BodyPart::id, BodyPart::statuses)
+                .contains(initialState.targetSkull.id to listOf(BodyPartStatus.Broken))
             prop(FightState::actionLog)
                 .extracting(ActionEntry::text)
                 .index(0)
@@ -321,8 +327,8 @@ interface FightFunctionalCoreTest {
                     .all {
                         prop(FightState::world)
                             .prop(World::ground)
-                            .prop(Ground::selectables)
-                            .containsExactly(initialState.targetWeapon)
+                            .prop(Ground::selectableIds)
+                            .containsExactly(initialState.targetWeapon.id)
                         prop(FightState::actionLog)
                             .extracting(ActionEntry::text)
                             .index(0)
@@ -333,7 +339,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should select the target when selecting its part`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -353,36 +359,41 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should select another target and part when last selected does not make sense`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
-        val stateWithSpearSelected = fightFunctionalCore(
-            state = initialState.state,
-            action = FightAction.SelectSomething(
-                selectableHolderId = initialState.ground.id,
-                selectableId = initialState.spear.id,
+        val finalState = initialState.state.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectSomething(
+                    selectableHolderId = initialState.ground.id,
+                    selectableId = initialState.spear.id,
+                )
             )
-        )
-        val stateWithSpearGrabbed = fightFunctionalCore(
-            state = stateWithSpearSelected,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
-        )
-        val stateWithAnotherHandSelected = fightFunctionalCore(
-            state = stateWithSpearGrabbed,
-            action = FightAction.SelectSomething(
-                selectableHolderId = initialState.attacker.id,
-                selectableId = initialState.attackerLeftHand.id,
+        }.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
             )
-        )
-        val stateWithHelmetGrabbed = fightFunctionalCore(
-            state = stateWithAnotherHandSelected,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
-        )
+        }.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectSomething(
+                    selectableHolderId = initialState.attacker.id,
+                    selectableId = initialState.attackerLeftHand.id,
+                )
+            )
+        }.let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectCommand(attackAction = AttackAction.Grab)
+            )
+        }
 
-        assertThat(stateWithHelmetGrabbed)
+        assertThat(finalState)
             .all {
                 prop(FightState::world)
                     .prop(World::ground)
-                    .prop(Ground::selectables)
+                    .prop(Ground::selectableIds)
                     .isEmpty()
                 prop(FightState::targetSelectable)
                     .isNotNull()
@@ -393,7 +404,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should select item on the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -410,7 +421,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should should show command for picking up when selected item on the groun with grabber part`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -428,7 +439,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should start holding body part when grabbed from the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithHeadSlashed = fightFunctionalCore(
             initialState.state,
@@ -450,17 +461,17 @@ interface FightFunctionalCoreTest {
             .all {
                 prop(FightState::world)
                     .prop(World::ground)
-                    .prop(Ground::selectables)
-                    .containsNone(initialState.targetHead)
+                    .prop(Ground::selectableIds)
+                    .containsNone(initialState.targetHead.id)
                 prop(FightState::controlledBodyPart)
                     .prop(BodyPart::holding)
-                    .isEqualTo(initialState.targetHead)
+                    .isEqualTo(initialState.targetHead.id)
             }
     }
 
     @Test
     fun `should start holding the item when grabbed from the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithSpearSelected = fightFunctionalCore(
             state = initialState.state,
@@ -478,17 +489,17 @@ interface FightFunctionalCoreTest {
             .all {
                 prop(FightState::world)
                     .prop(World::ground)
-                    .prop(Ground::selectables)
-                    .containsOnly(initialState.sword)
+                    .prop(Ground::selectableIds)
+                    .containsOnly(initialState.sword.id)
                 prop(FightState::controlledBodyPart)
                     .prop(BodyPart::holding)
-                    .isEqualTo(initialState.spear)
+                    .isEqualTo(initialState.spear.id)
             }
     }
 
     @Test
     fun `should add log entry when grabbed item from the ground`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithSpearSelected = fightFunctionalCore(
             state = initialState.state,
@@ -511,7 +522,7 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should not show Grab action for body parts that can't grab`() {
-        val initialState = stateForItemPickup()
+        val initialState = stateForItemPickupWithMissingTargetRightHand()
 
         val stateWithNonGrabberBodyPart = fightFunctionalCore(
             state = initialState.state,
@@ -534,39 +545,20 @@ interface FightFunctionalCoreTest {
             .containsNone(AttackAction.Grab)
     }
 
-    private fun stateForItemPickup(): ItemPickupTestState {
-        val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
+    private fun stateForItemPickupWithMissingTargetRightHand(): ItemPickupTestState {
+        val initialState = createInitialStateWithControlled(controlledActorName)
 
-        val leftActor = initialState.actors.first().copy(name = "Player")
-        val rightActor = initialState.actors.last().copy(name = "Enemy")
-        val controlled = when (controlledActorName) {
-            leftActor.name -> leftActor.id
-            rightActor.name -> rightActor.id
-            else -> leftActor.id
-        }
-
-        val spear = item(id = 4L, name = "Spear")
-        val sword = item(id = 5L, name = "Sword")
+        val spear = item(id = 401L, name = "Spear")
+        val sword = item(id = 501L, name = "Sword")
         val ground = ground(
             id = 1L,
-            items = listOf(spear, sword)
+            selectableIds = listOf(spear.id, sword.id)
         )
 
+        //TODO: Control through action
         val state = initialState.copy(
+            allSelectables = initialState.allSelectables + listOf(spear, sword),
             world = initialState.world.copy(ground = ground),
-            lastSelectedControlledHolderId = controlled,
-            lastSelectedControlledPartId = when (leftActor.id) {
-                controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
-                else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
-            },
-            lastSelectedTargetPartId = when (leftActor.id) {
-                controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
-                else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
-            },
-            lastSelectedTargetHolderId = when (leftActor.id) {
-                controlled -> rightActor.id
-                else -> leftActor.id
-            },
         )
 
         return ItemPickupTestState(
@@ -577,37 +569,49 @@ interface FightFunctionalCoreTest {
     private fun stateForItemAttack() = stateForItemAttack(controlledActorName)
 }
 
-fun stateForItemAttack(controlledActorName: String): AttackWithItemTestState {
-    val initialState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
-
-    val leftActor = initialState.actors.first().copy(name = "Player")
-    val rightActor = initialState.actors.last().copy(name = "Enemy")
-    val controlled = when (controlledActorName) {
-        leftActor.name -> leftActor.id
-        rightActor.name -> rightActor.id
-        else -> leftActor.id
-    }
+fun stateForItemAttack(actorName: String): AttackWithItemTestState {
+    val initialState = createInitialStateWithControlled(actorName)
 
     val ground = ground(id = 1L)
 
     val state = initialState.copy(
         world = initialState.world.copy(ground = ground),
-        lastSelectedControlledHolderId = controlled,
-        lastSelectedControlledPartId = when (leftActor.id) {
-            controlled -> leftActor.bodyParts.find { it.name == "Right Hand" }!!.id
-            else -> rightActor.bodyParts.find { it.name == "Right Hand" }!!.id
-        },
-        lastSelectedTargetPartId = when (leftActor.id) {
-            controlled -> rightActor.bodyParts.find { it.name == "Head" }!!.id
-            else -> leftActor.bodyParts.find { it.name == "Head" }!!.id
-        },
-        lastSelectedTargetHolderId = when (leftActor.id) {
-            controlled -> rightActor.id
-            else -> leftActor.id
-        },
     )
 
     return AttackWithItemTestState(
         state = state,
     )
+}
+
+private fun createInitialStateWithControlled(actorName: String): FightState {
+    val originalState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
+
+    val leftActor = originalState.actors.first().copy(name = "Player")
+    val rightActor = originalState.actors.last().copy(name = "Enemy")
+    val controlled = when (actorName) {
+        leftActor.name -> leftActor.id
+        rightActor.name -> rightActor.id
+        else -> leftActor.id
+    }
+    val stateWithSelectedBodyParts = fightFunctionalCore(
+        state = originalState,
+        action = FightAction.SelectControlledActor(controlled)
+    ).let { state ->
+        fightFunctionalCore(
+            state = state,
+            action = FightAction.SelectSomething(
+                state.controlledCreature.id,
+                state.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!.id
+            )
+        )
+    }.let { state ->
+        fightFunctionalCore(
+            state = state,
+            action = FightAction.SelectSomething(
+                state.targetCreature.id,
+                state.targetCreatureBodyParts.find { it.name == "Head" }!!.id
+            )
+        )
+    }
+    return stateWithSelectedBodyParts
 }
