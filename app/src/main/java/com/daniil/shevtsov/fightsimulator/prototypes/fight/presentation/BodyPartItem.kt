@@ -8,7 +8,7 @@ fun bodyPartItem(
     name: String = "",
     holding: SelectableItem? = null,
     contained: Set<SelectableItem> = setOf(),
-    lodgedIn: Set<SelectableItem> = setOf(),
+    lodgedIn: List<SelectableItem> = emptyList(),
     statuses: List<BodyPartStatus> = emptyList(),
     canGrab: Boolean = false,
     isSelected: Boolean = false,

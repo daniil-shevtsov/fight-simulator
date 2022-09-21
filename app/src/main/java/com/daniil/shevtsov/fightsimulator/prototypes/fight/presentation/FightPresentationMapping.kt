@@ -85,8 +85,7 @@ private fun Selectable.toItem(
             statuses = statuses,
             canGrab = canGrab,
             lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
-                .map { toItem(it) }
-                .toSet(),
+                .map { toItem(it) },
         )
     }
 }

@@ -59,7 +59,7 @@ fun BodyPartPreview() {
                 id = 0L,
                 name = "Head",
                 contained = setOf(skull),
-                lodgedIn = setOf(selectableItem(id = 2L, name = "Arrow"))
+                lodgedIn = listOf(selectableItem(id = 2L, name = "Arrow"))
             ),
             onClick = {},
             modifier = Modifier.width(100.dp)

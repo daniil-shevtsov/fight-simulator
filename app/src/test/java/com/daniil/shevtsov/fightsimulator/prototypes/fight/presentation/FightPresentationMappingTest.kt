@@ -232,7 +232,7 @@ internal class FightPresentationMappingTest {
                         SelectableItem.BodyPartItem::lodgedIn
                     )
                     .contains(
-                        initialState.targetHead.id to setOf(
+                        initialState.targetHead.id to listOf(
                             selectableItem(
                                 id = initialState.attackerWeapon.id.raw,
                                 name = initialState.attackerWeapon.name,

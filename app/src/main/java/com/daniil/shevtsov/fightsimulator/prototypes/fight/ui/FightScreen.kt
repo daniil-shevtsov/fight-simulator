@@ -48,6 +48,9 @@ fun FightScreenPreview() {
                     bodyParts = defaultBodyParts().map { bodyPart ->
                         when (bodyPart.name) {
                             "Head" -> bodyPart.copy(statuses = listOf(BodyPartStatus.Missing))
+                            "Body" -> bodyPart.copy(
+                                lodgedIn = listOf(selectableItem(id = 604L, name = "Arrow"))
+                            )
                             "Skull" -> bodyPart.copy(
                                 statuses = listOf(
                                     BodyPartStatus.Broken,
