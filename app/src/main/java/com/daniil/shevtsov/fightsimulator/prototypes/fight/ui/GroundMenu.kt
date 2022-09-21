@@ -74,7 +74,7 @@ fun GroundMenu(
                 ground.selectables.forEach { item ->
                     SelectableItem(
                         item = item,
-                        modifier = Modifier.fillMaxHeight(),
+                        modifier = Modifier.weight(1f),
                         onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
                     )
                 }

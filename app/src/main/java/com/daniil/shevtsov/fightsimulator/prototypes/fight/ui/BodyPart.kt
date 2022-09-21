@@ -95,14 +95,14 @@ fun BodyPartColumnPreview() {
     }
 }
 
-@Preview
+@Preview(widthDp = 600)
 @Composable
 fun BodyPartRowPreview() {
     Row(horizontalArrangement = spacedBy(8.dp)) {
         generateBodyParts().forEach { part ->
             BodyPart(
                 bodyPartItem = part,
-                modifier = Modifier.width(90.dp),
+                modifier = Modifier.weight(1f),//.width(90.dp),
                 onClick = { /*TODO*/ })
         }
     }
