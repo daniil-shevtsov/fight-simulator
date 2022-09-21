@@ -85,6 +85,12 @@ fun FightScreenPreview() {
                 selectables = listOf(
                     selectableItem(name = "Spear"),
                     selectableItem(name = "Helmet"),
+                    bodyPartItem(
+                        id = 1L,
+                        name = "Head",
+                        contained = setOf(bodyPartItem(id = 2L, name = "Skull")),
+                        lodgedIn = listOf(selectableItem(id = 3L, name = "Arrow"))
+                    )
                 ),
                 isSelected = true
             ),
@@ -247,8 +253,8 @@ private fun Creature(
                         }
                 }
                 .forEach { bodyPartItem ->
-                    BodyPart(
-                        bodyPartItem = bodyPartItem,
+                    SelectableItem(
+                        item = bodyPartItem,
                         onClick = { onClick(bodyPartItem) }
                     )
                 }
@@ -256,26 +262,6 @@ private fun Creature(
     }
 }
 
-
-@Composable
-fun Item(
-    item: SelectableItem,
-    textColor: Color = Color.Black,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
-) {
-    Text(
-        text = item.name,
-        color = textColor,
-        modifier = modifier
-            .clickable { onClick() }
-            .padding(4.dp)
-            .background(Color.LightGray)
-            .padding(2.dp)
-            .background(Color.Gray)
-            .padding(4.dp)
-    )
-}
 
 @Composable
 fun GroundMenu(
@@ -312,7 +298,7 @@ fun GroundMenu(
                 modifier = Modifier
             ) {
                 ground.selectables.forEach { item ->
-                    Item(
+                    SelectableItem(
                         item = item,
                         onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
                     )

@@ -180,9 +180,8 @@ fun BodyPart(
         }
 
         bodyPartItem.lodgedIn.forEach { lodgedIn ->
-            Item(
+            SelectableItem(
                 item = lodgedIn,
-                textColor = textColor,
                 modifier = Modifier
                     .padding(4.dp)
                     .background(Color(0xAAA80202))
@@ -194,9 +193,8 @@ fun BodyPart(
 
         if (bodyPartItem.canGrab) {
             if (bodyPartItem.holding != null) {
-                Item(
+                SelectableItem(
                     item = bodyPartItem.holding,
-                    textColor = textColor,
                     modifier = Modifier
                         .padding(4.dp)
                         .background(Color.DarkGray)
