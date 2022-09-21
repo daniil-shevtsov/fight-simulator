@@ -37,7 +37,7 @@ data class FightState(
         get() {
             val targetHolder = selectableHolders.find { holder ->
                 holder.selectableIds.any { selectableId ->
-                    selectableId == currentTargetSelectableId || selectableId == lastSelectedTargetPartId
+                    selectableId == currentTargetSelectableId
                 }
             }
             return targetHolder!!
@@ -50,13 +50,13 @@ data class FightState(
         get() = actors.find { it.id == lastSelectedControlledHolderId } ?: actors.first()
     val controlledCreatureBodyParts: List<BodyPart>
         get() = allBodyParts.filter { bodyPart -> bodyPart.id in controlledCreature.bodyPartIds }
-    val targetCreature: Creature
-        get() = actors.find { it.id == lastSelectedTargetHolderId } ?: actors.last()
-    val targetCreatureBodyParts: List<BodyPart>
-        get() = allBodyParts.filter { bodyPart -> bodyPart.id in targetCreature.bodyPartIds || bodyPart.id in targetCreature.missingPartsSet }
-
     val controlledBodyPart: BodyPart
         get() = allBodyParts.find { it.id == controlledCreature.controlledSelectedBodyPart.id }!!
+
+    val targetCreature: Creature
+        get() = actors.find { it.id == targetSelectableHolder.id } ?: actors.last()
+    val targetCreatureBodyParts: List<BodyPart>
+        get() = allBodyParts.filter { bodyPart -> bodyPart.id in targetCreature.bodyPartIds || bodyPart.id in targetCreature.missingPartsSet }
     val targetBodyPart: BodyPart?
         get() = allBodyParts.find { it.id == targetCreature.targetSelectedBodyPart?.id }
             .takeIf { targetCreature.id == targetSelectableHolder.id }

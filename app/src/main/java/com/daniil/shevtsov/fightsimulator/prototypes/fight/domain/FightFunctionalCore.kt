@@ -107,18 +107,6 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             }
             AttackAction.Slash -> {
                 when {
-//                    selectable is BodyPart && selectable.id == targetBodyPart?.id -> {
-//                        val bodyPart: BodyPart = selectable
-//                        bodyPart.copy(
-//                            missingPartsSet = state.targetCreature.missingPartsSet
-//                                    + newSlashedParts.map { it.id }.toSet(),
-//                            bodyPartIds = state.targetCreature.bodyPartIds.filter {
-//                                it !in newSlashedParts.map(BodyPart::id) && it !in newSlashedParts.flatMap(
-//                                    BodyPart::containedBodyParts
-//                                )
-//                            },
-//                        )
-//                    }
                     else -> selectable
                 }
             }
