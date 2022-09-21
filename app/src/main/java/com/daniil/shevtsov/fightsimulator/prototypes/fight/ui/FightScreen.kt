@@ -124,7 +124,8 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                     menu = state.commandsMenu,
                     onClick = { onAction(FightAction.SelectCommand(it.attackAction)) })
                 ActionLog(
-                    actionLog = state.actionLog
+                    actionLog = state.actionLog,
+                    modifier = Modifier.height(IntrinsicSize.Min)
                 )
             }
         }
@@ -143,6 +144,7 @@ private fun ActionLog(
         reverseLayout = true,
         modifier = modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = 50.dp)
             .height(150.dp)
             .background(Color.Gray)
             .padding(8.dp)
@@ -255,6 +257,7 @@ private fun Creature(
                 .forEach { bodyPartItem ->
                     SelectableItem(
                         item = bodyPartItem,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { onClick(bodyPartItem) }
                     )
                 }

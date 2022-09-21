@@ -48,6 +48,7 @@ fun GroundMenu(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(IntrinsicSize.Min)
                 .background(Color.LightGray)
                 .let { modifier ->
                     when (ground.isSelected) {
@@ -68,11 +69,12 @@ fun GroundMenu(
                     .background(Color.LightGray)
             )
             Row(
-                modifier = Modifier
+                modifier = Modifier.height(IntrinsicSize.Max)
             ) {
                 ground.selectables.forEach { item ->
                     SelectableItem(
                         item = item,
+                        modifier = Modifier.fillMaxHeight(),
                         onClick = { onAction(FightAction.SelectSomething(ground.id, item.id)) }
                     )
                 }
