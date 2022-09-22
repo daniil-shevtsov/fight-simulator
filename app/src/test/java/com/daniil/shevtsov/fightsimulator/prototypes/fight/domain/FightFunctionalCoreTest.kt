@@ -420,8 +420,18 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
-    fun `should should show command for picking up when selected item on the groun with grabber part`() {
-        val initialState = stateForItemPickupWithMissingTargetRightHand()
+    fun `should show command for picking up when selected item on the ground with grabber part`() {
+        val initialState = stateForItemPickupWithMissingTargetRightHand().let { state ->
+            state.copy(
+                state = fightFunctionalCore(
+                    state = state.state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = state.attacker.id,
+                        selectableId = state.attackerLeftHand.id,
+                    )
+                )
+            )
+        }
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -435,6 +445,34 @@ interface FightFunctionalCoreTest {
             .prop(FightState::availableCommands)
             .extracting(Command::attackAction)
             .containsOnly(AttackAction.Grab)
+    }
+
+    @Test
+    fun `should not show command for picking up when selected item on the ground with holding grabber part`() {
+        val initialState = stateForItemPickupWithMissingTargetRightHand().let { state ->
+            state.copy(
+                state = fightFunctionalCore(
+                    state = state.state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = state.attacker.id,
+                        selectableId = state.attackerRightHand.id,
+                    )
+                )
+            )
+        }
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+
+        assertThat(state)
+            .prop(FightState::availableCommands)
+            .extracting(Command::attackAction)
+            .containsNone(AttackAction.Grab)
     }
 
     @Test

@@ -53,6 +53,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Kick
     ) && targetBodyPart?.holding != null
 
+    val shouldGrabItem = action.attackAction == AttackAction.Grab && state.controlledBodyPart.holding == null
+
     val newSlashedParts: List<BodyPart> = state.allBodyParts
         .filter { bodyPart -> bodyPart.id in state.targetCreature.bodyPartIds && bodyPart.id == state.targetBodyPart?.id }
         .takeIf { action.attackAction == AttackAction.Slash }
