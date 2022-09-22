@@ -70,11 +70,11 @@ data class FightState(
 
     val availableCommands: List<Command>
         get() = when {
-            world.ground.selectableIds.contains(targetSelectable?.id) && controlledBodyPart.canGrab && controlledBodyPart.holding == null -> listOf(
+            allItems.any { it.id == targetSelectable?.id } && controlledBodyPart.canGrab && controlledBodyPart.holding == null -> listOf(
                 AttackAction.Grab
             )
-            allBodyParts.filter { it.id in controlledCreature.bodyPartIds }
-                .isNotEmpty() -> (controlledBodyPart.attackActions + allSelectables.find { it.id == controlledBodyPart.holding }.attackActionsWithThrow)
+            allBodyParts.any { it.id in controlledCreature.bodyPartIds } -> (controlledBodyPart.attackActions
+                    + allSelectables.find { it.id == controlledBodyPart.holding }.attackActionsWithThrow)
             else -> emptyList()
         }.map(::Command)
 

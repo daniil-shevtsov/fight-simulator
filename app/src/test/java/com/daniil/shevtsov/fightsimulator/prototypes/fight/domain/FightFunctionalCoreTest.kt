@@ -217,6 +217,25 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
+    fun `should show Grab command when selected lodged in item`() {
+        val initialState = createLodgedInState()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
+        )
+
+        assertThat(state).all {
+            prop(FightState::availableCommands)
+                .extracting(Command::attackAction)
+                .contains(AttackAction.Grab)
+        }
+    }
+
+    @Test
     fun `should remove limb and contained parts when attacker is slashing`() {
         val initialState = stateForItemAttack()
         val state = fightFunctionalCore(
