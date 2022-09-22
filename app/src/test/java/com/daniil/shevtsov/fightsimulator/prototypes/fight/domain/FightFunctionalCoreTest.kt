@@ -200,50 +200,19 @@ interface FightFunctionalCoreTest {
 
     @Test
     fun `should select lodged in item`() {
-        val testState = stateForItemAttack()
+        val initialState = createLodgedInState()
 
         val state = fightFunctionalCore(
-            state = testState.state,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Throw)
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
         )
 
         assertThat(state).all {
-            prop(FightState::controlledCreatureBodyParts)
-                .each { it.prop(BodyPart::holding).isNull() }
-            prop(FightState::targetBodyPart)
-                .isNotNull()
-                .all {
-                    prop(BodyPart::holding)
-                        .isEqualTo(testState.attackerWeapon.id)
-                    prop(BodyPart::lodgedInSelectables)
-                        .contains(testState.attackerWeapon.id)
-                }
-            prop(FightState::actionLog)
-                .index(0)
-                .prop(ActionEntry::text)
-                .isEqualTo("$controlledActorName throws knife at $targetActorName's head with their right hand.\nThe knife has lodged firmly in the wound!")
-        }
-    }
-
-    @Test
-    fun `should throw by controlled actor`() {
-        val testState = stateForItemAttack()
-
-        val state = fightFunctionalCore(
-            state = testState.state,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Throw)
-        )
-
-        assertThat(state).all {
-            prop(FightState::controlledCreatureBodyParts)
-                .each { it.prop(BodyPart::holding).isNull() }
-            prop(FightState::targetCreatureBodyParts)
-                .extracting(BodyPart::id, BodyPart::holding)
-                .contains(testState.targetHead.id to testState.attackerWeapon.id)
-            prop(FightState::actionLog)
-                .index(0)
-                .prop(ActionEntry::text)
-                .isEqualTo("$controlledActorName throws knife at $targetActorName's head with their right hand.\nThe knife has lodged firmly in the wound!")
+            prop(FightState::targetSelectable)
+                .isEqualTo(initialState.arrow)
         }
     }
 
@@ -631,11 +600,44 @@ interface FightFunctionalCoreTest {
         )
     }
 
-    private fun stateForItemAttack() = AttackWithItemTestState(state = createInitialStateWithControlled(controlledActorName))
+    private fun stateForItemAttack() =
+        AttackWithItemTestState(state = createInitialStateWithControlled(controlledActorName))
 
-//    private fun createLodgedInState(): FightState {
-//        val initialState = stateForItemAttack(controll)
-//    }
+    private fun createLodgedInState(): LodgedInItemTestState {
+        val initialState = stateForItemAttack().let { state ->
+            state.copy(
+                state = fightFunctionalCore(
+                    state = state.state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = state.attacker.id,
+                        selectableId = state.attackerLeftHand.id,
+                    )
+                )
+            )
+        }
+
+        val arrow = item(id = 401L, name = "Arrow")
+
+        val controlledActor = initialState.attacker
+        val controlledBody = initialState.state.allBodyParts.find {
+            it.name == "Body" && controlledActor.bodyPartIds.contains(it.id)
+        }!!
+
+        val state = initialState.state.copy(
+            allSelectables = (initialState.state.allSelectables + listOf(arrow)).map { selectable ->
+                when {
+                    selectable.id == controlledBody.id && selectable is BodyPart -> selectable.copy(
+                        lodgedInSelectables = setOf(arrow.id)
+                    )
+                    else -> selectable
+                }
+            },
+        )
+
+        return LodgedInItemTestState(
+            state = state,
+        )
+    }
 }
 
 fun createInitialStateWithControlled(actorName: String): FightState {

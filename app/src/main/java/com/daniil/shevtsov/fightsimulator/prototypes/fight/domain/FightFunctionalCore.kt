@@ -24,13 +24,15 @@ fun selectActor(state: FightState, action: FightAction.SelectControlledActor): F
         else -> oldControlled.id
     }
     val newControlled = state.actors.find { it.id == newControlledId }!!
-    val newControlledSelectedPart = newControlled.bodyPartIds.find { it == when(newControlled.id) {
-        state.targetCreature.id -> state.targetSelectable?.id
-        else -> state.controlledBodyPart.id
-    } }
+    val newControlledSelectedPart = newControlled.bodyPartIds.find {
+        it == when (newControlled.id) {
+            state.targetCreature.id -> state.targetSelectable?.id
+            else -> state.controlledBodyPart.id
+        }
+    }
     val newTarget = state.actors.find { it.id == newTargetId }!!
     return state.copy(
-        lastSelectedControlledPartId =newControlledSelectedPart!!,
+        lastSelectedControlledPartId = newControlledSelectedPart!!,
         lastSelectedTargetHolderId = newTarget.id,
         lastSelectedTargetPartId = state.controlledBodyPart.id,
     )
@@ -53,7 +55,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Kick
     ) && targetBodyPart?.holding != null
 
-    val shouldGrabItem = action.attackAction == AttackAction.Grab && state.controlledBodyPart.holding == null
+    val shouldGrabItem =
+        action.attackAction == AttackAction.Grab && state.controlledBodyPart.holding == null
 
     val newSlashedParts: List<BodyPart> = state.allBodyParts
         .filter { bodyPart -> bodyPart.id in state.targetCreature.bodyPartIds && bodyPart.id == state.targetBodyPart?.id }
@@ -216,17 +219,23 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 }
 
 fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): FightState {
+    val targetIsLodgedInItem = state.controlledCreatureBodyParts
+        .flatMap { it.lodgedInSelectables.toList() }
+        .contains(action.selectableId)
     return state.copy(
-        lastSelectedControlledPartId = when (action.selectableHolderId) {
-            state.controlledCreature.id -> action.selectableId
+        lastSelectedControlledPartId = when {
+            targetIsLodgedInItem -> state.lastSelectedControlledPartId
+            action.selectableHolderId == state.controlledCreature.id -> action.selectableId
             else -> state.lastSelectedControlledPartId
         },
         lastSelectedTargetPartId = when {
+            targetIsLodgedInItem -> action.selectableId
             action.selectableHolderId != state.controlledCreature.id -> action.selectableId
             else -> state.lastSelectedTargetPartId
         },
-        lastSelectedTargetHolderId = when (action.selectableHolderId) {
-            state.controlledCreature.id -> state.lastSelectedTargetHolderId
+        lastSelectedTargetHolderId = when  {
+            targetIsLodgedInItem -> action.selectableHolderId
+            action.selectableHolderId == state.controlledCreature.id -> state.lastSelectedTargetHolderId
             else -> action.selectableHolderId
         },
     )
