@@ -236,6 +236,37 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
+    fun `should move item from lodged in to grabbing part when grabbed lodged in item`() {
+        val initialState = createLodgedInState()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
+        ).let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectCommand(AttackAction.Grab)
+            )
+        }
+
+        assertThat(state)
+            .all {
+                prop(FightState::controlledCreatureBodyParts)
+                    .transform { bodyParts -> bodyParts.find { it.id == initialState.bodyPartWithLodgedInItem.id }!! }
+                    .prop(BodyPart::lodgedInSelectables)
+                    .isEmpty()
+
+                prop(FightState::controlledBodyPart)
+                    .prop(BodyPart::holding)
+                    .isEqualTo(initialState.arrow.id)
+
+            }
+    }
+
+    @Test
     fun `should remove limb and contained parts when attacker is slashing`() {
         val initialState = stateForItemAttack()
         val state = fightFunctionalCore(

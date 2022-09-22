@@ -47,6 +47,8 @@ data class LodgedInItemTestState(
 ) : TestState {
     val arrow: Item
         get() = state.selectables.find { it.name == "Arrow" }!! as Item
+    val bodyPartWithLodgedInItem: BodyPart
+        get() = state.controlledCreatureBodyParts.find { it.name == "Body" }!!
 }
 
 data class AttackWithItemTestState(

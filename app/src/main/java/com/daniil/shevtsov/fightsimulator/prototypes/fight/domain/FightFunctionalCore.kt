@@ -85,9 +85,13 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             }
             AttackAction.Grab -> {
                 val itemFromTheGround = state.targetSelectable
+                val targetSelectableId = state.targetSelectable?.id
                 when {
                     selectable is BodyPart && state.controlledBodyPart.id == selectable.id && itemFromTheGround != null -> selectable.copy(
                         holding = itemFromTheGround.id
+                    )
+                    selectable is BodyPart && targetSelectableId != null && selectable.lodgedInSelectables.contains(targetSelectableId) -> selectable.copy(
+                        lodgedInSelectables = selectable.lodgedInSelectables - targetSelectableId
                     )
                     else -> selectable
                 }
