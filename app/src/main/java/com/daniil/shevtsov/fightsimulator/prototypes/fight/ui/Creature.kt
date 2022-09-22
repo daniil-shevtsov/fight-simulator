@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightAction
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.SelectableId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.CreatureMenu
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.SelectableItem
 
@@ -41,7 +42,7 @@ fun ActorsMenu(
                     onAction(
                         FightAction.SelectSomething(
                             selectableHolderId = creature.id,
-                            selectableId = it.id,
+                            selectableId = it,
                         )
                     )
                 },
@@ -54,7 +55,7 @@ fun ActorsMenu(
 fun Creature(
     creature: CreatureMenu,
     modifier: Modifier = Modifier,
-    onClick: (bodyPart: SelectableItem) -> Unit,
+    onClick: (id: SelectableId) -> Unit,
     onControlClick: () -> Unit,
 ) {
     Column(
@@ -114,7 +115,7 @@ fun Creature(
                     SelectableItem(
                         item = bodyPartItem,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onClick(bodyPartItem) }
+                        onClick = { onClick(it) }
                     )
                 }
         }

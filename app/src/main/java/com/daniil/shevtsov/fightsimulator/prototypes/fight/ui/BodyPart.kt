@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.SelectableId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.SelectableItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPartItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.selectableItem
@@ -112,7 +113,7 @@ fun BodyPartRowPreview() {
 @Composable
 fun BodyPart(
     bodyPartItem: SelectableItem.BodyPartItem,
-    onClick: () -> Unit,
+    onClick: (id: SelectableId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor = when {
@@ -167,7 +168,7 @@ fun BodyPart(
             })) {
         if (bodyPartItem.statuses.contains(BodyPartStatus.Broken)) {
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
-                .clickable { onClick() }
+                .clickable { onClick(bodyPartItem.id) }
                 .padding(4.dp)
             ) {
                 val left: String
@@ -201,7 +202,7 @@ fun BodyPart(
                 text = bodyPartItem.name,
                 color = textColor,
                 modifier = Modifier
-                    .clickable { onClick() }
+                    .clickable { onClick(bodyPartItem.id) }
                     .padding(4.dp)
                     .fillMaxWidth()
             )
@@ -226,6 +227,7 @@ fun BodyPart(
         bodyPartItem.lodgedIn.forEach { lodgedIn ->
             SelectableItem(
                 item = lodgedIn,
+                onClick = { onClick(lodgedIn.id) },
                 modifier = Modifier
                     .padding(4.dp)
                     .background(Color(0xAAA80202))
@@ -240,6 +242,7 @@ fun BodyPart(
             if (bodyPartItem.holding != null) {
                 SelectableItem(
                     item = bodyPartItem.holding,
+                    onClick = {},
                     modifier = Modifier
                         .padding(4.dp)
                         .background(Color.DarkGray)
