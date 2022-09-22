@@ -17,16 +17,19 @@ data class FightState(
     val selectableHolders: List<SelectableHolder>
         get() = actors + listOf(world.ground)
 
+
     val selectables: List<Selectable>
         get() = allSelectables
 
     private val currentTargetSelectableId: SelectableId?
         get() {
             val lastHolder = selectableHolders.find { it.id == lastSelectedTargetHolderId }
-            val lastHolderSelectableIds = lastHolder?.selectableIds.orEmpty()
+            val lastHolderAllSelectableIds =
+                lastHolder?.selectableIds.orEmpty() + allSelectables.filter { it.id in lastHolder?.selectableIds.orEmpty() }
+                    .filterIsInstance<BodyPart>().flatMap { it.lodgedInSelectables.toList() }
             val newSelectable = when {
-                lastHolderSelectableIds.any { selectableId -> selectableId == lastSelectedTargetPartId } -> lastSelectedTargetPartId
-                lastHolderSelectableIds.isNotEmpty() -> lastHolderSelectableIds.first()
+                lastHolderAllSelectableIds.any { selectableId -> selectableId == lastSelectedTargetPartId } -> lastSelectedTargetPartId
+                lastHolderAllSelectableIds.isNotEmpty() -> lastHolderAllSelectableIds.first()
                 else -> selectableHolders.firstOrNull { it.id != controlledCreature.id }?.selectableIds?.firstOrNull()
             }
             return newSelectable
@@ -35,7 +38,9 @@ data class FightState(
     val targetSelectableHolder: SelectableHolder
         get() {
             val targetHolder = selectableHolders.find { holder ->
-                holder.selectableIds.any { selectableId ->
+                val holderAllSelectableIds =
+                    holder.selectableIds + allSelectables.filter { it.id in holder.selectableIds }
+                holderAllSelectableIds.any { selectableId ->
                     selectableId == currentTargetSelectableId
                 }
             }
@@ -46,7 +51,8 @@ data class FightState(
         get() = selectables.find { it.id == currentTargetSelectableId }
 
     val controlledCreature: Creature
-        get() = actors.find { it.bodyPartIds.contains(lastSelectedControlledPartId) } ?: actors.first()
+        get() = actors.find { it.bodyPartIds.contains(lastSelectedControlledPartId) }
+            ?: actors.first()
     val controlledCreatureBodyParts: List<BodyPart>
         get() = allBodyParts.filter { bodyPart -> bodyPart.id in controlledCreature.bodyPartIds }
     val controlledBodyPart: BodyPart
