@@ -199,6 +199,33 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
+    fun `should select lodged in item`() {
+        val testState = stateForItemAttack()
+
+        val state = fightFunctionalCore(
+            state = testState.state,
+            action = FightAction.SelectCommand(attackAction = AttackAction.Throw)
+        )
+
+        assertThat(state).all {
+            prop(FightState::controlledCreatureBodyParts)
+                .each { it.prop(BodyPart::holding).isNull() }
+            prop(FightState::targetBodyPart)
+                .isNotNull()
+                .all {
+                    prop(BodyPart::holding)
+                        .isEqualTo(testState.attackerWeapon.id)
+                    prop(BodyPart::lodgedInSelectables)
+                        .contains(testState.attackerWeapon.id)
+                }
+            prop(FightState::actionLog)
+                .index(0)
+                .prop(ActionEntry::text)
+                .isEqualTo("$controlledActorName throws knife at $targetActorName's head with their right hand.\nThe knife has lodged firmly in the wound!")
+        }
+    }
+
+    @Test
     fun `should throw by controlled actor`() {
         val testState = stateForItemAttack()
 
@@ -604,24 +631,14 @@ interface FightFunctionalCoreTest {
         )
     }
 
-    private fun stateForItemAttack() = stateForItemAttack(controlledActorName)
+    private fun stateForItemAttack() = AttackWithItemTestState(state = createInitialStateWithControlled(controlledActorName))
+
+//    private fun createLodgedInState(): FightState {
+//        val initialState = stateForItemAttack(controll)
+//    }
 }
 
-fun stateForItemAttack(actorName: String): AttackWithItemTestState {
-    val initialState = createInitialStateWithControlled(actorName)
-
-    val ground = ground(id = 1L)
-
-    val state = initialState.copy(
-        world = initialState.world.copy(ground = ground),
-    )
-
-    return AttackWithItemTestState(
-        state = state,
-    )
-}
-
-private fun createInitialStateWithControlled(actorName: String): FightState {
+fun createInitialStateWithControlled(actorName: String): FightState {
     val originalState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
     val leftActor = originalState.actors.first().copy(name = "Player")

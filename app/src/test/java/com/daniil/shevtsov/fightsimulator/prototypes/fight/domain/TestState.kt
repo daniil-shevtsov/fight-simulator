@@ -42,6 +42,13 @@ data class ItemPickupTestState(
         get() = state.selectables.find { it.name == "Sword" }!! as Item
 }
 
+data class LodgedInItemTestState(
+    override val state: FightState,
+) : TestState {
+    val arrow: Item
+        get() = state.selectables.find { it.name == "Arrow" }!! as Item
+}
+
 data class AttackWithItemTestState(
     override val state: FightState,
 ) : TestState {
