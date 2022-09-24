@@ -9,6 +9,7 @@ data class FightState(
     val actionLog: List<ActionEntry>,
     val world: World,
 ) {
+
     val allBodyParts: List<BodyPart>
         get() = allSelectables.filterIsInstance<BodyPart>()
     val allItems: List<Item>
