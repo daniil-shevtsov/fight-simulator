@@ -202,8 +202,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     }
 
     return state.copy(
-        selectableHolders = state.selectableHolders.map { holder ->
-            when(holder.id) {
+        selectableHolders = state.selectableHolders.mapValues { (holderId, holder) ->
+            when(holderId) {
                 state.controlledCreature.id -> newControlledCreature
                 state.targetCreature.id -> newTargetCreature
                 state.ground.id -> newGround
@@ -288,7 +288,7 @@ private fun createInitialState(): FightState {
             player,
             enemy,
             ground(),
-        ),
+        ).associateBy { it.id },
         allSelectables = (playerBodyParts + enemyBodyParts + listOf(
             playerKnife,
             enemyKnife

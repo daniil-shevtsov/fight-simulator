@@ -672,12 +672,12 @@ interface FightFunctionalCoreTest {
                 spear,
                 sword
             )).associateBy { it.id },
-            selectableHolders = initialState.selectableHolders.map { holder ->
+            selectableHolders = initialState.selectableHolders.values.map { holder ->
                 when (holder.id) {
                     initialState.ground.id -> ground
                     else -> holder
                 }
-            },
+            }.associateBy { it.id },
         )
 
         return ItemPickupTestState(

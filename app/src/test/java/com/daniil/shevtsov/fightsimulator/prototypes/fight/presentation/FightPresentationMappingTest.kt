@@ -270,7 +270,7 @@ internal class FightPresentationMappingTest {
                         else -> selectable
                     }
                 } + listOf(spear)).associateBy { it.id },
-                selectableHolders = listOf(modifiedAttacker, modifiedTarget, modifiedGround),
+                selectableHolders = listOf(modifiedAttacker, modifiedTarget, modifiedGround).associateBy { it.id },
             )
         )
     }

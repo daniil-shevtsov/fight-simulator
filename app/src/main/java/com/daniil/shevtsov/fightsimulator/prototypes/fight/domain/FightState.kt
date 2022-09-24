@@ -5,7 +5,7 @@ data class FightState(
     val lastSelectedTargetHolderId: SelectableHolderId,
     val lastSelectedTargetPartId: SelectableId,
     val allSelectables: Map<SelectableId, Selectable>,
-    val selectableHolders: List<SelectableHolder>,
+    val selectableHolders: Map<SelectableHolderId, SelectableHolder>,
     val actionLog: List<ActionEntry>,
 ) {
 
@@ -15,9 +15,9 @@ data class FightState(
         get() = allSelectables.values.filterIsInstance<Item>()
 
     val actors: List<Creature>
-        get() = selectableHolders.filterIsInstance<Creature>()
+        get() = selectableHolders.values.filterIsInstance<Creature>()
     val ground: Ground
-        get() = selectableHolders.filterIsInstance<Ground>().first()
+        get() = selectableHolders.values.filterIsInstance<Ground>().first()
 
 
     val selectables: List<Selectable>
@@ -25,20 +25,20 @@ data class FightState(
 
     private val currentTargetSelectableId: SelectableId?
         get() {
-            val lastHolder = selectableHolders.find { it.id == lastSelectedTargetHolderId }
+            val lastHolder = selectableHolders.values.find { it.id == lastSelectedTargetHolderId }
             val lastHolderAllSelectableIds =
                 lastHolder?.allSelectableIds(allSelectables).orEmpty()
             val newSelectable = when {
                 lastHolderAllSelectableIds.any { selectableId -> selectableId == lastSelectedTargetPartId } -> lastSelectedTargetPartId
                 lastHolderAllSelectableIds.isNotEmpty() -> lastHolderAllSelectableIds.first()
-                else -> selectableHolders.firstOrNull { it.id != controlledCreature.id }?.selectableIds?.firstOrNull()
+                else -> selectableHolders.values.firstOrNull { it.id != controlledCreature.id }?.selectableIds?.firstOrNull()
             }
             return newSelectable
         }
 
     val targetSelectableHolder: SelectableHolder
         get() {
-            val targetHolder = selectableHolders.find { holder ->
+            val targetHolder = selectableHolders.values.find { holder ->
                 val holderAllSelectableIds = holder.allSelectableIds(allSelectables)
                 holderAllSelectableIds.any { selectableId ->
                     selectableId == currentTargetSelectableId
@@ -117,11 +117,11 @@ fun fightState(
     realControlledSelectableId: SelectableId = bodyPartId(0L),
     realTargetSelectableId: SelectableId = bodyPartId(0L),
     lastSelectedHolderId: SelectableHolderId = creatureId(0L),
-    selectableHolders: List<SelectableHolder> = listOf(
+    selectableHolders: Map<SelectableHolderId, SelectableHolder> = listOf(
         creature(id = "playerId".hashCode().toLong()),
         creature(id = "enemyId".hashCode().toLong()),
-        ground(),
-    ),
+        ground(/*id = "groundId".hashCode().toLong()*/),
+    ).associateBy { it.id },
     allSelectables: List<Selectable> = emptyList(),
     actionLog: List<ActionEntry> = emptyList(),
 ) = FightState(
