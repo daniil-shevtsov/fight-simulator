@@ -363,7 +363,7 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::allSelectables)
+            prop(FightState::selectables)
                 .transform { it.filterIsInstance<BodyPart>() }
                 .extracting(BodyPart::id, BodyPart::statuses)
                 .contains(initialState.targetSkull.id to listOf(BodyPartStatus.Broken))
@@ -674,7 +674,7 @@ interface FightFunctionalCoreTest {
 
         //TODO: Control through action
         val state = initialState.copy(
-            allSelectables = initialState.allSelectables + listOf(spear, sword),
+            allSelectables = (initialState.allSelectables.values + listOf(spear, sword)).associateBy { it.id },
             world = initialState.world.copy(ground = ground),
         )
 
@@ -707,14 +707,14 @@ interface FightFunctionalCoreTest {
         }!!
 
         val state = initialState.state.copy(
-            allSelectables = (initialState.state.allSelectables + listOf(arrow)).map { selectable ->
+            allSelectables = (initialState.state.allSelectables.values + listOf(arrow)).map { selectable ->
                 when {
                     selectable.id == controlledBody.id && selectable is BodyPart -> selectable.copy(
                         lodgedInSelectables = setOf(arrow.id)
                     )
                     else -> selectable
                 }
-            },
+            }.associateBy { it.id },
         )
 
         return LodgedInItemTestState(

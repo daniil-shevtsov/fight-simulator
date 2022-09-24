@@ -262,14 +262,14 @@ internal class FightPresentationMappingTest {
 
         return originalState.copy(
             state = originalState.state.copy(
-                allSelectables = originalState.state.allSelectables.map { selectable ->
+                allSelectables = (originalState.state.allSelectables.values.map { selectable ->
                     when {
                         selectable is BodyPart && selectable.id == originalState.targetSkull.id -> selectable.copy(
                             statuses = selectable.statuses + BodyPartStatus.Broken
                         )
                         else -> selectable
                     }
-                } + listOf(spear),
+                } + listOf(spear)).associateBy { it.id },
                 actors = listOf(modifiedAttacker, modifiedTarget),
                 world = originalState.state.world.copy(ground = modifiedGround)
             )

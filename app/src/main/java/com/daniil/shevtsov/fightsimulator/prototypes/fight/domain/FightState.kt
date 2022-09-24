@@ -4,28 +4,29 @@ data class FightState(
     val lastSelectedControlledPartId: SelectableId,
     val lastSelectedTargetHolderId: SelectableHolderId,
     val lastSelectedTargetPartId: SelectableId,
-    val allSelectables: List<Selectable>,
+    val allSelectables: Map<SelectableId, Selectable>,
     val actors: List<Creature>,
     val actionLog: List<ActionEntry>,
     val world: World,
 ) {
 
     val allBodyParts: List<BodyPart>
-        get() = allSelectables.filterIsInstance<BodyPart>()
+        get() = allSelectables.values.filterIsInstance<BodyPart>()
     val allItems: List<Item>
-        get() = allSelectables.filterIsInstance<Item>()
+        get() = allSelectables.values.filterIsInstance<Item>()
 
     val selectableHolders: List<SelectableHolder>
         get() = actors + listOf(world.ground)
 
 
     val selectables: List<Selectable>
-        get() = allSelectables
+        get() = allSelectables.values.toList()
 
     private val currentTargetSelectableId: SelectableId?
         get() {
             val lastHolder = selectableHolders.find { it.id == lastSelectedTargetHolderId }
-            val lastHolderAllSelectableIds = lastHolder?.allSelectableIds(allSelectables).orEmpty()
+            val lastHolderAllSelectableIds =
+                lastHolder?.allSelectableIds(allSelectables).orEmpty()
             val newSelectable = when {
                 lastHolderAllSelectableIds.any { selectableId -> selectableId == lastSelectedTargetPartId } -> lastSelectedTargetPartId
                 lastHolderAllSelectableIds.isNotEmpty() -> lastHolderAllSelectableIds.first()
@@ -76,7 +77,7 @@ data class FightState(
                 AttackAction.Grab
             )
             allBodyParts.any { it.id in controlledCreature.bodyPartIds } -> (controlledBodyPart.attackActions
-                    + allSelectables.find { it.id == controlledBodyPart.holding }.attackActionsWithThrow)
+                    + allSelectables.values.find { it.id == controlledBodyPart.holding }.attackActionsWithThrow)
             else -> emptyList()
         }.map(::Command)
 
@@ -86,8 +87,8 @@ data class FightState(
     private val Creature.controlledSelectedBodyPart: BodyPart
         get() = findSelected(lastSelectedId = lastSelectedControlledPartId)!!
 
-    private fun SelectableHolder.allSelectableIds(allSelectables: List<Selectable>): List<SelectableId> {
-        return selectableIds + allSelectables.filter { it.id in selectableIds }
+    private fun SelectableHolder.allSelectableIds(allSelectables: Map<SelectableId, Selectable>): List<SelectableId> {
+        return selectableIds + allSelectables.values.filter { it.id in selectableIds }
             .filterIsInstance<BodyPart>().flatMap { it.lodgedInSelectables.toList() }
     }
 
@@ -127,7 +128,7 @@ fun fightState(
     lastSelectedTargetHolderId = lastSelectedHolderId,
     lastSelectedTargetPartId = realTargetSelectableId,
     actors = actors,
-    allSelectables = allSelectables,
+    allSelectables = allSelectables.associateBy { it.id },
     actionLog = actionLog,
     world = world,
 )

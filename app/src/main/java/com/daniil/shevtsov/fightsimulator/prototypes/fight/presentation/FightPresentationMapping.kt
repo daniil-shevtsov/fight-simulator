@@ -39,7 +39,8 @@ fun fightPresentationMapping(state: FightState): FightViewState {
             GroundMenu(
                 id = ground.id,
                 selectables = state.allSelectables
-                    .filter { it.id in ground.selectableIds }
+                    .filterKeys { it in ground.selectableIds }
+                    .values
                     .map {
                         it.toItem(
                             state.allSelectables,
@@ -54,7 +55,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
 }
 
 private fun Selectable.toItem(
-    allSelectables: List<Selectable>,
+    allSelectables: Map<SelectableId, Selectable>,
     controlledSelectableId: SelectableId,
     targetSelectableId: SelectableId?,
 ): SelectableItem {
@@ -75,16 +76,16 @@ private fun Selectable.toItem(
             id = id,
             name = name,
             holding = holding?.let { id ->
-                allSelectables.find { it.id == id }?.let { toItem(it) }
+                allSelectables[id]?.let { toItem(it) }
             },
             contained = containedBodyParts
                 .mapNotNull { containedId ->
-                    allSelectables.find { it.id == containedId }?.let { toItem(it) }
+                    allSelectables[containedId]?.let { toItem(it) }
                 }.toSet(),
             isSelected = id == targetSelectableId || id == controlledSelectableId,
             statuses = statuses,
             canGrab = canGrab,
-            lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
+            lodgedIn = allSelectables.values.filter { it.id in lodgedInSelectables }
                 .map { toItem(it) },
         )
     }

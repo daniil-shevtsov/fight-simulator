@@ -20,7 +20,7 @@ interface TestState {
     val targetRightHand: BodyPart
         get() = state.targetCreatureBodyParts.find { it.name == "Right Hand" }!!
     val attackerWeapon: Selectable
-        get() = state.controlledCreatureBodyParts.find { it.holding != null }?.holding?.let { id -> state.allSelectables.find { it.id == id } }!!
+        get() = state.controlledCreatureBodyParts.find { it.holding != null }?.holding?.let { id -> state.allSelectables[id] }!!
     val nonGrabbingPart: BodyPart
         get() = state.controlledCreatureBodyParts.find { it.name == "Right Leg" }!!
 

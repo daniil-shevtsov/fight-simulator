@@ -37,13 +37,13 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val attackerWeaponId = state.allBodyParts
         .find { bodyPart -> bodyPart.id == state.controlledBodyPart.id }
         ?.holding
-    val attackerWeapon = state.allSelectables.find { it.id == attackerWeaponId }
+    val attackerWeapon = state.allSelectables[attackerWeaponId]
     state.targetBodyPart ?: state.targetSelectable ?: return state
     val targetBodyPart = state.targetBodyPart
 
 
     val targetWeaponId = targetBodyPart?.holding
-    val targetWeapon = state.allSelectables.find { it.id == targetWeaponId }
+    val targetWeapon = state.allSelectables[targetWeaponId]
 
     val shouldKnockOutWeapon = action.attackAction in setOf(
         AttackAction.Punch,
@@ -64,7 +64,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         }
 
 
-    val newSelectables = state.allSelectables.map { selectable ->
+    val newSelectables = state.allSelectables.values.map { selectable ->
         when (action.attackAction) {
             AttackAction.Throw -> {
                 when {
@@ -211,7 +211,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                 else -> actor
             }
         },
-        allSelectables = newSelectables,
+        allSelectables = newSelectables.associateBy { it.id },
         world = newWorld,
         actionLog = state.actionLog + listOf(actionEntry(text = newEntry))
     )
@@ -288,10 +288,10 @@ private fun createInitialState(): FightState {
         lastSelectedTargetHolderId = enemy.id,
         lastSelectedTargetPartId = enemyBodyParts.find { it.name == "Head" }?.id!!,
         actors = listOf(player, enemy),
-        allSelectables = playerBodyParts + enemyBodyParts + listOf(
+        allSelectables = (playerBodyParts + enemyBodyParts + listOf(
             playerKnife,
             enemyKnife
-        ),
+        )).associateBy { it.id },
         actionLog = emptyList(),
         world = World(ground = ground())
     )
