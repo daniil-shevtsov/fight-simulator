@@ -25,7 +25,7 @@ data class FightState(
 
     private val currentTargetSelectableId: SelectableId?
         get() {
-            val lastHolder = selectableHolders.values.find { it.id == lastSelectedTargetHolderId }
+            val lastHolder = selectableHolders[lastSelectedTargetHolderId]
             val lastHolderAllSelectableIds =
                 lastHolder?.allSelectableIds(allSelectables).orEmpty()
             val newSelectable = when {
@@ -120,7 +120,7 @@ fun fightState(
     selectableHolders: Map<SelectableHolderId, SelectableHolder> = listOf(
         creature(id = "playerId".hashCode().toLong()),
         creature(id = "enemyId".hashCode().toLong()),
-        ground(/*id = "groundId".hashCode().toLong()*/),
+        ground(id = "groundId".hashCode().toLong()),
     ).associateBy { it.id },
     allSelectables: List<Selectable> = emptyList(),
     actionLog: List<ActionEntry> = emptyList(),

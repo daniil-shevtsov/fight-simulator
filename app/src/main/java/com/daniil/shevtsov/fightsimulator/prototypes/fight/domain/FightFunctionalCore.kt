@@ -23,12 +23,12 @@ fun selectActor(state: FightState, action: FightAction.SelectControlledActor): F
         oldControlled.id -> oldTarget.id
         else -> oldControlled.id
     }
-    val newControlled = state.actors.find { it.id == newControlledId }!!
+    val newControlled = state.selectableHolders[newControlledId]
 
-    val newTarget = state.actors.find { it.id == newTargetId }!!
+    val newTarget = state.selectableHolders[newTargetId]
     return state.copy(
-        lastSelectedControlledPartId = newControlled.bodyPartIds.first(),
-        lastSelectedTargetHolderId = newTarget.id,
+        lastSelectedControlledPartId = newControlled!!.selectableIds.first(),
+        lastSelectedTargetHolderId = newTarget!!.id,
         lastSelectedTargetPartId = state.controlledBodyPart.id,
     )
 }
