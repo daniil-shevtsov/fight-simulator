@@ -362,6 +362,7 @@ interface FightFunctionalCoreTest {
 
         assertThat(state).all {
             prop(FightState::allBodyParts)
+                .transform { it.values }
                 .extracting(BodyPart::id, BodyPart::statuses)
                 .contains(initialState.targetSkull.id to listOf(BodyPartStatus.Broken))
             prop(FightState::actionLog)
@@ -703,7 +704,7 @@ interface FightFunctionalCoreTest {
         val arrow = item(id = 401L, name = "Arrow")
 
         val controlledActor = initialState.attacker
-        val controlledBody = initialState.state.allBodyParts.find {
+        val controlledBody = initialState.state.allBodyParts.values.find {
             it.name == "Body" && controlledActor.bodyPartIds.contains(it.id)
         }!!
 

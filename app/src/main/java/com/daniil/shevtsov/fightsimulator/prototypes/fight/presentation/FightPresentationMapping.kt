@@ -10,6 +10,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 actor = creature.actor,
                 bodyParts = state
                     .allBodyParts
+                    .values
                     .filter { it.id in creature.bodyPartIds }
                     .map { bodyPart ->
                         bodyPart.toItem(

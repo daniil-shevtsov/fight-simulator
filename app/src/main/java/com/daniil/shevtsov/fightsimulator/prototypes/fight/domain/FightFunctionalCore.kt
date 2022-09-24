@@ -34,9 +34,7 @@ fun selectActor(state: FightState, action: FightAction.SelectControlledActor): F
 }
 
 fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightState {
-    val attackerWeaponId = state.allBodyParts
-        .find { bodyPart -> bodyPart.id == state.controlledBodyPart.id }
-        ?.holding
+    val attackerWeaponId = state.allBodyParts[state.controlledBodyPart.id]?.holding
     val attackerWeapon = state.allSelectables[attackerWeaponId]
     state.targetBodyPart ?: state.targetSelectable ?: return state
     val targetBodyPart = state.targetBodyPart
@@ -54,6 +52,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         action.attackAction == AttackAction.Grab && state.controlledBodyPart.holding == null
 
     val newSlashedParts: List<BodyPart> = state.allBodyParts
+        .values
         .filter { bodyPart -> bodyPart.id in state.targetCreature.bodyPartIds && bodyPart.id == state.targetBodyPart?.id }
         .takeIf { action.attackAction == AttackAction.Slash }
         .orEmpty()
