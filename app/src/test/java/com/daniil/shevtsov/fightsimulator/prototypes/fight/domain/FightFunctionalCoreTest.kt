@@ -236,6 +236,39 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
+    fun `should change actor to one with lodged in item and not crash`() {
+        val initialState = createLodgedInState()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
+        ).let { state ->
+            fightFunctionalCore(
+                state = initialState.state,
+                action = FightAction.SelectControlledActor(
+                    actorId = initialState.target.id,
+                )
+            )
+        }.let { state ->
+            fightFunctionalCore(
+                state = initialState.state,
+                action = FightAction.SelectControlledActor(
+                    actorId = initialState.attacker.id,
+                )
+            )
+        }
+
+        assertThat(state).all {
+            prop(FightState::controlledCreature)
+                .prop(Creature::id)
+                .isEqualTo(initialState.attacker.id)
+        }
+    }
+
+    @Test
     fun `should move item from lodged in to grabbing part when grabbed lodged in item`() {
         val initialState = createLodgedInState()
 

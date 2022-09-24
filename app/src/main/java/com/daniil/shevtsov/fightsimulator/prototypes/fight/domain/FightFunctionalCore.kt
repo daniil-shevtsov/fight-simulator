@@ -24,16 +24,10 @@ fun selectActor(state: FightState, action: FightAction.SelectControlledActor): F
         else -> oldControlled.id
     }
     val newControlled = state.actors.find { it.id == newControlledId }!!
-    //TODO: Crash, because it doesn't account for lodged in items, need to add test and fix
-    val newControlledSelectedPart = newControlled.bodyPartIds.find {
-        it == when (newControlled.id) {
-            state.targetCreature.id -> state.targetSelectable?.id
-            else -> state.controlledBodyPart.id
-        }
-    }
+
     val newTarget = state.actors.find { it.id == newTargetId }!!
     return state.copy(
-        lastSelectedControlledPartId = newControlledSelectedPart!!,
+        lastSelectedControlledPartId = newControlled.bodyPartIds.first(),
         lastSelectedTargetHolderId = newTarget.id,
         lastSelectedTargetPartId = state.controlledBodyPart.id,
     )
