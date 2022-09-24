@@ -14,8 +14,8 @@ data class FightState(
     val allItems: List<Item>
         get() = allSelectables.values.filterIsInstance<Item>()
 
-    val actors: List<Creature>
-        get() = selectableHolders.values.filterIsInstance<Creature>()
+    val actors: Map<SelectableHolderId, Creature>
+        get() = selectableHolders.filterValues { it is Creature }.mapValues { it.value as Creature }
     val ground: Ground
         get() = selectableHolders.values.filterIsInstance<Ground>().first()
 
@@ -47,17 +47,15 @@ data class FightState(
         get() = allSelectables[currentTargetSelectableId]
 
     val controlledCreature: Creature
-        get() = actors.find { it.bodyPartIds.contains(lastSelectedControlledPartId) }
-            ?: actors.first()
+        get() = actors.values.find { it.bodyPartIds.contains(lastSelectedControlledPartId) }
+            ?: actors.values.first()
     val controlledCreatureBodyParts: List<BodyPart>
         get() = allBodyParts.values.filter { bodyPart -> bodyPart.id in controlledCreature.bodyPartIds }
     val controlledBodyPart: BodyPart
         get() = allBodyParts[controlledCreature.controlledSelectedBodyPart.id]!!
-    val controlledCreatureAllSelectableIds: List<SelectableId>
-        get() = controlledCreature.allSelectableIds(allSelectables)
 
     val targetCreature: Creature
-        get() = actors.find { it.id == targetSelectableHolder.id } ?: actors.last()
+        get() = actors[targetSelectableHolder.id] ?: actors.values.last()
     val targetCreatureBodyParts: List<BodyPart>
         get() = allBodyParts.values.filter { bodyPart -> bodyPart.id in targetCreature.bodyPartIds || bodyPart.id in targetCreature.missingPartsSet }
     val targetBodyPart: BodyPart?

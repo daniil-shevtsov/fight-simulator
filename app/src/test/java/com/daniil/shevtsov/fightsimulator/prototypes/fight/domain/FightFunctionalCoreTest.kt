@@ -728,8 +728,8 @@ interface FightFunctionalCoreTest {
 fun createInitialStateWithControlled(actorName: String): FightState {
     val originalState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
-    val leftActor = originalState.actors.first().copy(name = "Player")
-    val rightActor = originalState.actors.last().copy(name = "Enemy")
+    val leftActor = originalState.actors.values.first().copy(name = "Player")
+    val rightActor = originalState.actors.values.last().copy(name = "Enemy")
     val controlled = when (actorName) {
         leftActor.name -> leftActor.id
         rightActor.name -> rightActor.id

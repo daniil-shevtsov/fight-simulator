@@ -4,7 +4,7 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 
 fun fightPresentationMapping(state: FightState): FightViewState {
     return FightViewState.Content(
-        actors = state.actors.map { creature ->
+        actors = state.actors.values.map { creature ->
             CreatureMenu(
                 id = creature.id,
                 actor = creature.actor,

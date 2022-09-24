@@ -25,7 +25,7 @@ interface TestState {
         get() = state.controlledCreatureBodyParts.find { it.name == "Right Leg" }!!
 
     val otherCreature: Creature
-        get() = state.actors.find { it.id != state.controlledCreature.id }!!
+        get() = state.actors[state.targetCreature.id]!!
     val otherCreatureHead: BodyPart
         get() = state.targetCreatureBodyParts.find { it.name == "Head" }!!
 
