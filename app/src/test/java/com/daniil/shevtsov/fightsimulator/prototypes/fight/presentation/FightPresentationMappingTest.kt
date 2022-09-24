@@ -270,8 +270,7 @@ internal class FightPresentationMappingTest {
                         else -> selectable
                     }
                 } + listOf(spear)).associateBy { it.id },
-                actors = listOf(modifiedAttacker, modifiedTarget),
-                world = originalState.state.world.copy(ground = modifiedGround)
+                selectableHolders = listOf(modifiedAttacker, modifiedTarget, modifiedGround),
             )
         )
     }

@@ -187,32 +187,30 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     }
 
 
-    val newWorld = state.world.copy(
-        ground = when {
-            shouldKnockOutWeapon -> state.world.ground.copy(
-                selectableIds = state.world.ground.selectableIds + targetWeapon!!.id
-            )
-            newSlashedParts.isNotEmpty() -> state.world.ground.copy(
-                selectableIds = state.world.ground.selectableIds + newSlashedParts.map(Selectable::id)
-            )
-            action.attackAction == AttackAction.Grab
-            -> state.world.ground.copy(
-                selectableIds = state.world.ground.selectableIds.filter { it != state.targetSelectable?.id }
-            )
-            else -> state.world.ground
-        },
-    )
+    val newGround = when {
+        shouldKnockOutWeapon -> state.ground.copy(
+            selectableIds = state.ground.selectableIds + targetWeapon!!.id
+        )
+        newSlashedParts.isNotEmpty() -> state.ground.copy(
+            selectableIds = state.ground.selectableIds + newSlashedParts.map(Selectable::id)
+        )
+        action.attackAction == AttackAction.Grab
+        -> state.ground.copy(
+            selectableIds = state.ground.selectableIds.filter { it != state.targetSelectable?.id }
+        )
+        else -> state.ground
+    }
 
     return state.copy(
-        actors = state.actors.map { actor ->
-            when (actor.id) {
+        selectableHolders = state.selectableHolders.map { holder ->
+            when(holder.id) {
                 state.controlledCreature.id -> newControlledCreature
                 state.targetCreature.id -> newTargetCreature
-                else -> actor
+                state.ground.id -> newGround
+                else -> holder
             }
         },
         allSelectables = newSelectables.associateBy { it.id },
-        world = newWorld,
         actionLog = state.actionLog + listOf(actionEntry(text = newEntry))
     )
 }
@@ -283,17 +281,19 @@ private fun createInitialState(): FightState {
         bodyPartIds = enemyBodyParts.map(BodyPart::id),
     )
     return FightState(
-//        lastSelectedControlledHolderId = player.id,
         lastSelectedControlledPartId = playerBodyParts.find { it.name == "Left Hand" }?.id!!,
         lastSelectedTargetHolderId = enemy.id,
         lastSelectedTargetPartId = enemyBodyParts.find { it.name == "Head" }?.id!!,
-        actors = listOf(player, enemy),
+        selectableHolders = listOf(
+            player,
+            enemy,
+            ground(),
+        ),
         allSelectables = (playerBodyParts + enemyBodyParts + listOf(
             playerKnife,
             enemyKnife
         )).associateBy { it.id },
         actionLog = emptyList(),
-        world = World(ground = ground())
     )
 }
 

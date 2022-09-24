@@ -5,9 +5,8 @@ data class FightState(
     val lastSelectedTargetHolderId: SelectableHolderId,
     val lastSelectedTargetPartId: SelectableId,
     val allSelectables: Map<SelectableId, Selectable>,
-    val actors: List<Creature>,
+    val selectableHolders: List<SelectableHolder>,
     val actionLog: List<ActionEntry>,
-    val world: World,
 ) {
 
     val allBodyParts: List<BodyPart>
@@ -15,8 +14,10 @@ data class FightState(
     val allItems: List<Item>
         get() = allSelectables.values.filterIsInstance<Item>()
 
-    val selectableHolders: List<SelectableHolder>
-        get() = actors + listOf(world.ground)
+    val actors: List<Creature>
+        get() = selectableHolders.filterIsInstance<Creature>()
+    val ground: Ground
+        get() = selectableHolders.filterIsInstance<Ground>().first()
 
 
     val selectables: List<Selectable>
@@ -116,19 +117,18 @@ fun fightState(
     realControlledSelectableId: SelectableId = bodyPartId(0L),
     realTargetSelectableId: SelectableId = bodyPartId(0L),
     lastSelectedHolderId: SelectableHolderId = creatureId(0L),
-    actors: List<Creature> = listOf(
+    selectableHolders: List<SelectableHolder> = listOf(
         creature(id = "playerId".hashCode().toLong()),
-        creature(id = "enemyId".hashCode().toLong())
+        creature(id = "enemyId".hashCode().toLong()),
+        ground(),
     ),
     allSelectables: List<Selectable> = emptyList(),
     actionLog: List<ActionEntry> = emptyList(),
-    world: World = world(),
 ) = FightState(
     lastSelectedControlledPartId = realControlledSelectableId,
     lastSelectedTargetHolderId = lastSelectedHolderId,
     lastSelectedTargetPartId = realTargetSelectableId,
-    actors = actors,
+    selectableHolders = selectableHolders,
     allSelectables = allSelectables.associateBy { it.id },
     actionLog = actionLog,
-    world = world,
 )

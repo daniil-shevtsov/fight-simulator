@@ -35,7 +35,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 text = action.text,
             )
         },
-        ground = state.world.ground.let { ground ->
+        ground = state.ground.let { ground ->
             GroundMenu(
                 id = ground.id,
                 selectables = state.allSelectables

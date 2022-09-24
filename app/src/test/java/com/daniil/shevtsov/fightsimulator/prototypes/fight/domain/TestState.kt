@@ -30,7 +30,7 @@ interface TestState {
         get() = state.targetCreatureBodyParts.find { it.name == "Head" }!!
 
     val ground: Ground
-        get() = state.world.ground
+        get() = state.ground
 }
 
 data class ItemPickupTestState(

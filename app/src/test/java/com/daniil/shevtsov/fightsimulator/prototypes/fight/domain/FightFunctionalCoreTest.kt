@@ -331,8 +331,7 @@ interface FightFunctionalCoreTest {
                 .index(0)
                 .prop(ActionEntry::text)
                 .isEqualTo("$controlledActorName slashes at $targetActorName's head with knife held by their right hand.\nSevered head flies off in an arc!")
-            prop(FightState::world)
-                .prop(World::ground)
+            prop(FightState::ground)
                 .prop(Ground::selectableIds)
                 .containsExactly(initialState.targetHead.id)
         }
@@ -347,8 +346,7 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state)
-            .prop(FightState::world)
-            .prop(World::ground)
+            .prop(FightState::ground)
             .prop(Ground::selectableIds)
             .contains(initialState.targetHead.id)
     }
@@ -404,8 +402,7 @@ interface FightFunctionalCoreTest {
                     .isNull()
                 prop(AttackWithItemTestState::state)
                     .all {
-                        prop(FightState::world)
-                            .prop(World::ground)
+                        prop(FightState::ground)
                             .prop(Ground::selectableIds)
                             .containsExactly(initialState.targetWeapon.id)
                         prop(FightState::actionLog)
@@ -470,8 +467,7 @@ interface FightFunctionalCoreTest {
 
         assertThat(finalState)
             .all {
-                prop(FightState::world)
-                    .prop(World::ground)
+                prop(FightState::ground)
                     .prop(Ground::selectableIds)
                     .isEmpty()
                 prop(FightState::targetSelectable)
@@ -576,8 +572,7 @@ interface FightFunctionalCoreTest {
 
         assertThat(state)
             .all {
-                prop(FightState::world)
-                    .prop(World::ground)
+                prop(FightState::ground)
                     .prop(Ground::selectableIds)
                     .containsNone(initialState.targetHead.id)
                 prop(FightState::controlledBodyPart)
@@ -604,8 +599,7 @@ interface FightFunctionalCoreTest {
 
         assertThat(state)
             .all {
-                prop(FightState::world)
-                    .prop(World::ground)
+                prop(FightState::ground)
                     .prop(Ground::selectableIds)
                     .containsOnly(initialState.sword.id)
                 prop(FightState::controlledBodyPart)
@@ -674,8 +668,16 @@ interface FightFunctionalCoreTest {
 
         //TODO: Control through action
         val state = initialState.copy(
-            allSelectables = (initialState.allSelectables.values + listOf(spear, sword)).associateBy { it.id },
-            world = initialState.world.copy(ground = ground),
+            allSelectables = (initialState.allSelectables.values + listOf(
+                spear,
+                sword
+            )).associateBy { it.id },
+            selectableHolders = initialState.selectableHolders.map { holder ->
+                when (holder.id) {
+                    initialState.ground.id -> ground
+                    else -> holder
+                }
+            },
         )
 
         return ItemPickupTestState(
