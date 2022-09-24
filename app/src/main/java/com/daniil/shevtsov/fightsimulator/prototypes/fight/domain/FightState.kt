@@ -87,14 +87,14 @@ data class FightState(
 
     private fun Creature.findSelected(lastSelectedId: SelectableId?): BodyPart? {
         val creatureBodyParts =
-            allBodyParts.values.filter { bodyPart -> bodyPart.id in (bodyPartIds + missingPartsSet) }
+            allBodyParts.filterValues { bodyPart -> bodyPart.id in (bodyPartIds + missingPartsSet) }
 
         val part1 = functionalParts.find { it == lastSelectedId }
         val part2 = functionalParts.firstOrNull()
-        val part3 = creatureBodyParts.first().id
+        val part3 = creatureBodyParts.values.first().id
 
         val finalPart =
-            (part1 ?: part2 ?: part3).let { id -> creatureBodyParts.find { kek -> kek.id == id } }
+            (part1 ?: part2 ?: part3).let { id -> creatureBodyParts[id] }
 
         return finalPart!!
     }
