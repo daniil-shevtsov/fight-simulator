@@ -37,16 +37,16 @@ data class ItemPickupTestState(
     override val state: FightState,
 ) : TestState {
     val spear: Item
-        get() = state.selectables.find { it.name == "Spear" }!! as Item
+        get() = state.allSelectables.values.find { it.name == "Spear" }!! as Item
     val sword: Item
-        get() = state.selectables.find { it.name == "Sword" }!! as Item
+        get() = state.allSelectables.values.find { it.name == "Sword" }!! as Item
 }
 
 data class LodgedInItemTestState(
     override val state: FightState,
 ) : TestState {
     val arrow: Item
-        get() = state.selectables.find { it.name == "Arrow" }!! as Item
+        get() = state.allSelectables.values.find { it.name == "Arrow" }!! as Item
     val bodyPartWithLodgedInItem: BodyPart
         get() = state.controlledCreatureBodyParts.find { it.name == "Body" }!!
 }

@@ -361,8 +361,7 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::selectables)
-                .transform { it.filterIsInstance<BodyPart>() }
+            prop(FightState::allBodyParts)
                 .extracting(BodyPart::id, BodyPart::statuses)
                 .contains(initialState.targetSkull.id to listOf(BodyPartStatus.Broken))
             prop(FightState::actionLog)

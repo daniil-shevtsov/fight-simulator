@@ -19,10 +19,6 @@ data class FightState(
     val ground: Ground
         get() = selectableHolders.values.filterIsInstance<Ground>().first()
 
-
-    val selectables: List<Selectable>
-        get() = allSelectables.values.toList()
-
     private val currentTargetSelectableId: SelectableId?
         get() {
             val lastHolder = selectableHolders[lastSelectedTargetHolderId]
@@ -48,7 +44,7 @@ data class FightState(
         }
 
     val targetSelectable: Selectable?
-        get() = selectables.find { it.id == currentTargetSelectableId }
+        get() = allSelectables[currentTargetSelectableId]
 
     val controlledCreature: Creature
         get() = actors.find { it.bodyPartIds.contains(lastSelectedControlledPartId) }
@@ -78,7 +74,7 @@ data class FightState(
                 AttackAction.Grab
             )
             allBodyParts.any { it.id in controlledCreature.bodyPartIds } -> (controlledBodyPart.attackActions
-                    + allSelectables.values.find { it.id == controlledBodyPart.holding }.attackActionsWithThrow)
+                    + allSelectables[controlledBodyPart.holding].attackActionsWithThrow)
             else -> emptyList()
         }.map(::Command)
 
