@@ -71,7 +71,6 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                         holding = null
                     )
                     selectable is BodyPart && state.targetBodyPart?.id == selectable.id -> selectable.copy(
-                        holding = state.controlledBodyPart.holding,
                         lodgedInSelectables = selectable.lodgedInSelectables + setOfNotNull(state.controlledBodyPart.holding)
                     )
                     else -> selectable

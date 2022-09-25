@@ -185,12 +185,8 @@ interface FightFunctionalCoreTest {
                 .each { it.prop(BodyPart::holding).isNull() }
             prop(FightState::targetBodyPart)
                 .isNotNull()
-                .all {
-                    prop(BodyPart::holding)
-                        .isEqualTo(testState.attackerWeapon.id)
-                    prop(BodyPart::lodgedInSelectables)
-                        .contains(testState.attackerWeapon.id)
-                }
+                .prop(BodyPart::lodgedInSelectables)
+                .contains(testState.attackerWeapon.id)
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
