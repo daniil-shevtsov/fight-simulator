@@ -66,9 +66,9 @@ data class FightState(
 
     val availableCommands: List<Command>
         get() = when {
-            allItems.any { it.id == targetSelectable?.id } && controlledBodyPart.canGrab && controlledBodyPart.holding == null -> listOf(
+            allItems.any { it.id == targetSelectable?.id } && controlledBodyPart.canGrab  -> listOf(
                 AttackAction.Grab
-            )
+            ).takeIf { controlledBodyPart.holding == null }.orEmpty()
             allBodyParts.values.any { it.id in controlledCreature.bodyPartIds } -> (controlledBodyPart.attackActions
                     + allSelectables[controlledBodyPart.holding].attackActionsWithThrow)
             else -> emptyList()
