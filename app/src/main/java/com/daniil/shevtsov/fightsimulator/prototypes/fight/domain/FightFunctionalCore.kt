@@ -48,9 +48,6 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Kick
     ) && targetBodyPart?.holding != null
 
-    val shouldGrabItem =
-        action.attackAction == AttackAction.Grab && state.controlledBodyPart.holding == null
-
     val newSlashedParts: List<BodyPart> = state.allBodyParts
         .values
         .filter { bodyPart -> bodyPart.id in state.targetCreature.bodyPartIds && bodyPart.id == state.targetBodyPart?.id }
@@ -83,7 +80,9 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
                     selectable is BodyPart && state.controlledBodyPart.id == selectable.id && itemFromTheGround != null -> selectable.copy(
                         holding = itemFromTheGround.id
                     )
-                    selectable is BodyPart && targetSelectableId != null && selectable.lodgedInSelectables.contains(targetSelectableId) -> selectable.copy(
+                    selectable is BodyPart && targetSelectableId != null && selectable.lodgedInSelectables.contains(
+                        targetSelectableId
+                    ) -> selectable.copy(
                         lodgedInSelectables = selectable.lodgedInSelectables - targetSelectableId
                     )
                     else -> selectable
@@ -175,7 +174,18 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             }
         }
         AttackAction.Grab -> {
-            "$controlledName picks up the ${state.targetSelectable?.name?.toLowerCase()} from the ground."
+            val bodyPartWithLodgedIn =
+                state.allBodyParts.values.find { state.targetSelectable?.id in it.lodgedInSelectables }
+            val lodgedInItem = bodyPartWithLodgedIn?.let {
+                state.allItems.find { item ->
+                    item.id == state.targetSelectable?.id
+                }
+            }
+
+            when {
+                bodyPartWithLodgedIn != null && lodgedInItem != null -> "$controlledName pulls out the ${lodgedInItem.name.toLowerCase()} from their ${bodyPartWithLodgedIn.name.toLowerCase()} with their $controlledPartName"
+                else -> "$controlledName picks up the ${state.targetSelectable?.name?.toLowerCase()} from the ground."
+            }
         }
         else -> when {
             shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${targetWeapon?.name?.toLowerCase()} is knocked out to the ground!"
@@ -201,7 +211,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 
     return state.copy(
         selectableHolders = state.selectableHolders.mapValues { (holderId, holder) ->
-            when(holderId) {
+            when (holderId) {
                 state.controlledCreature.id -> newControlledCreature
                 state.targetCreature.id -> newTargetCreature
                 state.ground.id -> newGround
@@ -228,7 +238,7 @@ fun selectBodyPart(state: FightState, action: FightAction.SelectSomething): Figh
             action.selectableHolderId != state.controlledCreature.id -> action.selectableId
             else -> state.lastSelectedTargetPartId
         },
-        lastSelectedTargetHolderId = when  {
+        lastSelectedTargetHolderId = when {
             targetIsLodgedInItem -> action.selectableHolderId
             action.selectableHolderId == state.controlledCreature.id -> state.lastSelectedTargetHolderId
             else -> action.selectableHolderId

@@ -265,7 +265,7 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
-    fun `should move item from lodged in to grabbing part when grabbed lodged in item`() {
+    fun `should move item from lodged in to grabbing part when grabbed lodged in item with correct message`() {
         val initialState = createLodgedInState()
 
         val state = fightFunctionalCore(
@@ -287,11 +287,13 @@ interface FightFunctionalCoreTest {
                     .transform { bodyParts -> bodyParts.find { it.id == initialState.bodyPartWithLodgedInItem.id }!! }
                     .prop(BodyPart::lodgedInSelectables)
                     .isEmpty()
-
                 prop(FightState::controlledBodyPart)
                     .prop(BodyPart::holding)
                     .isEqualTo(initialState.arrow.id)
-
+                prop(FightState::actionLog)
+                    .index(0)
+                    .prop(ActionEntry::text)
+                    .isEqualTo("$controlledActorName pulls out the arrow from their body with their left hand")
             }
     }
 
