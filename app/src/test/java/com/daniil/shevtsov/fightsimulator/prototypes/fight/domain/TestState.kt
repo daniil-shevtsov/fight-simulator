@@ -5,8 +5,6 @@ interface TestState {
 
     val attacker: Creature
         get() = state.controlledCreature
-    val attackerRightArm: BodyPart
-        get() = state.controlledCreatureBodyParts.find { it.name == "Right Arm" }!!
     val attackerRightHand: BodyPart
         get() = state.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!
     val attackerLeftHand: BodyPart
@@ -21,6 +19,8 @@ interface TestState {
         get() = state.targetCreatureBodyParts.find { it.name == "Head" }!!
     val targetSkull: BodyPart
         get() = state.targetCreatureBodyParts.find { it.name == "Skull" }!!
+    val targetRightArm: BodyPart
+        get() = state.targetCreatureBodyParts.find { it.name == "Right Arm" }!!
     val targetRightHand: BodyPart
         get() = state.targetCreatureBodyParts.find { it.name == "Right Hand" }!!
     val attackerWeapon: Selectable

@@ -337,8 +337,8 @@ interface FightFunctionalCoreTest {
                 fightFunctionalCore(
                     state = state,
                     action = FightAction.SelectSomething(
-                        selectableHolderId = initialState.attacker.id,
-                        selectableId = initialState.attackerRightArm.id,
+                        selectableHolderId = initialState.target.id,
+                        selectableId = initialState.targetRightArm.id,
                     )
                 )
             }
@@ -354,14 +354,14 @@ interface FightFunctionalCoreTest {
             propTargetCreature()
                 .prop(Creature::missingPartsSet)
                 .containsAll(
-                    initialState.attackerRightArm.id,
-                    initialState.attackerRightHand.id,
+                    initialState.targetRightArm.id,
+                    initialState.targetRightHand.id,
                 )
             propTargetCreature()
                 .prop(Creature::bodyPartIds)
                 .containsNone(
-                    initialState.attackerRightArm.id,
-                    initialState.attackerRightHand.id
+                    initialState.targetRightArm.id,
+                    initialState.targetRightHand.id
                 )
 //            prop(FightState::targetBodyPart)
 //                .isNotNull()

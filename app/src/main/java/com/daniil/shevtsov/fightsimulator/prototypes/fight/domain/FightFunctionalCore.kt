@@ -50,8 +50,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Kick
     ) && targetBodyPart?.holding != null
 
-    val newSlashedParts: List<BodyPart> = listOfNotNull(
-        state.targetBodyPart?.let { slashedPart ->
+    val slashedPart = state.targetBodyPart?.let { slashedPart ->
         if (action.attackAction == AttackAction.Slash) {
             slashedPart.copy(
                 statuses = slashedPart.statuses + BodyPartStatus.Missing
@@ -59,8 +58,10 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         } else {
             null
         }
-        }
-    )
+    }
+    val newSlashedParts: List<BodyPart> = slashedPart?.let { slashedPart ->
+        listOf(slashedPart) + listOfNotNull(state.targetCreatureBodyParts.find { it.id == slashedPart.parentId })
+    }.orEmpty()
 
     val newSelectables = state.allSelectables.values.map { selectable ->
         when (action.attackAction) {
@@ -121,12 +122,14 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     }
 
     val newControlledCreature = state.controlledCreature
-    val slashedContained = newSlashedParts.flatMap { it.containedBodyParts } //newSlashedPart?.containedBodyParts.orEmpty()
+    val slashedContained =
+        newSlashedParts.flatMap { it.containedBodyParts } //newSlashedPart?.containedBodyParts.orEmpty()
     val targetCreature = state.targetSelectableHolder as? Creature
     val newTargetCreatureSelectableHolder = when {
         targetCreature != null -> {
             targetCreature.copy(
-                missingPartsSet = targetCreature.missingPartsSet + newSlashedParts.map(BodyPart::id).toSet(),
+                missingPartsSet = targetCreature.missingPartsSet + newSlashedParts.map(BodyPart::id)
+                    .toSet(),
                 bodyPartIds = targetCreature.bodyPartIds.filter { id ->
                     val notSlashedPart = id !in newSlashedParts.map(BodyPart::id)
                     val notContainedInSlashedPart = id !in slashedContained
