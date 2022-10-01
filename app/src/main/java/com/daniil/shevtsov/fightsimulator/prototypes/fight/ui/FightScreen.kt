@@ -17,10 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Actor
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightAction
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.GroundId
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.*
 
 fun composePreviewCreatureStub() = listOf(
@@ -62,6 +59,51 @@ fun composePreviewCreatureStub() = listOf(
 
 @Preview(widthDp = 412, heightDp = 732)
 @Composable
+fun FightScreenDebugPreview() {
+    FightScreen(
+        state = FightViewState.Content(
+            actors = composePreviewCreatureStub(),
+            commandsMenu = commandsMenu(
+                commands = listOf(
+                    commandItem(name = "Slash"),
+                    commandItem(name = "Stab"),
+                    commandItem(name = "Pummel"),
+                    commandItem(name = "Throw"),
+                    commandItem(name = "Kick"),
+                    commandItem(name = "Punch"),
+                )
+            ),
+            actionLog = listOf(
+                actionEntryModel("You slap enemy's head with your right hand"),
+                actionEntryModel("You done did it"),
+            ),
+            ground = GroundMenu(
+                id = GroundId(0L),
+                selectables = listOf(
+                    bodyPartItem(
+                        id = 1L,
+                        name = "Head",
+                        contained = setOf(bodyPartItem(id = 2L, name = "Skull")),
+                        isSelected = false
+                    ),
+                    bodyPartItem(
+                        id = 2L,
+                        name = "Right Hand",
+                        canGrab = true,
+                        contained = setOf(bodyPartItem(id = 2L, name = "Bone")),
+                        holding = selectableItem(id = 3L, name = "Knife"),
+                        isSelected = false
+                    ),
+                ),
+                isSelected = true
+            ),
+        ),
+        onAction = {},
+    )
+}
+
+@Preview(widthDp = 412, heightDp = 732)
+@Composable
 fun FightScreenPreview() {
     FightScreen(
         state = FightViewState.Content(
@@ -99,63 +141,20 @@ fun FightScreenPreview() {
         onAction = {},
     )
 }
+
 @Preview(widthDp = 412, heightDp = 732)
 @Composable
-fun FightScreenDebugPreview() {
+fun InitialFightScreenPreview() {
     FightScreen(
-        state = FightViewState.Content(
-            actors = composePreviewCreatureStub(),
-            commandsMenu = commandsMenu(
-                commands = listOf(
-                    commandItem(name = "Slash"),
-                    commandItem(name = "Stab"),
-                    commandItem(name = "Pummel"),
-                    commandItem(name = "Throw"),
-                    commandItem(name = "Kick"),
-                    commandItem(name = "Punch"),
-                )
-            ),
-            actionLog = listOf(
-                actionEntryModel("You slap enemy's head with your right hand"),
-                actionEntryModel("You done did it"),
-            ),
-            ground = GroundMenu(
-                id = GroundId(0L),
-                selectables = listOf(
-                    bodyPartItem(
-                        id = 1L,
-                        name = "Head",
-                        contained = setOf(bodyPartItem(id = 2L, name = "Skull")),
-                        isSelected = false
-                    ),
-                    bodyPartItem(
-                        id = 2L,
-                        name = "Right Hand",
-                        contained = setOf(bodyPartItem(id = 2L, name = "Bone")),
-                        holding = selectableItem(id = 3L, name = "Knife"),
-                        isSelected = false
-                    ),
-                ),
-                isSelected = true
-            ),
+        state = fightPresentationMapping(
+            state = fightFunctionalCore(
+                fightState(),
+                FightAction.Init
+            )
         ),
         onAction = {},
     )
 }
-
-//@Preview(widthDp = 412, heightDp = 732)
-//@Composable
-//fun InitialFightScreenPreview() {
-//    FightScreen(
-//        state = fightPresentationMapping(
-//            state = fightFunctionalCore(
-//                fightState(),
-//                FightAction.Init
-//            )
-//        ),
-//        onAction = {},
-//    )
-//}
 
 @Composable
 fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {

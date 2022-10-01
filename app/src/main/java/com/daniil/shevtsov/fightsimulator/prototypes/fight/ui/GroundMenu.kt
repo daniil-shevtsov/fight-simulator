@@ -27,6 +27,12 @@ private fun groundMenuPreviewData() = GroundMenu(
             name = "Head",
             contained = setOf(bodyPartItem(id = 4L, name = "Skull")),
             lodgedIn = listOf(selectableItem(id = 5L, name = "Arrow"))
+        ),
+        bodyPartItem(
+            id = 4L,
+            name = "Right Hand",
+            canGrab = true,
+            holding = selectableItem(id = 6L, name = "Knife")
         )
     ),
     isSelected = true,
