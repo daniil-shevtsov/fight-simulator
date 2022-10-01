@@ -70,8 +70,8 @@ data class FightState(
     val targetBodyPart: BodyPart?
         get() {
             val targetSelectableHolderId = targetSelectableHolder.id
-            return allBodyParts[targetCreature.targetSelectedBodyPart?.id!!]
-                .takeIf { targetCreature.id == targetSelectableHolderId }
+            return allBodyParts[targetSelectable?.id!!]
+                .takeIf { targetSelectableHolder.id == targetSelectableHolderId }
         }
     val targetBodyPartBone: BodyPart?
         get() {
