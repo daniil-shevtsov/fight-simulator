@@ -306,12 +306,12 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::targetCreature)
+            propTargetCreature()
                 .prop(Creature::missingPartsSet)
                 .containsAll(
                     initialState.targetHead.id,
                 )
-            prop(FightState::targetCreature)
+            propTargetCreature()
                 .prop(Creature::bodyPartIds)
                 .containsNone(initialState.targetHead.id, initialState.targetSkull.id)
 //            prop(FightState::allSelectables)
@@ -654,6 +654,9 @@ interface FightFunctionalCoreTest {
             .containsNone(AttackAction.Grab)
     }
 
+    private fun Assert<FightState>.propTargetCreature() = prop(FightState::targetSelectableHolder)
+        .isInstanceOf(Creature::class)
+
     private fun stateForItemPickupWithMissingTargetRightHand(): ItemPickupTestState {
         val initialState = createInitialStateWithControlled(controlledActorName)
 
@@ -748,7 +751,7 @@ fun createInitialStateWithControlled(actorName: String): FightState {
         fightFunctionalCore(
             state = state,
             action = FightAction.SelectSomething(
-                state.targetCreature.id,
+                state.targetSelectableHolder.id,
                 state.targetCreatureBodyParts.find { it.name == "Head" }!!.id
             )
         )
