@@ -130,15 +130,21 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 
     val newControlledCreature = state.controlledCreature
     val slashedContained = newSlashedPart?.containedBodyParts.orEmpty()
-    val newTargetCreature = state.targetCreature.copy(
-        missingPartsSet = state.targetCreature.missingPartsSet + setOfNotNull(newSlashedPart?.id),
-        bodyPartIds = state.targetCreature.bodyPartIds.filter {
-            val notSlashedPart = it != newSlashedPart?.id
-            val notContainedInSlashedPart = it !in slashedContained
+    val targetCreature = state.targetSelectableHolder as? Creature
+    val newTargetCreatureSelectableHolder = when {
+        targetCreature != null -> {
+            targetCreature.copy(
+                missingPartsSet = targetCreature.missingPartsSet + setOfNotNull(newSlashedPart?.id),
+                bodyPartIds = targetCreature.bodyPartIds.filter {
+                    val notSlashedPart = it != newSlashedPart?.id
+                    val notContainedInSlashedPart = it !in slashedContained
 
-            notSlashedPart && notContainedInSlashedPart
-        },
-    )
+                    notSlashedPart && notContainedInSlashedPart
+                }
+            )
+        }
+        else -> null
+    }
 
     val actionName = when (action.attackAction) {
         AttackAction.Strike -> "strikes"
@@ -154,7 +160,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 
     val controlledName = state.controlledCreature.name
     val itemName = attackerWeapon?.name?.toLowerCase()
-    val targetName = state.targetCreature.name
+    val targetName = newTargetCreatureSelectableHolder?.name
     val targetPartName = targetBodyPart?.name?.toLowerCase().orEmpty()
     val controlledPartName = state.controlledBodyPart.name.toLowerCase()
     val containedPartName =
@@ -222,7 +228,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         selectableHolders = state.selectableHolders.mapValues { (holderId, holder) ->
             when (holderId) {
                 state.controlledCreature.id -> newControlledCreature
-                state.targetCreature.id -> newTargetCreature
+                newTargetCreatureSelectableHolder?.id -> newTargetCreatureSelectableHolder
                 state.ground.id -> newGround
                 else -> holder
             }
