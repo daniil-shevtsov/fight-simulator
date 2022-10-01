@@ -44,7 +44,8 @@ fun GroundMenu(
     onAction: (FightAction) -> Unit,
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier,
+        propagateMinConstraints = true,
     ) {
         Column(
             modifier = Modifier
@@ -70,7 +71,9 @@ fun GroundMenu(
                     .background(Color.LightGray)
             )
             Row(
-                modifier = Modifier.height(IntrinsicSize.Max).padding(4.dp),
+                modifier = Modifier
+                    .height(IntrinsicSize.Max)
+                    .padding(4.dp),
                 horizontalArrangement = spacedBy(4.dp),
             ) {
                 ground.selectables.forEach { item ->
