@@ -262,22 +262,21 @@ internal class FightPresentationMappingTest {
 
         return originalState.copy(
             state = originalState.state.copy(
-                allSelectables = originalState.state.allSelectables.map { selectable ->
+                allSelectables = (originalState.state.allSelectables.values.map { selectable ->
                     when {
                         selectable is BodyPart && selectable.id == originalState.targetSkull.id -> selectable.copy(
                             statuses = selectable.statuses + BodyPartStatus.Broken
                         )
                         else -> selectable
                     }
-                } + listOf(spear),
-                actors = listOf(modifiedAttacker, modifiedTarget),
-                world = originalState.state.world.copy(ground = modifiedGround)
+                } + listOf(spear)).associateBy { it.id },
+                selectableHolders = listOf(modifiedAttacker, modifiedTarget, modifiedGround).associateBy { it.id },
             )
         )
     }
 
     private fun slashedTestState(): AttackWithItemTestState {
-        val initial = stateForItemAttack(actorName = "Player").state
+        val initial = createInitialStateWithControlled(actorName = "Player")
         val slashed = fightFunctionalCore(
             state = initial,
             action = FightAction.SelectCommand(AttackAction.Slash)

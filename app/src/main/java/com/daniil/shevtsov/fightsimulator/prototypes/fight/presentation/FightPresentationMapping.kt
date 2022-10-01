@@ -3,23 +3,28 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 
 fun fightPresentationMapping(state: FightState): FightViewState {
+    val controlledCreatureId = state.controlledCreature.id
+    val controlledBodyPartId = state.controlledBodyPart.id
+    val targetSelectableId = state.targetSelectable?.id
+    val targetSelectableHolderId = state.targetSelectableHolder.id
     return FightViewState.Content(
-        actors = state.actors.map { creature ->
+        actors = state.actors.values.map { creature ->
             CreatureMenu(
                 id = creature.id,
                 actor = creature.actor,
                 bodyParts = state
                     .allBodyParts
+                    .values
                     .filter { it.id in creature.bodyPartIds }
                     .map { bodyPart ->
                         bodyPart.toItem(
-                            state.allSelectables,
-                            state.controlledBodyPart.id,
-                            state.targetSelectable?.id
+                            allSelectables = state.allSelectables,
+                            controlledSelectableId = controlledBodyPartId,
+                            targetSelectableId = targetSelectableId,
                         )
                     },
-                isControlled = creature.id == state.controlledCreature.id,
-                isTarget = creature.id == state.targetCreature.id,
+                isControlled = creature.id == controlledCreatureId,
+                isTarget = creature.id == targetSelectableHolderId,
             )
         },
         commandsMenu = CommandsMenu(
@@ -35,26 +40,27 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                 text = action.text,
             )
         },
-        ground = state.world.ground.let { ground ->
+        ground = state.ground.let { ground ->
             GroundMenu(
                 id = ground.id,
                 selectables = state.allSelectables
-                    .filter { it.id in ground.selectableIds }
+                    .filterKeys { it in ground.selectableIds }
+                    .values
                     .map {
                         it.toItem(
-                            state.allSelectables,
-                            state.controlledBodyPart.id,
-                            state.targetSelectable?.id
+                            allSelectables = state.allSelectables,
+                            controlledSelectableId = controlledBodyPartId,
+                            targetSelectableId = targetSelectableId,
                         )
                     },
-                isSelected = state.targetSelectableHolder.id == ground.id,
+                isSelected = targetSelectableHolderId == ground.id,
             )
         }
     )
 }
 
 private fun Selectable.toItem(
-    allSelectables: List<Selectable>,
+    allSelectables: Map<SelectableId, Selectable>,
     controlledSelectableId: SelectableId,
     targetSelectableId: SelectableId?,
 ): SelectableItem {
@@ -75,16 +81,16 @@ private fun Selectable.toItem(
             id = id,
             name = name,
             holding = holding?.let { id ->
-                allSelectables.find { it.id == id }?.let { toItem(it) }
+                allSelectables[id]?.let { toItem(it) }
             },
             contained = containedBodyParts
                 .mapNotNull { containedId ->
-                    allSelectables.find { it.id == containedId }?.let { toItem(it) }
+                    allSelectables[containedId]?.let { toItem(it) }
                 }.toSet(),
             isSelected = id == targetSelectableId || id == controlledSelectableId,
             statuses = statuses,
             canGrab = canGrab,
-            lodgedIn = allSelectables.filter { it.id in lodgedInSelectables }
+            lodgedIn = allSelectables.values.filter { it.id in lodgedInSelectables }
                 .map { toItem(it) },
         )
     }

@@ -3,6 +3,8 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,24 +17,48 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.GroundMe
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.bodyPartItem
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.selectableItem
 
+private fun groundMenuPreviewData() = GroundMenu(
+    id = groundId(1L),
+    selectables = listOf(
+        selectableItem(id = 1L, name = "Knife"),
+        selectableItem(id = 2L, name = "Spear"),
+        bodyPartItem(
+            id = 3L,
+            name = "Head",
+            contained = setOf(bodyPartItem(id = 4L, name = "Skull")),
+            lodgedIn = listOf(selectableItem(id = 5L, name = "Arrow"))
+        ),
+        bodyPartItem(
+            id = 4L,
+            name = "Right Hand",
+            canGrab = true,
+            holding = selectableItem(id = 6L, name = "Knife")
+        )
+    ),
+    isSelected = true,
+)
+
+@Preview(widthDp = 412, heightDp = 732)
+@Composable
+fun GroundResizePreview() {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Text("LOL",modifier = Modifier.weight(1f))
+        repeat(5) {
+            GroundMenu(
+                ground = groundMenuPreviewData(),
+                modifier = Modifier,
+                onAction = {},
+            )
+        }
+        Text("Kek",modifier = Modifier)
+    }
+}
+
 @Preview
 @Composable
 fun GroundMenuPreview() {
     GroundMenu(
-        ground = GroundMenu(
-            id = groundId(1L),
-            selectables = listOf(
-                selectableItem(id = 1L, name = "Knife"),
-                selectableItem(id = 2L, name = "Spear"),
-                bodyPartItem(
-                    id = 3L,
-                    name = "Head",
-                    contained = setOf(bodyPartItem(id = 4L, name = "Skull")),
-                    lodgedIn = listOf(selectableItem(id = 5L, name = "Arrow"))
-                )
-            ),
-            isSelected = true,
-        ),
+        ground = groundMenuPreviewData(),
         onAction = {},
     )
 }
@@ -44,7 +70,8 @@ fun GroundMenu(
     onAction: (FightAction) -> Unit,
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier,
+        propagateMinConstraints = true,
     ) {
         Column(
             modifier = Modifier
@@ -70,7 +97,9 @@ fun GroundMenu(
                     .background(Color.LightGray)
             )
             Row(
-                modifier = Modifier.height(IntrinsicSize.Max).padding(4.dp),
+                modifier = Modifier
+                    .height(IntrinsicSize.Max)
+                    .padding(4.dp),
                 horizontalArrangement = spacedBy(4.dp),
             ) {
                 ground.selectables.forEach { item ->

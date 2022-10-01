@@ -185,12 +185,8 @@ interface FightFunctionalCoreTest {
                 .each { it.prop(BodyPart::holding).isNull() }
             prop(FightState::targetBodyPart)
                 .isNotNull()
-                .all {
-                    prop(BodyPart::holding)
-                        .isEqualTo(testState.attackerWeapon.id)
-                    prop(BodyPart::lodgedInSelectables)
-                        .contains(testState.attackerWeapon.id)
-                }
+                .prop(BodyPart::lodgedInSelectables)
+                .contains(testState.attackerWeapon.id)
             prop(FightState::actionLog)
                 .index(0)
                 .prop(ActionEntry::text)
@@ -199,25 +195,106 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
-    fun `should throw by controlled actor`() {
-        val testState = stateForItemAttack()
+    fun `should select lodged in item`() {
+        val initialState = createLodgedInState()
 
         val state = fightFunctionalCore(
-            state = testState.state,
-            action = FightAction.SelectCommand(attackAction = AttackAction.Throw)
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
         )
 
         assertThat(state).all {
-            prop(FightState::controlledCreatureBodyParts)
-                .each { it.prop(BodyPart::holding).isNull() }
-            prop(FightState::targetCreatureBodyParts)
-                .extracting(BodyPart::id, BodyPart::holding)
-                .contains(testState.targetHead.id to testState.attackerWeapon.id)
-            prop(FightState::actionLog)
-                .index(0)
-                .prop(ActionEntry::text)
-                .isEqualTo("$controlledActorName throws knife at $targetActorName's head with their right hand.\nThe knife has lodged firmly in the wound!")
+            prop(FightState::targetSelectable)
+                .isEqualTo(initialState.arrow)
         }
+    }
+
+    @Test
+    fun `should show Grab command when selected lodged in item`() {
+        val initialState = createLodgedInState()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
+        )
+
+        assertThat(state).all {
+            prop(FightState::availableCommands)
+                .extracting(Command::attackAction)
+                .contains(AttackAction.Grab)
+        }
+    }
+
+    @Test
+    fun `should change actor to one with lodged in item and not crash`() {
+        val initialState = createLodgedInState()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
+        ).let { state ->
+            fightFunctionalCore(
+                state = initialState.state,
+                action = FightAction.SelectControlledActor(
+                    actorId = initialState.target.id,
+                )
+            )
+        }.let { state ->
+            fightFunctionalCore(
+                state = initialState.state,
+                action = FightAction.SelectControlledActor(
+                    actorId = initialState.attacker.id,
+                )
+            )
+        }
+
+        assertThat(state).all {
+            prop(FightState::controlledCreature)
+                .prop(Creature::id)
+                .isEqualTo(initialState.attacker.id)
+        }
+    }
+
+    @Test
+    fun `should move item from lodged in to grabbing part when grabbed lodged in item with correct message`() {
+        val initialState = createLodgedInState()
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.attacker.id,
+                selectableId = initialState.arrow.id,
+            )
+        ).let { state ->
+            fightFunctionalCore(
+                state = state,
+                action = FightAction.SelectCommand(AttackAction.Grab)
+            )
+        }
+
+        assertThat(state)
+            .all {
+                prop(FightState::controlledCreatureBodyParts)
+                    .transform { bodyParts -> bodyParts.find { it.id == initialState.bodyPartWithLodgedInItem.id }!! }
+                    .prop(BodyPart::lodgedInSelectables)
+                    .isEmpty()
+                prop(FightState::controlledBodyPart)
+                    .prop(BodyPart::holding)
+                    .isEqualTo(initialState.arrow.id)
+                prop(FightState::actionLog)
+                    .index(0)
+                    .prop(ActionEntry::text)
+                    .isEqualTo("$controlledActorName pulls out the arrow from their body with their left hand")
+            }
     }
 
     @Test
@@ -229,12 +306,12 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::targetCreature)
+            propTargetCreature()
                 .prop(Creature::missingPartsSet)
                 .containsAll(
                     initialState.targetHead.id,
                 )
-            prop(FightState::targetCreature)
+            propTargetCreature()
                 .prop(Creature::bodyPartIds)
                 .containsNone(initialState.targetHead.id, initialState.targetSkull.id)
 //            prop(FightState::allSelectables)
@@ -252,8 +329,7 @@ interface FightFunctionalCoreTest {
                 .index(0)
                 .prop(ActionEntry::text)
                 .isEqualTo("$controlledActorName slashes at $targetActorName's head with knife held by their right hand.\nSevered head flies off in an arc!")
-            prop(FightState::world)
-                .prop(World::ground)
+            prop(FightState::ground)
                 .prop(Ground::selectableIds)
                 .containsExactly(initialState.targetHead.id)
         }
@@ -268,8 +344,7 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state)
-            .prop(FightState::world)
-            .prop(World::ground)
+            .prop(FightState::ground)
             .prop(Ground::selectableIds)
             .contains(initialState.targetHead.id)
     }
@@ -284,8 +359,8 @@ interface FightFunctionalCoreTest {
         )
 
         assertThat(state).all {
-            prop(FightState::allSelectables)
-                .transform { it.filterIsInstance<BodyPart>() }
+            prop(FightState::allBodyParts)
+                .transform { it.values }
                 .extracting(BodyPart::id, BodyPart::statuses)
                 .contains(initialState.targetSkull.id to listOf(BodyPartStatus.Broken))
             prop(FightState::actionLog)
@@ -325,8 +400,7 @@ interface FightFunctionalCoreTest {
                     .isNull()
                 prop(AttackWithItemTestState::state)
                     .all {
-                        prop(FightState::world)
-                            .prop(World::ground)
+                        prop(FightState::ground)
                             .prop(Ground::selectableIds)
                             .containsExactly(initialState.targetWeapon.id)
                         prop(FightState::actionLog)
@@ -391,8 +465,7 @@ interface FightFunctionalCoreTest {
 
         assertThat(finalState)
             .all {
-                prop(FightState::world)
-                    .prop(World::ground)
+                prop(FightState::ground)
                     .prop(Ground::selectableIds)
                     .isEmpty()
                 prop(FightState::targetSelectable)
@@ -420,8 +493,18 @@ interface FightFunctionalCoreTest {
     }
 
     @Test
-    fun `should should show command for picking up when selected item on the groun with grabber part`() {
-        val initialState = stateForItemPickupWithMissingTargetRightHand()
+    fun `should show command for picking up when selected item on the ground with grabber part`() {
+        val initialState = stateForItemPickupWithMissingTargetRightHand().let { state ->
+            state.copy(
+                state = fightFunctionalCore(
+                    state = state.state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = state.attacker.id,
+                        selectableId = state.attackerLeftHand.id,
+                    )
+                )
+            )
+        }
 
         val state = fightFunctionalCore(
             state = initialState.state,
@@ -435,6 +518,34 @@ interface FightFunctionalCoreTest {
             .prop(FightState::availableCommands)
             .extracting(Command::attackAction)
             .containsOnly(AttackAction.Grab)
+    }
+
+    @Test
+    fun `should not show command for picking up when selected item on the ground with holding grabber part`() {
+        val initialState = stateForItemPickupWithMissingTargetRightHand().let { state ->
+            state.copy(
+                state = fightFunctionalCore(
+                    state = state.state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = state.attacker.id,
+                        selectableId = state.attackerRightHand.id,
+                    )
+                )
+            )
+        }
+
+        val state = fightFunctionalCore(
+            state = initialState.state,
+            action = FightAction.SelectSomething(
+                selectableHolderId = initialState.ground.id,
+                selectableId = initialState.spear.id,
+            )
+        )
+
+        assertThat(state)
+            .prop(FightState::availableCommands)
+            .extracting(Command::attackAction)
+            .containsNone(AttackAction.Grab)
     }
 
     @Test
@@ -459,8 +570,7 @@ interface FightFunctionalCoreTest {
 
         assertThat(state)
             .all {
-                prop(FightState::world)
-                    .prop(World::ground)
+                prop(FightState::ground)
                     .prop(Ground::selectableIds)
                     .containsNone(initialState.targetHead.id)
                 prop(FightState::controlledBodyPart)
@@ -487,8 +597,7 @@ interface FightFunctionalCoreTest {
 
         assertThat(state)
             .all {
-                prop(FightState::world)
-                    .prop(World::ground)
+                prop(FightState::ground)
                     .prop(Ground::selectableIds)
                     .containsOnly(initialState.sword.id)
                 prop(FightState::controlledBodyPart)
@@ -545,6 +654,86 @@ interface FightFunctionalCoreTest {
             .containsNone(AttackAction.Grab)
     }
 
+    @Test
+    fun `should show correct log when attacking slashed parts`() {
+        val initialState = stateForItemAttack()
+
+        val finalState = initialState.state
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = initialState.attacker.id,
+                        selectableId = initialState.attackerFoot.id,
+                    )
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = initialState.ground.id,
+                        selectableId = initialState.targetHead.id,
+                    )
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Kick)
+                )
+            }
+
+        assertThat(finalState)
+            .prop(FightState::actionLog)
+            .extracting(ActionEntry::text)
+            .index(finalState.actionLog.size - 1)
+            .isEqualTo("$controlledActorName kicks slashed head with their right foot")
+    }
+
+    @Test
+    fun `should lodged in thrown at slashed part knife`() {
+        val initialState = stateForItemAttack()
+
+        val finalState = initialState.state
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = initialState.ground.id,
+                        selectableId = initialState.targetHead.id,
+                    )
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Throw)
+                )
+            }
+
+        assertThat(finalState)
+            .prop(FightState::targetBodyPart)
+            .isNotNull()
+            .prop(BodyPart::lodgedInSelectables)
+            .contains(initialState.attackerWeapon.id)
+    }
+
+    private fun Assert<FightState>.propTargetCreature() = prop(FightState::targetSelectableHolder)
+        .isInstanceOf(Creature::class)
+
     private fun stateForItemPickupWithMissingTargetRightHand(): ItemPickupTestState {
         val initialState = createInitialStateWithControlled(controlledActorName)
 
@@ -557,8 +746,16 @@ interface FightFunctionalCoreTest {
 
         //TODO: Control through action
         val state = initialState.copy(
-            allSelectables = initialState.allSelectables + listOf(spear, sword),
-            world = initialState.world.copy(ground = ground),
+            allSelectables = (initialState.allSelectables.values + listOf(
+                spear,
+                sword
+            )).associateBy { it.id },
+            selectableHolders = initialState.selectableHolders.values.map { holder ->
+                when (holder.id) {
+                    initialState.ground.id -> ground
+                    else -> holder
+                }
+            }.associateBy { it.id },
         )
 
         return ItemPickupTestState(
@@ -566,28 +763,51 @@ interface FightFunctionalCoreTest {
         )
     }
 
-    private fun stateForItemAttack() = stateForItemAttack(controlledActorName)
+    private fun stateForItemAttack() =
+        AttackWithItemTestState(state = createInitialStateWithControlled(controlledActorName))
+
+    private fun createLodgedInState(): LodgedInItemTestState {
+        val initialState = stateForItemAttack().let { state ->
+            state.copy(
+                state = fightFunctionalCore(
+                    state = state.state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = state.attacker.id,
+                        selectableId = state.attackerLeftHand.id,
+                    )
+                )
+            )
+        }
+
+        val arrow = item(id = 401L, name = "Arrow")
+
+        val controlledActor = initialState.attacker
+        val controlledBody = initialState.state.allBodyParts.values.find {
+            it.name == "Body" && controlledActor.bodyPartIds.contains(it.id)
+        }!!
+
+        val state = initialState.state.copy(
+            allSelectables = (initialState.state.allSelectables.values + listOf(arrow)).map { selectable ->
+                when {
+                    selectable.id == controlledBody.id && selectable is BodyPart -> selectable.copy(
+                        lodgedInSelectables = setOf(arrow.id)
+                    )
+                    else -> selectable
+                }
+            }.associateBy { it.id },
+        )
+
+        return LodgedInItemTestState(
+            state = state,
+        )
+    }
 }
 
-fun stateForItemAttack(actorName: String): AttackWithItemTestState {
-    val initialState = createInitialStateWithControlled(actorName)
-
-    val ground = ground(id = 1L)
-
-    val state = initialState.copy(
-        world = initialState.world.copy(ground = ground),
-    )
-
-    return AttackWithItemTestState(
-        state = state,
-    )
-}
-
-private fun createInitialStateWithControlled(actorName: String): FightState {
+fun createInitialStateWithControlled(actorName: String): FightState {
     val originalState = fightFunctionalCore(state = fightState(), action = FightAction.Init)
 
-    val leftActor = originalState.actors.first().copy(name = "Player")
-    val rightActor = originalState.actors.last().copy(name = "Enemy")
+    val leftActor = originalState.actors.values.first().copy(name = "Player")
+    val rightActor = originalState.actors.values.last().copy(name = "Enemy")
     val controlled = when (actorName) {
         leftActor.name -> leftActor.id
         rightActor.name -> rightActor.id
@@ -608,7 +828,7 @@ private fun createInitialStateWithControlled(actorName: String): FightState {
         fightFunctionalCore(
             state = state,
             action = FightAction.SelectSomething(
-                state.targetCreature.id,
+                state.targetSelectableHolder.id,
                 state.targetCreatureBodyParts.find { it.name == "Head" }!!.id
             )
         )
