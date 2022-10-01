@@ -85,14 +85,15 @@ data class FightState(
                     .none { creature ->
                         creature.bodyPartIds.contains(targetSelectable?.id)
                     }
-            return when {
-                (allItems.any { it.id == targetSelectable?.id } || isTargetSlashed) && controlledBodyPart.canGrab -> listOf(
+            val availableCommands = when {
+                (allItems.any { it.id == targetSelectable?.id } || isTargetSlashed) && controlledBodyPart.canGrab && controlledBodyPart.holding == null -> listOf(
                     AttackAction.Grab
-                ).takeIf { controlledBodyPart.holding == null }.orEmpty()
+                )
                 allBodyParts.values.any { it.id in controlledBodyPartIds } -> (controlledBodyPart.attackActions
                         + allSelectables[controlledBodyPart.holding].attackActionsWithThrow)
                 else -> emptyList()
             }.map(::Command)
+            return availableCommands
         }
 
     private val Creature.controlledSelectedBodyPart: BodyPart
