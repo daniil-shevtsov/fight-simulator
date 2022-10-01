@@ -3,6 +3,11 @@ package com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 
 fun fightPresentationMapping(state: FightState): FightViewState {
+    val controlledCreatureId = state.controlledCreature.id
+    val targetCreatureId = state.targetCreature.id
+    val controlledBodyPartId = state.controlledBodyPart.id
+    val targetSelectableId = state.targetSelectable?.id
+    val targetSelectableHolderId = state.targetSelectableHolder.id
     return FightViewState.Content(
         actors = state.actors.values.map { creature ->
             CreatureMenu(
@@ -14,13 +19,13 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                     .filter { it.id in creature.bodyPartIds }
                     .map { bodyPart ->
                         bodyPart.toItem(
-                            state.allSelectables,
-                            state.controlledBodyPart.id,
-                            state.targetSelectable?.id
+                            allSelectables = state.allSelectables,
+                            controlledSelectableId = controlledBodyPartId,
+                            targetSelectableId = targetSelectableId,
                         )
                     },
-                isControlled = creature.id == state.controlledCreature.id,
-                isTarget = creature.id == state.targetCreature.id,
+                isControlled = creature.id == controlledCreatureId,
+                isTarget = creature.id == targetCreatureId,
             )
         },
         commandsMenu = CommandsMenu(
@@ -44,12 +49,12 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                     .values
                     .map {
                         it.toItem(
-                            state.allSelectables,
-                            state.controlledBodyPart.id,
-                            state.targetSelectable?.id
+                            allSelectables = state.allSelectables,
+                            controlledSelectableId = controlledBodyPartId,
+                            targetSelectableId = targetSelectableId,
                         )
                     },
-                isSelected = state.targetSelectableHolder.id == ground.id,
+                isSelected = targetSelectableHolderId == ground.id,
             )
         }
     )
