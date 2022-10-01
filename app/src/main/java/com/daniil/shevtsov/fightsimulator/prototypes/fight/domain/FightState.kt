@@ -62,11 +62,14 @@ data class FightState(
         get() = allBodyParts[targetCreature.targetSelectedBodyPart?.id!!]
             .takeIf { targetCreature.id == targetSelectableHolder.id }
     val targetBodyPartBone: BodyPart?
-        get() = allBodyParts.values.firstOrNull { bodyPart -> bodyPart.id in targetBodyPart?.containedBodyParts.orEmpty() }
+        get() {
+            val targetBodyPartBones = targetBodyPart?.containedBodyParts.orEmpty()
+            return allBodyParts.values.firstOrNull { bodyPart -> bodyPart.id in targetBodyPartBones }
+        }
 
     val availableCommands: List<Command>
         get() = when {
-            allItems.any { it.id == targetSelectable?.id } && controlledBodyPart.canGrab  -> listOf(
+            allItems.any { it.id == targetSelectable?.id } && controlledBodyPart.canGrab -> listOf(
                 AttackAction.Grab
             ).takeIf { controlledBodyPart.holding == null }.orEmpty()
             allBodyParts.values.any { it.id in controlledCreature.bodyPartIds } -> (controlledBodyPart.attackActions
