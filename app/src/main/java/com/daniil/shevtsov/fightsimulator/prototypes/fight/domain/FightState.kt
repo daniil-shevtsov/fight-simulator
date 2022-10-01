@@ -62,8 +62,9 @@ data class FightState(
         get() = actors[targetSelectableHolder.id] ?: actors.values.last()
     val targetCreatureBodyParts: List<BodyPart>
         get() {
-            val targetBodyPartIds = targetCreature.bodyPartIds
-            val targetMissingPartIds = targetCreature.missingPartsSet
+            val targetCreature = targetSelectableHolder as? Creature
+            val targetBodyPartIds = targetCreature?.bodyPartIds.orEmpty()
+            val targetMissingPartIds = targetCreature?.missingPartsSet.orEmpty()
             return allBodyParts.values
                 .filter { bodyPart -> bodyPart.id in targetBodyPartIds || bodyPart.id in targetMissingPartIds }
         }
