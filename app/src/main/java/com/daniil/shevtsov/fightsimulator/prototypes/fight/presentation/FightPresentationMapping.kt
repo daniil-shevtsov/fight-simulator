@@ -4,7 +4,6 @@ import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
 
 fun fightPresentationMapping(state: FightState): FightViewState {
     val controlledCreatureId = state.controlledCreature.id
-    val targetCreatureId = state.targetCreature.id
     val controlledBodyPartId = state.controlledBodyPart.id
     val targetSelectableId = state.targetSelectable?.id
     val targetSelectableHolderId = state.targetSelectableHolder.id
@@ -25,7 +24,7 @@ fun fightPresentationMapping(state: FightState): FightViewState {
                         )
                     },
                 isControlled = creature.id == controlledCreatureId,
-                isTarget = creature.id == targetCreatureId,
+                isTarget = creature.id == targetSelectableHolderId,
             )
         },
         commandsMenu = CommandsMenu(
