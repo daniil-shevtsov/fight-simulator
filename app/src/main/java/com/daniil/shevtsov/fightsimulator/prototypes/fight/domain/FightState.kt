@@ -24,10 +24,11 @@ data class FightState(
             val lastHolder = selectableHolders[lastSelectedTargetHolderId]
             val lastHolderAllSelectableIds =
                 lastHolder?.allSelectableIds(allSelectables).orEmpty()
+            val controlledCreatureId = controlledCreature.id
             val newSelectable = when {
                 lastHolderAllSelectableIds.any { selectableId -> selectableId == lastSelectedTargetPartId } -> lastSelectedTargetPartId
                 lastHolderAllSelectableIds.isNotEmpty() -> lastHolderAllSelectableIds.first()
-                else -> selectableHolders.values.firstOrNull { it.id != controlledCreature.id }?.selectableIds?.firstOrNull()
+                else -> selectableHolders.values.firstOrNull { it.id != controlledCreatureId }?.selectableIds?.firstOrNull()
             }
             return newSelectable
         }
@@ -50,17 +51,28 @@ data class FightState(
         get() = actors.values.find { it.bodyPartIds.contains(lastSelectedControlledPartId) }
             ?: actors.values.first()
     val controlledCreatureBodyParts: List<BodyPart>
-        get() = allBodyParts.values.filter { bodyPart -> bodyPart.id in controlledCreature.bodyPartIds }
+        get() {
+            val controlledBodyPartIds = controlledCreature.bodyPartIds
+            return allBodyParts.values.filter { bodyPart -> bodyPart.id in controlledBodyPartIds }
+        }
     val controlledBodyPart: BodyPart
         get() = allBodyParts[controlledCreature.controlledSelectedBodyPart.id]!!
 
     val targetCreature: Creature
         get() = actors[targetSelectableHolder.id] ?: actors.values.last()
     val targetCreatureBodyParts: List<BodyPart>
-        get() = allBodyParts.values.filter { bodyPart -> bodyPart.id in targetCreature.bodyPartIds || bodyPart.id in targetCreature.missingPartsSet }
+        get() {
+            val targetBodyPartIds = targetCreature.bodyPartIds
+            val targetMissingPartIds = targetCreature.missingPartsSet
+            return allBodyParts.values
+                .filter { bodyPart -> bodyPart.id in targetBodyPartIds || bodyPart.id in targetMissingPartIds }
+        }
     val targetBodyPart: BodyPart?
-        get() = allBodyParts[targetCreature.targetSelectedBodyPart?.id!!]
-            .takeIf { targetCreature.id == targetSelectableHolder.id }
+        get() {
+            val targetSelectableHolderId = targetSelectableHolder.id
+            return allBodyParts[targetCreature.targetSelectedBodyPart?.id!!]
+                .takeIf { targetCreature.id == targetSelectableHolderId }
+        }
     val targetBodyPartBone: BodyPart?
         get() {
             val targetBodyPartBones = targetBodyPart?.containedBodyParts.orEmpty()
@@ -68,14 +80,17 @@ data class FightState(
         }
 
     val availableCommands: List<Command>
-        get() = when {
-            allItems.any { it.id == targetSelectable?.id } && controlledBodyPart.canGrab -> listOf(
-                AttackAction.Grab
-            ).takeIf { controlledBodyPart.holding == null }.orEmpty()
-            allBodyParts.values.any { it.id in controlledCreature.bodyPartIds } -> (controlledBodyPart.attackActions
-                    + allSelectables[controlledBodyPart.holding].attackActionsWithThrow)
-            else -> emptyList()
-        }.map(::Command)
+        get() {
+            val controlledBodyPartIds = controlledCreature.bodyPartIds
+            return when {
+                allItems.any { it.id == targetSelectable?.id } && controlledBodyPart.canGrab -> listOf(
+                    AttackAction.Grab
+                ).takeIf { controlledBodyPart.holding == null }.orEmpty()
+                allBodyParts.values.any { it.id in controlledBodyPartIds } -> (controlledBodyPart.attackActions
+                        + allSelectables[controlledBodyPart.holding].attackActionsWithThrow)
+                else -> emptyList()
+            }.map(::Command)
+        }
 
     private val Creature.targetSelectedBodyPart: BodyPart?
         get() = findSelected(lastSelectedId = currentTargetSelectableId)
