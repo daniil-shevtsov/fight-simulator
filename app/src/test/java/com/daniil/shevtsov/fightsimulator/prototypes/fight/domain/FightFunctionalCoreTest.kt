@@ -654,6 +654,49 @@ interface FightFunctionalCoreTest {
             .containsNone(AttackAction.Grab)
     }
 
+    @Test
+    fun `should show correct log when attacking slashed parts`() {
+        val initialState = stateForItemAttack()
+
+        val finalState = initialState.state
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = initialState.attacker.id,
+                        selectableId = initialState.attackerFoot.id,
+                    )
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = initialState.ground.id,
+                        selectableId = initialState.targetHead.id,
+                    )
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Kick)
+                )
+            }
+
+        assertThat(finalState)
+            .prop(FightState::actionLog)
+            .extracting(ActionEntry::text)
+            .index(finalState.actionLog.size - 1)
+            .isEqualTo("$controlledActorName kicks slashed head with their right foot.")
+    }
+
     private fun Assert<FightState>.propTargetCreature() = prop(FightState::targetSelectableHolder)
         .isInstanceOf(Creature::class)
 

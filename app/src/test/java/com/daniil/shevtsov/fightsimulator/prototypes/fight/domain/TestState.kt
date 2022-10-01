@@ -11,6 +11,8 @@ interface TestState {
         get() = state.controlledCreatureBodyParts.find { it.name == "Left Hand" }!!
     val attackerHead: BodyPart
         get() = state.controlledCreatureBodyParts.find { it.name == "Head" }!!
+    val attackerFoot: BodyPart
+        get() = state.controlledCreatureBodyParts.find { it.name == "Right Foot" }!!
     val target: Creature
         get() = state.targetSelectableHolder as Creature
     val targetHead: BodyPart
