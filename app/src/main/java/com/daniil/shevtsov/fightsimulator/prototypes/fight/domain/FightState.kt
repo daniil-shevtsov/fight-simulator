@@ -8,7 +8,6 @@ data class FightState(
     val selectableHolders: Map<SelectableHolderId, SelectableHolder>,
     val actionLog: List<ActionEntry>,
 ) {
-
     val allBodyParts: Map<SelectableId, BodyPart>
         get() = allSelectables.filterValues { it is BodyPart }.mapValues { it.value as BodyPart }
     val allItems: List<Item>
@@ -90,9 +89,6 @@ data class FightState(
                 else -> emptyList()
             }.map(::Command)
         }
-
-    private val Creature.targetSelectedBodyPart: BodyPart?
-        get() = findSelected(lastSelectedId = currentTargetSelectableId)
 
     private val Creature.controlledSelectedBodyPart: BodyPart
         get() = findSelected(lastSelectedId = lastSelectedControlledPartId)!!

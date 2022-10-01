@@ -1,5 +1,7 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.domain
 
+import java.util.*
+
 fun fightFunctionalCore(
     state: FightState,
     action: FightAction,
@@ -57,18 +59,6 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             null
         }
     }
-
-//        state.allBodyParts
-//        .values
-//        .filter { bodyPart -> bodyPart.id == slashedPartId }
-//        .takeIf { action.attackAction == AttackAction.Slash }
-//        .orEmpty()
-//        .map { bodyPart: BodyPart ->
-//            bodyPart.copy(
-//                statuses = bodyPart.statuses + BodyPartStatus.Missing
-//            )
-//        }
-
 
     val newSelectables = state.allSelectables.values.map { selectable ->
         when (action.attackAction) {
@@ -159,12 +149,14 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     }
 
     val controlledName = state.controlledCreature.name
-    val itemName = attackerWeapon?.name?.toLowerCase()
+    val itemName = attackerWeapon?.name?.lowercase(Locale.getDefault())
     val targetName = newTargetCreatureSelectableHolder?.name
-    val targetPartName = targetBodyPart?.name?.toLowerCase().orEmpty()
-    val controlledPartName = state.controlledBodyPart.name.toLowerCase()
+    val targetPartName = targetBodyPart?.name?.lowercase(Locale.getDefault()).orEmpty()
+    val controlledPartName = state.controlledBodyPart.name.lowercase(Locale.getDefault())
     val containedPartName =
-        newSelectables.find { it.id in targetBodyPart?.containedBodyParts.orEmpty() }?.name?.toLowerCase()
+        newSelectables.find { it.id in targetBodyPart?.containedBodyParts.orEmpty() }?.name?.lowercase(
+            Locale.getDefault()
+        )
     val controlledAttackSource = when {
         attackerWeapon != null -> "$itemName held by their $controlledPartName"
         else -> "their $controlledPartName"
@@ -198,12 +190,20 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             }
 
             when {
-                bodyPartWithLodgedIn != null && lodgedInItem != null -> "$controlledName pulls out the ${lodgedInItem.name.toLowerCase()} from their ${bodyPartWithLodgedIn.name.toLowerCase()} with their $controlledPartName"
-                else -> "$controlledName picks up the ${state.targetSelectable?.name?.toLowerCase()} from the ground."
+                bodyPartWithLodgedIn != null && lodgedInItem != null -> "$controlledName pulls out the ${lodgedInItem.name.lowercase(
+                    Locale.getDefault()
+                )} from their ${bodyPartWithLodgedIn.name.lowercase(
+                    Locale.getDefault()
+                )} with their $controlledPartName"
+                else -> "$controlledName picks up the ${state.targetSelectable?.name?.lowercase(
+                    Locale.getDefault()
+                )} from the ground."
             }
         }
         else -> when {
-            shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${targetWeapon?.name?.toLowerCase()} is knocked out to the ground!"
+            shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${targetWeapon?.name?.lowercase(
+                Locale.getDefault()
+            )} is knocked out to the ground!"
             else -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource"
         }
 
@@ -375,16 +375,13 @@ private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
     }
 
     val mainParts = initialMainParts.map { mainPart ->
-        val mainPartBone = bones.find { it.parentId == mainPart.id }
 
-        when (mainPartBone) {
+        when (val mainPartBone = bones.find { it.parentId == mainPart.id }) {
             null -> mainPart
             else -> mainPart.copy(containedBodyParts = mainPart.containedBodyParts + mainPartBone.id)
         }
     }
 
 
-    val allParts = mainParts + bones
-
-    return allParts
+    return mainParts + bones
 }
