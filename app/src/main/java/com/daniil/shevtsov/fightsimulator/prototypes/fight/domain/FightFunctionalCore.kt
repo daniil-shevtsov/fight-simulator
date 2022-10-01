@@ -50,7 +50,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         AttackAction.Kick
     ) && targetBodyPart?.holding != null
 
-    val newSlashedPart: BodyPart? = state.targetBodyPart?.let { slashedPart ->
+    val newSlashedParts: List<BodyPart> = listOfNotNull(
+        state.targetBodyPart?.let { slashedPart ->
         if (action.attackAction == AttackAction.Slash) {
             slashedPart.copy(
                 statuses = slashedPart.statuses + BodyPartStatus.Missing
@@ -58,7 +59,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         } else {
             null
         }
-    }
+        }
+    )
 
     val newSelectables = state.allSelectables.values.map { selectable ->
         when (action.attackAction) {
@@ -119,14 +121,14 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     }
 
     val newControlledCreature = state.controlledCreature
-    val slashedContained = newSlashedPart?.containedBodyParts.orEmpty()
+    val slashedContained = newSlashedParts.flatMap { it.containedBodyParts } //newSlashedPart?.containedBodyParts.orEmpty()
     val targetCreature = state.targetSelectableHolder as? Creature
     val newTargetCreatureSelectableHolder = when {
         targetCreature != null -> {
             targetCreature.copy(
-                missingPartsSet = targetCreature.missingPartsSet + setOfNotNull(newSlashedPart?.id),
+                missingPartsSet = targetCreature.missingPartsSet + newSlashedParts.map(BodyPart::id).toSet(),
                 bodyPartIds = targetCreature.bodyPartIds.filter { id ->
-                    val notSlashedPart = id != newSlashedPart?.id
+                    val notSlashedPart = id !in newSlashedParts.map(BodyPart::id)
                     val notContainedInSlashedPart = id !in slashedContained
 
                     notSlashedPart && notContainedInSlashedPart
@@ -228,8 +230,8 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         shouldKnockOutWeapon -> state.ground.copy(
             selectableIds = state.ground.selectableIds + targetWeapon!!.id
         )
-        newSlashedPart != null -> state.ground.copy(
-            selectableIds = state.ground.selectableIds + newSlashedPart.id
+        newSlashedParts.isNotEmpty() -> state.ground.copy(
+            selectableIds = state.ground.selectableIds + newSlashedParts.map(BodyPart::id)
         )
         action.attackAction == AttackAction.Grab
         -> state.ground.copy(

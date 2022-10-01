@@ -314,12 +314,6 @@ interface FightFunctionalCoreTest {
             propTargetCreature()
                 .prop(Creature::bodyPartIds)
                 .containsNone(initialState.targetHead.id, initialState.targetSkull.id)
-//            prop(FightState::allSelectables)
-//                .any {
-//                    it.isInstanceOf(BodyPart::class)
-//                        .prop(BodyPart::statuses)
-//                        .contains(BodyPartStatus.Missing)
-//                }
             prop(FightState::targetBodyPart)
                 .isNotNull()
                 .prop(BodyPart::id)
@@ -332,6 +326,55 @@ interface FightFunctionalCoreTest {
             prop(FightState::ground)
                 .prop(Ground::selectableIds)
                 .containsExactly(initialState.targetHead.id)
+        }
+    }
+
+    @Test
+    fun `should remove arm and hand when slashing the arm`() {
+        val initialState = stateForItemAttack()
+        val state = initialState.state
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = initialState.attacker.id,
+                        selectableId = initialState.attackerRightArm.id,
+                    )
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
+                )
+            }
+
+
+        assertThat(state).all {
+            propTargetCreature()
+                .prop(Creature::missingPartsSet)
+                .containsAll(
+                    initialState.attackerRightArm.id,
+                    initialState.attackerRightHand.id,
+                )
+            propTargetCreature()
+                .prop(Creature::bodyPartIds)
+                .containsNone(
+                    initialState.attackerRightArm.id,
+                    initialState.attackerRightHand.id
+                )
+//            prop(FightState::targetBodyPart)
+//                .isNotNull()
+//                .prop(BodyPart::id)
+//                .isNotEqualTo(initialState.targetHead.id)
+//
+//            prop(FightState::actionLog)
+//                .index(0)
+//                .prop(ActionEntry::text)
+//                .isEqualTo("$controlledActorName slashes at $targetActorName's head with knife held by their right hand.\nSevered head flies off in an arc!")
+//            prop(FightState::ground)
+//                .prop(Ground::selectableIds)
+//                .containsExactly(initialState.targetHead.id)
         }
     }
 

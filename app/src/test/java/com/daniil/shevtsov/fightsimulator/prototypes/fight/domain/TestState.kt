@@ -5,6 +5,8 @@ interface TestState {
 
     val attacker: Creature
         get() = state.controlledCreature
+    val attackerRightArm: BodyPart
+        get() = state.controlledCreatureBodyParts.find { it.name == "Right Arm" }!!
     val attackerRightHand: BodyPart
         get() = state.controlledCreatureBodyParts.find { it.name == "Right Hand" }!!
     val attackerLeftHand: BodyPart
