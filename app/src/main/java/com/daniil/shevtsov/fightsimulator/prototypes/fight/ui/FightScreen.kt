@@ -17,7 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.*
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.Actor
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.BodyPartStatus
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.FightAction
+import com.daniil.shevtsov.fightsimulator.prototypes.fight.domain.GroundId
 import com.daniil.shevtsov.fightsimulator.prototypes.fight.presentation.*
 
 fun composePreviewCreatureStub() = listOf(
@@ -96,15 +99,63 @@ fun FightScreenPreview() {
         onAction = {},
     )
 }
-
 @Preview(widthDp = 412, heightDp = 732)
 @Composable
-fun InitialFightScreenPreview() {
+fun FightScreenDebugPreview() {
     FightScreen(
-        state = fightPresentationMapping(state = fightFunctionalCore(fightState(), FightAction.Init)),
+        state = FightViewState.Content(
+            actors = composePreviewCreatureStub(),
+            commandsMenu = commandsMenu(
+                commands = listOf(
+                    commandItem(name = "Slash"),
+                    commandItem(name = "Stab"),
+                    commandItem(name = "Pummel"),
+                    commandItem(name = "Throw"),
+                    commandItem(name = "Kick"),
+                    commandItem(name = "Punch"),
+                )
+            ),
+            actionLog = listOf(
+                actionEntryModel("You slap enemy's head with your right hand"),
+                actionEntryModel("You done did it"),
+            ),
+            ground = GroundMenu(
+                id = GroundId(0L),
+                selectables = listOf(
+                    bodyPartItem(
+                        id = 1L,
+                        name = "Head",
+                        contained = setOf(bodyPartItem(id = 2L, name = "Skull")),
+                        isSelected = false
+                    ),
+                    bodyPartItem(
+                        id = 2L,
+                        name = "Right Hand",
+                        contained = setOf(bodyPartItem(id = 2L, name = "Bone")),
+                        holding = selectableItem(id = 3L, name = "Knife"),
+                        isSelected = false
+                    ),
+                ),
+                isSelected = true
+            ),
+        ),
         onAction = {},
     )
 }
+
+//@Preview(widthDp = 412, heightDp = 732)
+//@Composable
+//fun InitialFightScreenPreview() {
+//    FightScreen(
+//        state = fightPresentationMapping(
+//            state = fightFunctionalCore(
+//                fightState(),
+//                FightAction.Init
+//            )
+//        ),
+//        onAction = {},
+//    )
+//}
 
 @Composable
 fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
@@ -115,7 +166,6 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                 verticalArrangement = spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
                     .background(Color.DarkGray)
                     .padding(8.dp)
             ) {
@@ -124,20 +174,26 @@ fun FightScreen(state: FightViewState, onAction: (FightAction) -> Unit) {
                     modifier = Modifier.weight(1f),
                     onAction = onAction
                 )
-                GroundMenu(
-                    ground = state.ground,
-                    onAction = onAction,
+                Column(
                     modifier = Modifier
-                )
-                CommandsMenu(
-                    menu = state.commandsMenu,
-                    onClick = { onAction(FightAction.SelectCommand(it.attackAction)) },
-                    modifier = Modifier,
-                )
-                ActionLog(
-                    actionLog = state.actionLog,
-                    modifier = Modifier.height(IntrinsicSize.Min)
-                )
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    GroundMenu(
+                        ground = state.ground,
+                        onAction = onAction,
+                        modifier = Modifier
+                    )
+                    CommandsMenu(
+                        menu = state.commandsMenu,
+                        onClick = { onAction(FightAction.SelectCommand(it.attackAction)) },
+                        modifier = Modifier,
+                    )
+                    ActionLog(
+                        actionLog = state.actionLog,
+                        modifier = Modifier.height(IntrinsicSize.Min)
+                    )
+                }
             }
         }
     }
