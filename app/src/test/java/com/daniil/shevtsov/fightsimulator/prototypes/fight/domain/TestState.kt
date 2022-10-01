@@ -12,7 +12,7 @@ interface TestState {
     val attackerHead: BodyPart
         get() = state.controlledCreatureBodyParts.find { it.name == "Head" }!!
     val target: Creature
-        get() = state.targetCreature
+        get() = state.targetSelectableHolder as Creature
     val targetHead: BodyPart
         get() = state.targetCreatureBodyParts.find { it.name == "Head" }!!
     val targetSkull: BodyPart
@@ -25,7 +25,7 @@ interface TestState {
         get() = state.controlledCreatureBodyParts.find { it.name == "Right Leg" }!!
 
     val otherCreature: Creature
-        get() = state.actors[state.targetCreature.id]!!
+        get() = state.actors[state.targetSelectableHolder.id]!!
     val otherCreatureHead: BodyPart
         get() = state.targetCreatureBodyParts.find { it.name == "Head" }!!
 

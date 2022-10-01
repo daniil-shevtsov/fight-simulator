@@ -58,8 +58,6 @@ data class FightState(
     val controlledBodyPart: BodyPart
         get() = allBodyParts[controlledCreature.controlledSelectedBodyPart.id]!!
 
-    val targetCreature: Creature
-        get() = actors[targetSelectableHolder.id] ?: actors.values.last()
     val targetCreatureBodyParts: List<BodyPart>
         get() {
             val targetCreature = targetSelectableHolder as? Creature
