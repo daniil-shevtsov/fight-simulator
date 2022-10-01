@@ -17,19 +17,19 @@ internal class OldTest {
             prop(FightState::lastSelectedControlledPartId)
                 .isEqualTo(newState.controlledCreatureBodyParts.find { it.name == "Left Hand" }!!.id)
             prop(FightState::controlledCreatureBodyParts)
-                .extracting(BodyPart::name)
+                .transform { bodyParts -> bodyParts.map { bodyPart -> bodyPart.name to bodyParts.find { it.id == bodyPart.parentPartId }?.name } }
                 .containsAll(
-                    "Head",
-                    "Skull",
-                    "Body",
-                    "Right Arm",
-                    "Right Hand",
-                    "Left Arm",
-                    "Left Hand",
-                    "Right Leg",
-                    "Right Foot",
-                    "Left Leg",
-                    "Left Foot",
+                    "Head" to "Body",
+                    "Skull" to null,
+                    "Body" to null,
+                    "Right Arm" to "Body",
+                    "Right Hand" to "Right Arm",
+                    "Left Arm" to "Body",
+                    "Left Hand" to "Left Arm",
+                    "Right Leg" to "Body",
+                    "Right Foot" to "Right Leg",
+                    "Left Leg" to "Body",
+                    "Left Foot" to "Left Leg",
                 )
             val head = newState.targetCreatureBodyParts.find { it.name == "Head" }!!
             val skull = newState.targetCreatureBodyParts.find { it.name == "Skull" }!!
