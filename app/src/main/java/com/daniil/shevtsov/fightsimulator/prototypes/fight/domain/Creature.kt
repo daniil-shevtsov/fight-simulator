@@ -9,7 +9,7 @@ data class Creature(
 ) : SelectableHolder {
 
     val functionalParts: List<BodyPartId>
-        get() = bodyPartIds.filter { it !in missingPartsSet }
+        get() = bodyPartIds.filter { id -> id !in missingPartsSet }
 
     override val selectableIds: List<SelectableId>
         get() = bodyPartIds

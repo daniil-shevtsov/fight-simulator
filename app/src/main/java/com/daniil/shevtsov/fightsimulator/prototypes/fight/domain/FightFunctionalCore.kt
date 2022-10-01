@@ -125,9 +125,9 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         targetCreature != null -> {
             targetCreature.copy(
                 missingPartsSet = targetCreature.missingPartsSet + setOfNotNull(newSlashedPart?.id),
-                bodyPartIds = targetCreature.bodyPartIds.filter {
-                    val notSlashedPart = it != newSlashedPart?.id
-                    val notContainedInSlashedPart = it !in slashedContained
+                bodyPartIds = targetCreature.bodyPartIds.filter { id ->
+                    val notSlashedPart = id != newSlashedPart?.id
+                    val notContainedInSlashedPart = id !in slashedContained
 
                     notSlashedPart && notContainedInSlashedPart
                 }
@@ -153,10 +153,12 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
     val targetName = newTargetCreatureSelectableHolder?.name
     val targetPartName = targetBodyPart?.name?.lowercase(Locale.getDefault()).orEmpty()
     val controlledPartName = state.controlledBodyPart.name.lowercase(Locale.getDefault())
-    val containedPartName =
-        newSelectables.find { it.id in targetBodyPart?.containedBodyParts.orEmpty() }?.name?.lowercase(
-            Locale.getDefault()
-        )
+    val containedPartName = newSelectables
+        .find { selectable ->
+            selectable.id in targetBodyPart?.containedBodyParts.orEmpty()
+        }
+        ?.name
+        ?.lowercase(Locale.getDefault())
     val controlledAttackSource = when {
         attackerWeapon != null -> "$itemName held by their $controlledPartName"
         else -> "their $controlledPartName"
@@ -190,20 +192,28 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             }
 
             when {
-                bodyPartWithLodgedIn != null && lodgedInItem != null -> "$controlledName pulls out the ${lodgedInItem.name.lowercase(
-                    Locale.getDefault()
-                )} from their ${bodyPartWithLodgedIn.name.lowercase(
-                    Locale.getDefault()
-                )} with their $controlledPartName"
-                else -> "$controlledName picks up the ${state.targetSelectable?.name?.lowercase(
-                    Locale.getDefault()
-                )} from the ground."
+                bodyPartWithLodgedIn != null && lodgedInItem != null -> "$controlledName pulls out the ${
+                    lodgedInItem.name.lowercase(
+                        Locale.getDefault()
+                    )
+                } from their ${
+                    bodyPartWithLodgedIn.name.lowercase(
+                        Locale.getDefault()
+                    )
+                } with their $controlledPartName"
+                else -> "$controlledName picks up the ${
+                    state.targetSelectable?.name?.lowercase(
+                        Locale.getDefault()
+                    )
+                } from the ground."
             }
         }
         else -> when {
-            shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${targetWeapon?.name?.lowercase(
-                Locale.getDefault()
-            )} is knocked out to the ground!"
+            shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${
+                targetWeapon?.name?.lowercase(
+                    Locale.getDefault()
+                )
+            } is knocked out to the ground!"
             else -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource"
         }
 
@@ -219,7 +229,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         )
         action.attackAction == AttackAction.Grab
         -> state.ground.copy(
-            selectableIds = state.ground.selectableIds.filter { it != state.targetSelectable?.id }
+            selectableIds = state.ground.selectableIds.filter { id -> id != state.targetSelectable?.id }
         )
         else -> state.ground
     }
