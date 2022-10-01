@@ -697,6 +697,40 @@ interface FightFunctionalCoreTest {
             .isEqualTo("$controlledActorName kicks slashed head with their right foot")
     }
 
+    @Test
+    fun `should lodged in thrown at slashed part knife`() {
+        val initialState = stateForItemAttack()
+
+        val finalState = initialState.state
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Slash)
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectSomething(
+                        selectableHolderId = initialState.ground.id,
+                        selectableId = initialState.targetHead.id,
+                    )
+                )
+            }
+            .let { state ->
+                fightFunctionalCore(
+                    state = state,
+                    action = FightAction.SelectCommand(attackAction = AttackAction.Throw)
+                )
+            }
+
+        assertThat(finalState)
+            .prop(FightState::targetBodyPart)
+            .isNotNull()
+            .prop(BodyPart::lodgedInSelectables)
+            .contains(initialState.attackerWeapon.id)
+    }
+
     private fun Assert<FightState>.propTargetCreature() = prop(FightState::targetSelectableHolder)
         .isInstanceOf(Creature::class)
 
