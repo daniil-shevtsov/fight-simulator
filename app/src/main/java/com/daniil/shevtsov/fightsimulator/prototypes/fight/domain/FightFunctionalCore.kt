@@ -163,17 +163,21 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         attackerWeapon != null -> "$itemName held by their $controlledPartName"
         else -> "their $controlledPartName"
     }
+    val targetHolder = when {
+        targetName != null -> "$targetName's"
+        else -> "slashed"
+    }
     val newEntry = when (action.attackAction) {
         AttackAction.Throw -> {
-            "$controlledName throws $itemName at $targetName's $targetPartName with their $controlledPartName.\n" +
+            "$controlledName throws $itemName at $targetHolder $targetPartName with their $controlledPartName.\n" +
                     "The $itemName has lodged firmly in the wound!"
         }
         AttackAction.Slash -> {
-            "$controlledName $actionName at $targetName's $targetPartName with $controlledAttackSource.\nSevered $targetPartName flies off in an arc!"
+            "$controlledName $actionName at $targetHolder $targetPartName with $controlledAttackSource.\nSevered $targetPartName flies off in an arc!"
         }
         AttackAction.Pommel -> {
             val generalMessage =
-                "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource."
+                "$controlledName $actionName $targetHolder $targetPartName with $controlledAttackSource."
             when {
                 !targetBodyPart?.containedBodyParts.isNullOrEmpty() ->
                     containedPartName.let { containedBodyPartName ->
@@ -209,12 +213,12 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
             }
         }
         else -> when {
-            shouldKnockOutWeapon -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource. $targetName's ${
+            shouldKnockOutWeapon -> "$controlledName $actionName $targetHolder $targetPartName with $controlledAttackSource. $targetName's ${
                 targetWeapon?.name?.lowercase(
                     Locale.getDefault()
                 )
             } is knocked out to the ground!"
-            else -> "$controlledName $actionName $targetName's $targetPartName with $controlledAttackSource"
+            else -> "$controlledName $actionName $targetHolder $targetPartName with $controlledAttackSource"
         }
 
     }

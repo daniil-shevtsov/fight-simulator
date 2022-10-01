@@ -694,7 +694,7 @@ interface FightFunctionalCoreTest {
             .prop(FightState::actionLog)
             .extracting(ActionEntry::text)
             .index(finalState.actionLog.size - 1)
-            .isEqualTo("$controlledActorName kicks slashed head with their right foot.")
+            .isEqualTo("$controlledActorName kicks slashed head with their right foot")
     }
 
     private fun Assert<FightState>.propTargetCreature() = prop(FightState::targetSelectableHolder)
