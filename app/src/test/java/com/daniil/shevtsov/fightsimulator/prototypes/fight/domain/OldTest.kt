@@ -34,7 +34,7 @@ internal class OldTest {
             val head = newState.targetCreatureBodyParts.find { it.name == "Head" }!!
             val skull = newState.targetCreatureBodyParts.find { it.name == "Skull" }!!
             assertThat(head).prop(BodyPart::containedBodyParts).containsOnly(skull.id)
-            assertThat(skull).prop(BodyPart::parentId).isNotNull().isEqualTo(head.id)
+            assertThat(skull).prop(BodyPart::containerPartId).isNotNull().isEqualTo(head.id)
 
             prop(FightState::controlledBodyPart).prop(BodyPart::name).isEqualTo("Left Hand")
             prop(FightState::targetBodyPart).prop(BodyPart::name).isEqualTo("Head")

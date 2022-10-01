@@ -60,7 +60,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
         }
     }
     val newSlashedParts: List<BodyPart> = slashedPart?.let { slashedPart ->
-        listOf(slashedPart) + listOfNotNull(state.targetCreatureBodyParts.find { it.id == slashedPart.parentId })
+        listOf(slashedPart) + listOfNotNull(state.targetCreatureBodyParts.find { it.id == slashedPart.parentPartId })
     }.orEmpty()
 
     val newSelectables = state.allSelectables.values.map { selectable ->
@@ -123,7 +123,7 @@ fun selectCommand(state: FightState, action: FightAction.SelectCommand): FightSt
 
     val newControlledCreature = state.controlledCreature
     val slashedContained =
-        newSlashedParts.flatMap { it.containedBodyParts } //newSlashedPart?.containedBodyParts.orEmpty()
+        newSlashedParts.flatMap { it.containedBodyParts }
     val targetCreature = state.targetSelectableHolder as? Creature
     val newTargetCreatureSelectableHolder = when {
         targetCreature != null -> {
@@ -378,7 +378,10 @@ private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
             name = "Left Foot",
             attackActions = listOf(AttackAction.Kick)
         ),
-    ).mapIndexed { index, bodyPart -> bodyPart.copy(id = bodyPartId(idOffset + index.toLong())) }
+    )
+        .mapIndexed { index, bodyPart ->
+            bodyPart.copy(id = bodyPartId(idOffset + index.toLong()))
+        }
 
     val bones = initialMainParts.map { mainPart ->
         val boneName = when (mainPart.name) {
@@ -389,13 +392,13 @@ private fun createDefaultBodyParts(idOffset: Long): List<BodyPart> {
         bodyPart(
             id = mainPart.id.raw + initialMainParts.size,
             name = boneName,
-            parentId = mainPart.id,
+            containerPartId = mainPart.id,
         )
     }
 
     val mainParts = initialMainParts.map { mainPart ->
 
-        when (val mainPartBone = bones.find { it.parentId == mainPart.id }) {
+        when (val mainPartBone = bones.find { it.containerPartId == mainPart.id }) {
             null -> mainPart
             else -> mainPart.copy(containedBodyParts = mainPart.containedBodyParts + mainPartBone.id)
         }

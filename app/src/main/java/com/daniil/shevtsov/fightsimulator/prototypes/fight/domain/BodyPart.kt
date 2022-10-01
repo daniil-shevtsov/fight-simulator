@@ -8,7 +8,8 @@ data class BodyPart(
     val holding: SelectableId? = null,
     val containedBodyParts: Set<BodyPartId> = setOf(),
     val lodgedInSelectables: Set<SelectableId> = setOf(),
-    val parentId: BodyPartId? = null,
+    val containerPartId: BodyPartId? = null,
+    val parentPartId: BodyPartId? = null,
     val canGrab: Boolean,
 ) : Selectable
 
@@ -19,7 +20,8 @@ fun bodyPart(
     attackActions: List<AttackAction> = emptyList(),
     statuses: List<BodyPartStatus> = emptyList(),
     containedBodyParts: Set<BodyPartId> = setOf(),
-    parentId: BodyPartId? = null,
+    containerPartId: BodyPartId? = null,
+    parentPartId: BodyPartId? = null,
     canGrab: Boolean = false,
 ) = BodyPart(
     id = bodyPartId(id),
@@ -28,6 +30,7 @@ fun bodyPart(
     attackActions = attackActions,
     statuses = statuses,
     containedBodyParts = containedBodyParts,
-    parentId = parentId,
+    containerPartId = containerPartId,
+    parentPartId = parentPartId,
     canGrab = canGrab,
 )
