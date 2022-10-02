@@ -33,7 +33,7 @@ private fun groundMenuPreviewData() = GroundMenu(
             name = "Right Hand",
             canGrab = true,
             holding = selectableItem(id = 6L, name = "Knife")
-        )
+        ),
     ),
     isSelected = true,
 )
