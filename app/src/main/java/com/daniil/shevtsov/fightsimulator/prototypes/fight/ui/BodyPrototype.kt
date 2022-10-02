@@ -1,7 +1,10 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,77 +20,86 @@ private enum class JointOrientation {
     Vertical
 }
 
+private class Size(
+    val width: Dp,
+    val height: Dp,
+)
+
+private fun Modifier.size(size: Size) = size(
+    width = size.width,
+    height = size.height,
+)
+
 @Preview(heightDp = 800, widthDp = 200)
 @Composable
 fun ConnectedBodyPrototype() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val headHeight = 50.dp
-        val headWidth = 50.dp
-        val upperArmLength = headHeight * 1.5f
-        val lowerArmLength = headHeight
-        val handWidth = headWidth / 2f
-        val handLength = headHeight * 0.75f
-        val armWidth = 25.dp
+        val headSize = Size(width = 50.dp, height = 50.dp)
+        val upperArmSize = Size(width = 25.dp, height = headSize.height * 1.5f)
+        val lowerArmSize = Size(width = 25.dp, height = headSize.height)
+        val handSize = Size(width = headSize.width / 2f, height = headSize.height * 0.5f)
+        val upperBodySize = Size(width = headSize.width * 2f, height = headSize.height)
+        val lowerBodySize = Size(width = headSize.width * 1.5f, height = headSize.height)
+        val groinSize = Size(width = headSize.width, height = headSize.height)
         PrototypeBodyPart(
             name = "Head",
             modifier = Modifier
-                .size(height = headHeight, width = headWidth)
+                .size(height = headSize.height, width = headSize.width)
         )
         PrototypeJoint(orientation = JointOrientation.Horizontal)
         Row() {
             Column {
                 PrototypeBodyPart(
                     name = "Right Upper Arm",
-                    modifier = Modifier
-                        .width(armWidth)
-                        .height(upperArmLength)
+                    modifier = Modifier.size(upperArmSize)
                 )
                 PrototypeJoint(orientation = JointOrientation.Horizontal)
                 PrototypeBodyPart(
                     name = "Right Lower Arm",
-                    modifier = Modifier
-                        .width(armWidth)
-                        .height(lowerArmLength)
+                    modifier = Modifier.size(lowerArmSize)
                 )
                 PrototypeJoint(orientation = JointOrientation.Horizontal)
                 PrototypeBodyPart(
                     name = "Left Hand",
-                    modifier = Modifier
-                        .width(handWidth)
-                        .height(handLength)
+                    modifier = Modifier.size(handSize)
                 )
             }
             PrototypeJoint(orientation = JointOrientation.Vertical)
 
-            PrototypeBodyPart(
-                name = "Body",
-                modifier = Modifier
-                    .width(75.dp)
-                    .height(100.dp)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                PrototypeBodyPart(
+                    name = "Upper Body",
+                    modifier = Modifier.size(upperBodySize)
+                )
+                PrototypeJoint(orientation = JointOrientation.Horizontal)
+                PrototypeBodyPart(
+                    name = "Lower Body",
+                    modifier = Modifier.size(lowerBodySize)
+                )
+                PrototypeJoint(orientation = JointOrientation.Horizontal)
+                PrototypeBodyPart(
+                    name = "Groin",
+                    modifier = Modifier.size(groinSize)
+                )
+            }
+
             PrototypeJoint(orientation = JointOrientation.Vertical)
             Column {
                 PrototypeBodyPart(
                     name = "Left Upper Arm",
-                    modifier = Modifier
-                        .width(armWidth)
-                        .height(upperArmLength)
+                    modifier = Modifier.size(upperArmSize)
                 )
                 PrototypeJoint(orientation = JointOrientation.Horizontal)
                 PrototypeBodyPart(
                     name = "Left Lower Arm",
-                    modifier = Modifier
-                        .width(armWidth)
-                        .height(lowerArmLength)
+                    modifier = Modifier.size(lowerArmSize)
                 )
                 PrototypeJoint(orientation = JointOrientation.Horizontal)
                 PrototypeBodyPart(
                     name = "Left Hand",
-                    modifier = Modifier
-                        .width(handWidth)
-                        .height(handLength)
+                    modifier = Modifier.size(handSize)
                 )
             }
 
@@ -103,7 +115,7 @@ private fun PrototypeJoint(
     val jointWidth: Dp
     val jointHeight: Dp
 
-    when(orientation) {
+    when (orientation) {
         JointOrientation.Horizontal -> {
             jointWidth = 25.dp
             jointHeight = 10.dp
