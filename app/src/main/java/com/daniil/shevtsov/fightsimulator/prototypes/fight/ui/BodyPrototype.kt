@@ -43,6 +43,9 @@ fun ConnectedBodyPrototype() {
         val upperBodySize = Size(width = headSize.width * 2f, height = headSize.height)
         val lowerBodySize = Size(width = headSize.width * 1.5f, height = headSize.height)
         val groinSize = Size(width = headSize.width, height = headSize.height)
+        val upperLegSize = Size(width = 25.dp, height = headSize.height * 1.5f)
+        val lowerLegSize = Size(width = 25.dp, height = headSize.height)
+        val feetSize = Size(width = 50.dp, height = 25.dp)
         PrototypeBodyPart(
             name = "Head",
             modifier = Modifier
@@ -69,20 +72,59 @@ fun ConnectedBodyPrototype() {
             PrototypeJoint(orientation = JointOrientation.Vertical)
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                PrototypeBodyPart(
-                    name = "Upper Body",
-                    modifier = Modifier.size(upperBodySize)
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    PrototypeBodyPart(
+                        name = "Upper Body",
+                        modifier = Modifier.size(upperBodySize)
+                    )
+                    PrototypeJoint(orientation = JointOrientation.Horizontal)
+                    PrototypeBodyPart(
+                        name = "Lower Body",
+                        modifier = Modifier.size(lowerBodySize)
+                    )
+                }
                 PrototypeJoint(orientation = JointOrientation.Horizontal)
-                PrototypeBodyPart(
-                    name = "Lower Body",
-                    modifier = Modifier.size(lowerBodySize)
-                )
-                PrototypeJoint(orientation = JointOrientation.Horizontal)
-                PrototypeBodyPart(
-                    name = "Groin",
-                    modifier = Modifier.size(groinSize)
-                )
+                Row {
+//                    Column {
+//                        PrototypeBodyPart(
+//                            name = "Right Upper Leg",
+//                            modifier = Modifier.size(upperLegSize)
+//                        )
+//                        PrototypeJoint(orientation = JointOrientation.Horizontal)
+//                        PrototypeBodyPart(
+//                            name = "Right Lower Leg",
+//                            modifier = Modifier.size(lowerLegSize)
+//                        )
+//                        PrototypeJoint(orientation = JointOrientation.Horizontal)
+//                        PrototypeBodyPart(
+//                            name = "Right Foot",
+//                            modifier = Modifier.size(feetSize)
+//                        )
+//                    }
+//                    PrototypeJoint(orientation = JointOrientation.Vertical)
+                    PrototypeBodyPart(
+                        name = "Groin",
+                        modifier = Modifier.size(groinSize)
+                    )
+//                    PrototypeJoint(orientation = JointOrientation.Vertical)
+//                    Column {
+//                        PrototypeBodyPart(
+//                            name = "Left Upper Leg",
+//                            modifier = Modifier.size(upperLegSize)
+//                        )
+//                        PrototypeJoint(orientation = JointOrientation.Horizontal)
+//                        PrototypeBodyPart(
+//                            name = "Left Lower Leg",
+//                            modifier = Modifier.size(lowerLegSize)
+//                        )
+//                        PrototypeJoint(orientation = JointOrientation.Horizontal)
+//                        PrototypeBodyPart(
+//                            name = "Left Foot",
+//                            modifier = Modifier.size(feetSize)
+//                        )
+//                    }
+                }
+
             }
 
             PrototypeJoint(orientation = JointOrientation.Vertical)
