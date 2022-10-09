@@ -32,8 +32,8 @@ private fun Modifier.size(size: Size) = size(
 @Composable
 fun CustomLayoutPreview() {
     val prototypeBody = listOf(
-        BodyPart(id = 0L, name = "Head", parentId = 1L),
-        BodyPart(id = 1L, name = "Upper Body", childId = 0L)
+        BodyPart(id = 0L, name = "Head", parentId = 1L, type = BodyPartType.Head),
+        BodyPart(id = 1L, name = "Upper Body", childId = 0L, type = BodyPartType.Body)
     )
     Row {
         Column {
@@ -179,7 +179,15 @@ data class BodyPart(
     val name: String,
     val parentId: Long? = null,
     val childId: Long? = null,
+    val type: BodyPartType,
 )
+
+enum class BodyPartType {
+    Head,
+    Body,
+    Arm,
+    Leg
+}
 
 data class Joint(
     val id: Long,
@@ -246,16 +254,24 @@ fun CustomBodyLayout(
         // 3. The placement phase.
         var yPosition = 0
 
-        placeables.forEachIndexed { index, placeable ->
-//            if (placeable.width < (xPosition + mainAxisSpacing.roundToPx())) {
-//                xPosition -= (placeable.width + mainAxisSpacing.roundToPx())
-//            } else {
-//                yPosition += (placeable.height + crossAxisSpacing.roundToPx())
-//                xPosition = constraints.maxWidth - placeable.width - mainAxisSpacing.roundToPx()
-//            }
-            placeable.placeRelative(x = 0, y = yPosition)
+        val unused = placeables.toMutableSet()
+        while (unused.isNotEmpty()) {
+            val placeable = unused.first()
+            placeable.place(0/*constraints.maxWidth / 2 + placeable.width*/, yPosition)
+            unused.remove(placeable)
             yPosition += placeable.height
         }
+
+//        placeables.forEachIndexed { index, placeable ->
+////            if (placeable.width < (xPosition + mainAxisSpacing.roundToPx())) {
+////                xPosition -= (placeable.width + mainAxisSpacing.roundToPx())
+////            } else {
+////                yPosition += (placeable.height + crossAxisSpacing.roundToPx())
+////                xPosition = constraints.maxWidth - placeable.width - mainAxisSpacing.roundToPx()
+////            }
+//            placeable.placeRelative(x = 0, y = yPosition)
+//            yPosition += placeable.height
+//        }
     }
 }
 
