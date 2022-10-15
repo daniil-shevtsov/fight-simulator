@@ -45,7 +45,9 @@ fun CustomLayoutPreview() {
             prototypeBody.forEach {
                 PrototypeSimpleBodyPart(
                     part = it,
-                    modifier = Modifier.height(50.dp)
+                    modifier = Modifier
+                        .height(50.dp)
+                        .layoutId(it)
                 )
             }
         }
@@ -242,22 +244,39 @@ fun CustomBodyLayout(
     val mainAxisSpacing: Dp = 5.dp
     val crossAxisSpacing: Dp = 5.dp
     // 1. The measuring phase.
+//    val oldPlaceables = measurables.map { measurable ->
+//        measurable.measure(constraints)
+//    }
     val placeables = measurables.map { measurable ->
-        measurable.measure(constraints)
-    }
+        measurable.measure(constraints) to measurable.layoutId as BodyPart
+    }.toMap()
 
     // 2. The sizing phase.
     layout(constraints.maxWidth, constraints.maxHeight) {
         // 3. The placement phase.
         var yPosition = 0
 
-        val unused = placeables.toMutableSet()
+        val unused = placeables.keys.toMutableSet()
         while (unused.isNotEmpty()) {
             val placeable = unused.first()
-            
             placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
             unused.remove(placeable)
             yPosition += placeable.height
+//            val bodyPart = placeables[placeable]
+//            when (bodyPart?.type) {
+//                null -> {
+//                    unused.remove(placeable)
+//                }
+//                BodyPartType.Arm -> {
+//                    unused.remove(placeable)
+//                }
+//                else -> {
+//                    placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
+//                    unused.remove(placeable)
+//                    yPosition += placeable.height
+//                }
+//            }
+
         }
 
 //        placeables.forEachIndexed { index, placeable ->
