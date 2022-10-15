@@ -37,6 +37,11 @@ private fun Modifier.size(size: Size) = size(
 @Preview(heightDp = 800, widthDp = 200)
 @Composable
 fun CustomLayoutPreview() {
+    BodyPrototype()
+}
+
+@Composable
+fun BodyPrototype() {
     val prototypeBody = listOf(
         BodyPart(id = 0L, name = "Head", parentId = 1L, type = BodyPartType.Head),
         BodyPart(id = 1L, name = "Body", childId = 0L, type = BodyPartType.Body),
@@ -52,6 +57,7 @@ fun CustomLayoutPreview() {
                     part = it,
                     modifier = Modifier
                         .height(50.dp)
+                        .width(50.dp)
                         .layoutId(it)
                 )
             }
@@ -82,8 +88,6 @@ fun PrototypeSimpleBodyPart(
     Text(
         text = part.name,
         modifier = modifier
-            .width(50.dp)
-            .height(50.dp)
             .background(Color.Cyan)
             .layoutId(part)
     )
@@ -132,10 +136,10 @@ fun CustomBodyLayout(
             val placeable = when (bodyMeasurable.bodyPart.type) {
                 BodyPartType.Body -> {
                     bodyMeasurable.measurable.measure(
-                        constraints.copy(
+                        constraints/*.copy(
                             minHeight = constraints.minHeight * numberOfArmRows,
-                            maxHeight = constraints.maxHeight * numberOfArmRows,
-                        )
+                            maxHeight = constraints.minHeight * numberOfArmRows,
+                        )*/
                     )
                 }
                 else -> {
