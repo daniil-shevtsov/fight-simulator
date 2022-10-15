@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
@@ -241,53 +242,34 @@ fun CustomBodyLayout(
     prototypeBody: List<BodyPart>,
     content: @Composable () -> Unit
 ) = Layout(content) { measurables, constraints ->
-    val mainAxisSpacing: Dp = 5.dp
-    val crossAxisSpacing: Dp = 5.dp
-    // 1. The measuring phase.
-//    val oldPlaceables = measurables.map { measurable ->
-//        measurable.measure(constraints)
-//    }
-    val placeables = measurables.map { measurable ->
+    val measuredPlaceables = measurables.map { measurable ->
         measurable.measure(constraints) to measurable.layoutId as BodyPart
     }.toMap()
 
     // 2. The sizing phase.
     layout(constraints.maxWidth, constraints.maxHeight) {
         // 3. The placement phase.
-        var yPosition = 0
-
-        val unused = placeables.keys.toMutableSet()
-        while (unused.isNotEmpty()) {
-            val placeable = unused.first()
-            val bodyPart = placeables[placeable]
-            when (bodyPart?.type) {
-                null -> {
-                    placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
-                    unused.remove(placeable)
-                }
-                BodyPartType.Arm -> {
-                    placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
-                    unused.remove(placeable)
-                }
+        var lastBodyPosition = Offset(0f, 0f)
+        val placeablesWithPositions = measuredPlaceables.map { (placeable, bodyPart) ->
+            val position = when (bodyPart.type) {
+                BodyPartType.Head -> Offset(
+                    x = constraints.maxWidth.toFloat() / 2 - placeable.width.toFloat() / 2,
+                    y = 0f
+                )
                 else -> {
-                    placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
-                    unused.remove(placeable)
-                    yPosition += placeable.height
+                    Offset(
+                        x = constraints.maxWidth.toFloat() / 2 - placeable.width.toFloat() / 2,
+                        y = lastBodyPosition.y + placeable.height
+                    )
                 }
             }
-
+            lastBodyPosition = position
+            placeable to position
         }
 
-//        placeables.forEachIndexed { index, placeable ->
-////            if (placeable.width < (xPosition + mainAxisSpacing.roundToPx())) {
-////                xPosition -= (placeable.width + mainAxisSpacing.roundToPx())
-////            } else {
-////                yPosition += (placeable.height + crossAxisSpacing.roundToPx())
-////                xPosition = constraints.maxWidth - placeable.width - mainAxisSpacing.roundToPx()
-////            }
-//            placeable.placeRelative(x = 0, y = yPosition)
-//            yPosition += placeable.height
-//        }
+        placeablesWithPositions.forEach { (placeable, position) ->
+            placeable.place(x = position.x.toInt(), y = position.y.toInt())
+        }
     }
 }
 
