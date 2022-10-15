@@ -50,14 +50,24 @@ fun BodyPrototype() {
         BodyPart(id = 4L, name = "Right Arm 2", parentId = 1L, type = BodyPartType.Arm),
         BodyPart(id = 5L, name = "Right Arm 2", parentId = 1L, type = BodyPartType.Arm),
     )
+    val numberOfArmRows = prototypeBody.count { bodyPart ->
+        bodyPart.type == BodyPartType.Arm
+    } / 2
     Row {
         CustomBodyLayout(prototypeBody) {
+            val defaultHeight = 50.dp
+            val bodyHeight = defaultHeight * numberOfArmRows
             prototypeBody.forEach {
                 PrototypeSimpleBodyPart(
                     part = it,
                     modifier = Modifier
-                        .height(50.dp)
                         .width(50.dp)
+                        .height(
+                            when (it.type) {
+                                BodyPartType.Body -> bodyHeight
+                                else -> defaultHeight
+                            }
+                        )
                         .layoutId(it)
                 )
             }
@@ -136,10 +146,10 @@ fun CustomBodyLayout(
             val placeable = when (bodyMeasurable.bodyPart.type) {
                 BodyPartType.Body -> {
                     bodyMeasurable.measurable.measure(
-                        constraints/*.copy(
+                        constraints.copy(
                             minHeight = constraints.minHeight * numberOfArmRows,
-                            maxHeight = constraints.minHeight * numberOfArmRows,
-                        )*/
+                            maxHeight = constraints.maxHeight * numberOfArmRows,
+                        )
                     )
                 }
                 else -> {
@@ -155,62 +165,60 @@ fun CustomBodyLayout(
 
     // 2. The sizing phase.
     layout(constraints.maxWidth, constraints.maxHeight) {
-        // 3. The placement phase.
-        val nonLimbPlaceablesWithPositions: Map<Long, BodyPositionedPlaceable> = measuredPlaceables
-            .filter { (_, bodyPlaceable) ->
-                bodyPlaceable.bodyPart.type != BodyPartType.Arm && bodyPlaceable.bodyPart.type != BodyPartType.Leg
-            }
-            .map { (bodyPartId, bodyPlaceable) ->
-                val position = when (bodyPlaceable.bodyPart.type) {
-                    BodyPartType.Head -> Offset(
-                        x = constraints.maxWidth.toFloat() / 2 - bodyPlaceable.placeable.width.toFloat() / 2,
-                        y = 0f
-                    )
-                    else -> {
-                        Offset(
-                            x = constraints.maxWidth.toFloat() / 2 - bodyPlaceable.placeable.width.toFloat() / 2,
-                            y = 0f + bodyPlaceable.placeable.height
-                        )
-                    }
-                }
-                bodyPartId to BodyPositionedPlaceable(
+        val head = measuredPlaceables.entries
+            .find { (_, placeable) -> placeable.bodyPart.type == BodyPartType.Head }?.value!!
+            .let { bodyPlaceable ->
+                BodyPositionedPlaceable(
                     bodyPart = bodyPlaceable.bodyPart,
                     placeable = bodyPlaceable.placeable,
-                    position = position,
+                    position = Offset(
+                        x = constraints.maxWidth.toFloat() / 2 - bodyPlaceable.placeable.width.toFloat() / 2,
+                        y = 0f
+                    ),
                 )
-            }.toMap()
-
-        val limbPlaceablesWithPositions: Map<Long, BodyPositionedPlaceable> = measuredPlaceables
-            .filter { (_, bodyPlaceable) ->
-                bodyPlaceable.bodyPart.type == BodyPartType.Arm || bodyPlaceable.bodyPart.type == BodyPartType.Leg
-            }.map { (bodyPartId, bodyPlaceable) ->
+            }
+        val body = measuredPlaceables.entries
+            .find { (_, placeable) -> placeable.bodyPart.type == BodyPartType.Body }?.value!!
+            .let { bodyPlaceable ->
+                BodyPositionedPlaceable(
+                    bodyPart = bodyPlaceable.bodyPart,
+                    placeable = bodyPlaceable.placeable,
+                    position = Offset(
+                        x = constraints.maxWidth.toFloat() / 2 - bodyPlaceable.placeable.width.toFloat() / 2,
+                        y = 0f + head.placeable.height
+                    ),
+                )
+            }
+        val limbs = measuredPlaceables.entries
+            .filter { (_, placeable) -> placeable.bodyPart.type != head.bodyPart.type && placeable.bodyPart.type != body.bodyPart.type }
+            .map { (bodyPartId, bodyPlaceable) ->
                 val armIndex = armIndices[bodyPlaceable.bodyPart.id] ?: 0
                 val isLeftSide = armIndex % 2 == 0
                 val row = armIndex / 2
                 val position = when (bodyPlaceable.bodyPart.type) {
                     else -> {
-                        val (bodyPartId, bodyPositionedPlaceable) = nonLimbPlaceablesWithPositions.entries.find { (bodyPartId, bodyPositionedPlaceable) ->
-                            bodyPositionedPlaceable.bodyPart.type == BodyPartType.Body
-                        }!!
                         val xOffset = when {
-                            isLeftSide -> bodyPositionedPlaceable.placeable.width
+                            isLeftSide -> body.placeable.width
                             else -> -bodyPlaceable.placeable.width
                         }
-                        val yOffset = bodyPositionedPlaceable.placeable.height * row
+                        val yOffset = head.placeable.height * row
                         Offset(
-                            x = bodyPositionedPlaceable.position.x + xOffset,
-                            y = bodyPositionedPlaceable.position.y + yOffset
+                            x = body.position.x + xOffset,
+                            y = body.position.y + yOffset
                         )
                     }
                 }
-                bodyPartId to BodyPositionedPlaceable(
+                BodyPositionedPlaceable(
                     bodyPart = bodyPlaceable.bodyPart,
                     placeable = bodyPlaceable.placeable,
                     position = position,
                 )
-            }.toMap()
+            }
 
-        val placeablesWithPositions = nonLimbPlaceablesWithPositions + limbPlaceablesWithPositions
+        val placeablesWithPositions = (listOf(
+            head,
+            body,
+        ) + limbs).associateBy { it.bodyPart.id }
 
         placeablesWithPositions.forEach { (bodyPartId, bodyPositionedPlaceable) ->
             bodyPositionedPlaceable.placeable.place(
