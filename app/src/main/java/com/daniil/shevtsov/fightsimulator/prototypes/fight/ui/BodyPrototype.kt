@@ -117,6 +117,11 @@ fun CustomBodyLayout(
     val numberOfArmRows = unmeasured.count { (_, bodyMeasurable) ->
         bodyMeasurable.bodyPart.type == BodyPartType.Arm
     } / 2
+    val armIndices = unmeasured.filter { (_, bodyMeasurable) ->
+        bodyMeasurable.bodyPart.type == BodyPartType.Arm
+    }.toList().mapIndexed { index, (_, bodyMeasurable) ->
+        bodyMeasurable.bodyPart.id to index
+    }.toMap()
 
     val measuredPlaceables: Map<Long, BodyPlaceable> =
         unmeasured.map { (bodyPartId, bodyMeasurable) ->
@@ -171,14 +176,22 @@ fun CustomBodyLayout(
             .filter { (_, bodyPlaceable) ->
                 bodyPlaceable.bodyPart.type == BodyPartType.Arm || bodyPlaceable.bodyPart.type == BodyPartType.Leg
             }.map { (bodyPartId, bodyPlaceable) ->
+                val armIndex = armIndices[bodyPlaceable.bodyPart.id] ?: 0
+                val isLeftSide = armIndex % 2 == 0
+                val row = armIndex / 2
                 val position = when (bodyPlaceable.bodyPart.type) {
                     else -> {
                         val (bodyPartId, bodyPositionedPlaceable) = nonLimbPlaceablesWithPositions.entries.find { (bodyPartId, bodyPositionedPlaceable) ->
                             bodyPositionedPlaceable.bodyPart.type == BodyPartType.Body
                         }!!
+                        val xOffset = when {
+                            isLeftSide -> bodyPositionedPlaceable.placeable.width
+                            else -> -bodyPlaceable.placeable.width
+                        }
+                        val yOffset = bodyPositionedPlaceable.placeable.height * row
                         Offset(
-                            x = bodyPositionedPlaceable.position.x - bodyPlaceable.placeable.width,
-                            y = bodyPositionedPlaceable.position.y
+                            x = bodyPositionedPlaceable.position.x + xOffset,
+                            y = bodyPositionedPlaceable.position.y + yOffset
                         )
                     }
                 }
