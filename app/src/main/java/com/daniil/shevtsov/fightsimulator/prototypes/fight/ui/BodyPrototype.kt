@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -39,8 +40,10 @@ fun CustomLayoutPreview() {
     val prototypeBody = listOf(
         BodyPart(id = 0L, name = "Head", parentId = 1L, type = BodyPartType.Head),
         BodyPart(id = 1L, name = "Body", childId = 0L, type = BodyPartType.Body),
-        BodyPart(id = 2L, name = "Left Arm", parentId = 1L, type = BodyPartType.Arm),
-        BodyPart(id = 3L, name = "Right Arm", parentId = 1L, type = BodyPartType.Arm),
+        BodyPart(id = 2L, name = "Left Arm 1", parentId = 1L, type = BodyPartType.Arm),
+        BodyPart(id = 3L, name = "Right Arm 1", parentId = 1L, type = BodyPartType.Arm),
+        BodyPart(id = 4L, name = "Right Arm 2", parentId = 1L, type = BodyPartType.Arm),
+        BodyPart(id = 5L, name = "Right Arm 2", parentId = 1L, type = BodyPartType.Arm),
     )
     Row {
         CustomBodyLayout(prototypeBody) {
@@ -79,7 +82,8 @@ fun PrototypeSimpleBodyPart(
     Text(
         text = part.name,
         modifier = modifier
-            .size(50.dp)
+            .width(50.dp)
+            .height(50.dp)
             .background(Color.Cyan)
             .layoutId(part)
     )
