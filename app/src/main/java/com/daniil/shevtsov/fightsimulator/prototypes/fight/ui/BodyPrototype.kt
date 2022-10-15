@@ -1,7 +1,10 @@
 package com.daniil.shevtsov.fightsimulator.prototypes.fight.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,17 +36,11 @@ private fun Modifier.size(size: Size) = size(
 fun CustomLayoutPreview() {
     val prototypeBody = listOf(
         BodyPart(id = 0L, name = "Head", parentId = 1L, type = BodyPartType.Head),
-        BodyPart(id = 1L, name = "Upper Body", childId = 0L, type = BodyPartType.Body)
+        BodyPart(id = 1L, name = "Body", childId = 0L, type = BodyPartType.Body),
+        BodyPart(id = 2L, name = "Left Arm", parentId = 1L, type = BodyPartType.Arm),
+        BodyPart(id = 3L, name = "Right Arm", parentId = 1L, type = BodyPartType.Arm),
     )
     Row {
-        Column {
-            prototypeBody.forEach {
-                PrototypeSimpleBodyPart(
-                    part = it,
-                    modifier = Modifier.height(50.dp)
-                )
-            }
-        }
         CustomBodyLayout(prototypeBody) {
             prototypeBody.forEach {
                 PrototypeSimpleBodyPart(
@@ -257,7 +254,8 @@ fun CustomBodyLayout(
         val unused = placeables.toMutableSet()
         while (unused.isNotEmpty()) {
             val placeable = unused.first()
-            placeable.place(0/*constraints.maxWidth / 2 + placeable.width*/, yPosition)
+            
+            placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
             unused.remove(placeable)
             yPosition += placeable.height
         }
