@@ -259,23 +259,20 @@ fun CustomBodyLayout(
         val unused = placeables.keys.toMutableSet()
         while (unused.isNotEmpty()) {
             val placeable = unused.first()
-            placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
-            unused.remove(placeable)
-            yPosition += placeable.height
-//            val bodyPart = placeables[placeable]
-//            when (bodyPart?.type) {
+            val bodyPart = placeables[placeable]
+            when (bodyPart?.type) {
 //                null -> {
 //                    unused.remove(placeable)
 //                }
 //                BodyPartType.Arm -> {
 //                    unused.remove(placeable)
 //                }
-//                else -> {
-//                    placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
-//                    unused.remove(placeable)
-//                    yPosition += placeable.height
-//                }
-//            }
+                else -> {
+                    placeable.place(constraints.maxWidth / 2 - placeable.width / 2, yPosition)
+                    unused.remove(placeable)
+                    yPosition += placeable.height
+                }
+            }
 
         }
 
