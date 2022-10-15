@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,85 +85,117 @@ fun PrototypeSimpleBodyPart(
     )
 }
 
+data class BodyMeasurable(
+    val bodyPart: BodyPart,
+    val measurable: Measurable
+)
+
+data class BodyPlaceable(
+    val bodyPart: BodyPart,
+    val placeable: Placeable,
+)
+
+data class BodyPositionedPlaceable(
+    val bodyPart: BodyPart,
+    val placeable: Placeable,
+    val position: Offset,
+)
+
 @Composable
 fun CustomBodyLayout(
     prototypeBody: List<BodyPart>,
     content: @Composable () -> Unit
 ) = Layout(content) { measurables, constraints ->
-    val unmeasured = measurables.map { measurable ->
-        measurable to measurable.layoutId as BodyPart
+    val unmeasured: Map<Long, BodyMeasurable> = measurables.map { measurable ->
+        val bodyPart = measurable.layoutId as BodyPart
+        bodyPart.id to BodyMeasurable(
+            bodyPart = bodyPart,
+            measurable = measurable,
+        )
     }.toMap()
-    val numberOfArmRows =
-        unmeasured.count { (_, bodyPart) -> bodyPart.type == BodyPartType.Arm } / 2
 
-    val measuredPlaceables = unmeasured.map { (measurable, bodyPart) ->
-        val measured = when (bodyPart.type) {
-            BodyPartType.Body -> {
-                measurable.measure(
-                    constraints.copy(
-                        minHeight = constraints.minHeight * numberOfArmRows,
-                        maxHeight = constraints.maxHeight * numberOfArmRows,
+    val numberOfArmRows = unmeasured.count { (_, bodyMeasurable) ->
+        bodyMeasurable.bodyPart.type == BodyPartType.Arm
+    } / 2
+
+    val measuredPlaceables: Map<Long, BodyPlaceable> =
+        unmeasured.map { (bodyPartId, bodyMeasurable) ->
+            val placeable = when (bodyMeasurable.bodyPart.type) {
+                BodyPartType.Body -> {
+                    bodyMeasurable.measurable.measure(
+                        constraints.copy(
+                            minHeight = constraints.minHeight * numberOfArmRows,
+                            maxHeight = constraints.maxHeight * numberOfArmRows,
+                        )
                     )
-                )
+                }
+                else -> {
+                    bodyMeasurable.measurable.measure(constraints)
+                }
             }
-            else -> {
-                measurable.measure(constraints)
-            }
-        }
 
-        bodyPart to measured
-    }.toMap()
+            bodyPartId to BodyPlaceable(
+                bodyPart = bodyMeasurable.bodyPart,
+                placeable = placeable,
+            )
+        }.toMap()
 
     // 2. The sizing phase.
     layout(constraints.maxWidth, constraints.maxHeight) {
         // 3. The placement phase.
-        var lastBodyPosition = Offset(0f, 0f)
-        val nonLimbPlaceablesWithPositions = measuredPlaceables
-            .filter { (bodyPart, _) -> bodyPart.type != BodyPartType.Arm && bodyPart.type != BodyPartType.Leg }
-            .map { (bodyPart, placeable) ->
-                val position = when (bodyPart.type) {
+        val nonLimbPlaceablesWithPositions: Map<Long, BodyPositionedPlaceable> = measuredPlaceables
+            .filter { (_, bodyPlaceable) ->
+                bodyPlaceable.bodyPart.type != BodyPartType.Arm && bodyPlaceable.bodyPart.type != BodyPartType.Leg
+            }
+            .map { (bodyPartId, bodyPlaceable) ->
+                val position = when (bodyPlaceable.bodyPart.type) {
                     BodyPartType.Head -> Offset(
-                        x = constraints.maxWidth.toFloat() / 2 - placeable.width.toFloat() / 2,
+                        x = constraints.maxWidth.toFloat() / 2 - bodyPlaceable.placeable.width.toFloat() / 2,
                         y = 0f
                     )
                     else -> {
                         Offset(
-                            x = constraints.maxWidth.toFloat() / 2 - placeable.width.toFloat() / 2,
-                            y = lastBodyPosition.y + placeable.height
+                            x = constraints.maxWidth.toFloat() / 2 - bodyPlaceable.placeable.width.toFloat() / 2,
+                            y = 0f + bodyPlaceable.placeable.height
                         )
                     }
                 }
-                placeable to position
-            }
+                bodyPartId to BodyPositionedPlaceable(
+                    bodyPart = bodyPlaceable.bodyPart,
+                    placeable = bodyPlaceable.placeable,
+                    position = position,
+                )
+            }.toMap()
 
-        val limbPlaceablesWithPositions = measuredPlaceables
-            .filter { (bodyPart, _) -> bodyPart.type == BodyPartType.Arm && bodyPart.type == BodyPartType.Leg }
-            .map { (bodyPart, placeable) ->
-                val position = when (bodyPart.type) {
+        val limbPlaceablesWithPositions: Map<Long, BodyPositionedPlaceable> = measuredPlaceables
+            .filter { (_, bodyPlaceable) ->
+                bodyPlaceable.bodyPart.type == BodyPartType.Arm || bodyPlaceable.bodyPart.type == BodyPartType.Leg
+            }.map { (bodyPartId, bodyPlaceable) ->
+                val position = when (bodyPlaceable.bodyPart.type) {
                     else -> {
-                        val bodyPosition =
-                            nonLimbPlaceablesWithPositions.find { (placeable, position) ->
-                                val (bodyPart, bodyPlaceable) = measuredPlaceables.entries.find { (bodyPart, placeable) -> bodyPart.type == BodyPartType.Body }
-                                    ?.toPair()!!
-                                placeable == bodyPlaceable
-                            }?.second
-                        if (bodyPosition != null) {
-                            Offset(
-                                x = bodyPosition.x - placeable.width,
-                                y = bodyPosition.y
-                            )
-                        } else {
-                            Offset(0f, 0f)
-                        }
+                        val (bodyPartId, bodyPositionedPlaceable) = nonLimbPlaceablesWithPositions.entries.find { (bodyPartId, bodyPositionedPlaceable) ->
+                            bodyPositionedPlaceable.bodyPart.type == BodyPartType.Body
+                        }!!
+                        Offset(
+                            x = bodyPositionedPlaceable.position.x - bodyPlaceable.placeable.width,
+                            y = bodyPositionedPlaceable.position.y
+                        )
                     }
                 }
-                placeable to position
-            }
+                bodyPartId to BodyPositionedPlaceable(
+                    bodyPart = bodyPlaceable.bodyPart,
+                    placeable = bodyPlaceable.placeable,
+                    position = position,
+                )
+            }.toMap()
 
         val placeablesWithPositions = nonLimbPlaceablesWithPositions + limbPlaceablesWithPositions
 
-        placeablesWithPositions.forEach { (placeable, position) ->
-            placeable.place(x = position.x.toInt(), y = position.y.toInt())
+        placeablesWithPositions.forEach { (bodyPartId, bodyPositionedPlaceable) ->
+            bodyPositionedPlaceable.placeable.place(
+                x = bodyPositionedPlaceable.position.x.toInt(),
+                y = bodyPositionedPlaceable.position.y.toInt()
+            )
         }
     }
 }
